@@ -128,3 +128,26 @@
     @apply font-sans;
   }
 }
+
+/* High contrast mode */
+html.theme-high-contrast {
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
+  --accent: 51 100% 50%;
+  --card: 0 0% 5%;
+  --border: 0 0% 40%;
+}
+
+/* Large text steps */
+html.text-large-0 { font-size: 18px; }
+html.text-large-1 { font-size: 24px; }
+html.text-large-2 { font-size: 30px; }
+
+/* Dyslexia font */
+html.font-dyslexic { font-family: var(--font-dyslexic), sans-serif; }
+
+/* Reduce distractions: suppress animations and non-essential UI */
+html.reduce-distractions * {
+  animation: none !important;
+  transition: none !important;
+}
