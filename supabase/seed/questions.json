@@ -1,0 +1,722 @@
+[
+  {
+    "grade": 3,
+    "subject": "math",
+    "topic": "addition and subtraction",
+    "subtopic": "two-digit numbers",
+    "sol_standard": "3.3",
+    "difficulty": 1,
+    "question_text": "What is 25 + 14?",
+    "answer_type": "multiple_choice",
+    "choices": [
+      {"id": "a", "text": "39", "is_correct": true},
+      {"id": "b", "text": "38", "is_correct": false},
+      {"id": "c", "text": "40", "is_correct": false},
+      {"id": "d", "text": "35", "is_correct": false}
+    ],
+    "hint_1": "Start with 25 and count up by 14.",
+    "hint_2": "25 + 10 = 35, then add 4 more.",
+    "hint_3": "The answer is between 38 and 40.",
+    "calculator_allowed": false
+  },
+  {
+    "grade": 3,
+    "subject": "math",
+    "topic": "addition and subtraction",
+    "subtopic": "word problems",
+    "sol_standard": "3.3",
+    "difficulty": 2,
+    "question_text": "Sarah has 18 crayons. Her friend gives her 12 more. How many crayons does Sarah have now?",
+    "answer_type": "multiple_choice",
+    "choices": [
+      {"id": "a", "text": "30", "is_correct": true},
+      {"id": "b", "text": "28", "is_correct": false},
+      {"id": "c", "text": "32", "is_correct": false},
+      {"id": "d", "text": "6", "is_correct": false}
+    ],
+    "hint_1": "You need to add the crayons together.",
+    "hint_2": "18 + 12 = ?",
+    "hint_3": "Count: 18, 19, 20... up to 30.",
+    "calculator_allowed": false
+  },
+  {
+    "grade": 3,
+    "subject": "math",
+    "topic": "subtraction",
+    "subtopic": "two-digit numbers",
+    "sol_standard": "3.3",
+    "difficulty": 1,
+    "question_text": "What is 37 - 15?",
+    "answer_type": "multiple_choice",
+    "choices": [
+      {"id": "a", "text": "22", "is_correct": true},
+      {"id": "b", "text": "23", "is_correct": false},
+      {"id": "c", "text": "20", "is_correct": false},
+      {"id": "d", "text": "52", "is_correct": false}
+    ],
+    "hint_1": "Start at 37 and count back 15.",
+    "hint_2": "37 - 10 = 27, then subtract 5 more.",
+    "hint_3": "The answer is in the 20s.",
+    "calculator_allowed": false
+  },
+  {
+    "grade": 3,
+    "subject": "math",
+    "topic": "addition and subtraction",
+    "subtopic": "missing addends",
+    "sol_standard": "3.3",
+    "difficulty": 2,
+    "question_text": "What number plus 8 equals 15?",
+    "answer_type": "multiple_choice",
+    "choices": [
+      {"id": "a", "text": "7", "is_correct": true},
+      {"id": "b", "text": "6", "is_correct": false},
+      {"id": "c", "text": "8", "is_correct": false},
+      {"id": "d", "text": "23", "is_correct": false}
+    ],
+    "hint_1": "You need to find the missing number.",
+    "hint_2": "8 + ? = 15. Count up from 8.",
+    "hint_3": "8, 9, 10, 11, 12, 13, 14, 15.",
+    "calculator_allowed": false
+  },
+  {
+    "grade": 3,
+    "subject": "math",
+    "topic": "addition and subtraction",
+    "subtopic": "larger numbers",
+    "sol_standard": "3.3",
+    "difficulty": 3,
+    "question_text": "Juan had 34 marbles. He lost 9 marbles. How many does he have left?",
+    "answer_type": "multiple_choice",
+    "choices": [
+      {"id": "a", "text": "25", "is_correct": true},
+      {"id": "b", "text": "24", "is_correct": false},
+      {"id": "c", "text": "43", "is_correct": false},
+      {"id": "d", "text": "26", "is_correct": false}
+    ],
+    "hint_1": "This is a subtraction problem.",
+    "hint_2": "34 - 9 = ?",
+    "hint_3": "Start at 34 and count back 9 steps.",
+    "calculator_allowed": false
+  },
+  {
+    "grade": 3,
+    "subject": "math",
+    "topic": "multiplication concepts",
+    "subtopic": "equal groups",
+    "sol_standard": "3.4",
+    "difficulty": 1,
+    "question_text": "There are 3 bags with 2 apples in each bag. How many apples are there in total?",
+    "answer_type": "multiple_choice",
+    "choices": [
+      {"id": "a", "text": "6", "is_correct": true},
+      {"id": "b", "text": "5", "is_correct": false},
+      {"id": "c", "text": "8", "is_correct": false},
+      {"id": "d", "text": "3", "is_correct": false}
+    ],
+    "hint_1": "Count the groups: there are 3 bags.",
+    "hint_2": "Each bag has 2 apples. 2 + 2 + 2 = ?",
+    "hint_3": "This is the same as 3 times 2.",
+    "calculator_allowed": false
+  },
+  {
+    "grade": 3,
+    "subject": "math",
+    "topic": "multiplication concepts",
+    "subtopic": "skip counting",
+    "sol_standard": "3.4",
+    "difficulty": 2,
+    "question_text": "Skip count by 2s: 2, 4, 6, 8, __. What number comes next?",
+    "answer_type": "multiple_choice",
+    "choices": [
+      {"id": "a", "text": "10", "is_correct": true},
+      {"id": "b", "text": "9", "is_correct": false},
+      {"id": "c", "text": "11", "is_correct": false},
+      {"id": "d", "text": "12", "is_correct": false}
+    ],
+    "hint_1": "Each number is 2 more than the last.",
+    "hint_2": "8 + 2 = ?",
+    "hint_3": "Look at the pattern: 2, 4, 6, 8, ?",
+    "calculator_allowed": false
+  },
+  {
+    "grade": 3,
+    "subject": "math",
+    "topic": "division concepts",
+    "subtopic": "sharing",
+    "sol_standard": "3.4",
+    "difficulty": 2,
+    "question_text": "If you have 12 cookies and share them equally among 3 friends, how many cookies does each friend get?",
+    "answer_type": "multiple_choice",
+    "choices": [
+      {"id": "a", "text": "4", "is_correct": true},
+      {"id": "b", "text": "3", "is_correct": false},
+      {"id": "c", "text": "6", "is_correct": false},
+      {"id": "d", "text": "5", "is_correct": false}
+    ],
+    "hint_1": "You need to split 12 into 3 equal parts.",
+    "hint_2": "3 friends will each get the same number of cookies.",
+    "hint_3": "4 + 4 + 4 = 12.",
+    "calculator_allowed": false
+  },
+  {
+    "grade": 3,
+    "subject": "math",
+    "topic": "fractions",
+    "subtopic": "halves and thirds",
+    "sol_standard": "3.2",
+    "difficulty": 1,
+    "question_text": "This pizza is cut into 2 equal pieces. What is each piece called?",
+    "answer_type": "multiple_choice",
+    "choices": [
+      {"id": "a", "text": "A half", "is_correct": true},
+      {"id": "b", "text": "A third", "is_correct": false},
+      {"id": "c", "text": "A quarter", "is_correct": false},
+      {"id": "d", "text": "A whole", "is_correct": false}
+    ],
+    "hint_1": "The pizza is cut into 2 pieces.",
+    "hint_2": "When something is cut into 2 equal parts, each part is called a ___.",
+    "hint_3": "Think about cutting something in half.",
+    "calculator_allowed": false
+  },
+  {
+    "grade": 3,
+    "subject": "math",
+    "topic": "fractions",
+    "subtopic": "parts of a whole",
+    "sol_standard": "3.2",
+    "difficulty": 2,
+    "question_text": "A cake is cut into 4 equal pieces. Maya eats 1 piece. What fraction of the cake is left?",
+    "answer_type": "multiple_choice",
+    "choices": [
+      {"id": "a", "text": "3/4", "is_correct": true},
+      {"id": "b", "text": "1/4", "is_correct": false},
+      {"id": "c", "text": "2/4", "is_correct": false},
+      {"id": "d", "text": "4/4", "is_correct": false}
+    ],
+    "hint_1": "The cake has 4 pieces total.",
+    "hint_2": "1 piece was eaten, so 3 pieces are left.",
+    "hint_3": "3 out of 4 pieces = 3/4.",
+    "calculator_allowed": false
+  },
+  {
+    "grade": 3,
+    "subject": "math",
+    "topic": "measurement",
+    "subtopic": "length",
+    "sol_standard": "3.9",
+    "difficulty": 1,
+    "question_text": "A pencil is about 6 inches long. How many inches is it?",
+    "answer_type": "multiple_choice",
+    "choices": [
+      {"id": "a", "text": "6 inches", "is_correct": true},
+      {"id": "b", "text": "3 inches", "is_correct": false},
+      {"id": "c", "text": "12 inches", "is_correct": false},
+      {"id": "d", "text": "1 inch", "is_correct": false}
+    ],
+    "hint_1": "This pencil is about 6 units long.",
+    "hint_2": "Pencils are measured in inches.",
+    "hint_3": "A pencil is longer than 3 inches but shorter than 12 inches.",
+    "calculator_allowed": false
+  },
+  {
+    "grade": 3,
+    "subject": "reading",
+    "topic": "main idea",
+    "subtopic": "identifying main idea",
+    "sol_standard": "3.5",
+    "difficulty": 1,
+    "question_text": "Dogs like to play. They run and jump. They like to fetch. What is this passage about?",
+    "answer_type": "multiple_choice",
+    "choices": [
+      {"id": "a", "text": "Things dogs like to do", "is_correct": true},
+      {"id": "b", "text": "How fast dogs run", "is_correct": false},
+      {"id": "c", "text": "What color dogs are", "is_correct": false},
+      {"id": "d", "text": "Where dogs live", "is_correct": false}
+    ],
+    "hint_1": "What is the passage mostly about?",
+    "hint_2": "The passage talks about many things dogs do.",
+    "hint_3": "Playing, running, jumping, and fetching are all things dogs do.",
+    "calculator_allowed": false
+  },
+  {
+    "grade": 3,
+    "subject": "reading",
+    "topic": "vocabulary",
+    "subtopic": "context clues",
+    "sol_standard": "3.4",
+    "difficulty": 1,
+    "question_text": "The cat was very happy. She purred loudly when her owner came home. What does 'purred' mean?",
+    "answer_type": "multiple_choice",
+    "choices": [
+      {"id": "a", "text": "Made a soft rumbling sound", "is_correct": true},
+      {"id": "b", "text": "Ran very fast", "is_correct": false},
+      {"id": "c", "text": "Jumped high", "is_correct": false},
+      {"id": "d", "text": "Ate food", "is_correct": false}
+    ],
+    "hint_1": "The cat was happy and purred loudly.",
+    "hint_2": "Happy cats make a soft sound.",
+    "hint_3": "Think about what a happy cat sounds like.",
+    "calculator_allowed": false
+  },
+  {
+    "grade": 3,
+    "subject": "reading",
+    "topic": "comprehension",
+    "subtopic": "literal comprehension",
+    "sol_standard": "3.6",
+    "difficulty": 1,
+    "question_text": "Tom went to the park. He played on the swings. Then he ate ice cream. Where did Tom go?",
+    "answer_type": "multiple_choice",
+    "choices": [
+      {"id": "a", "text": "To the park", "is_correct": true},
+      {"id": "b", "text": "To school", "is_correct": false},
+      {"id": "c", "text": "To the store", "is_correct": false},
+      {"id": "d", "text": "To the beach", "is_correct": false}
+    ],
+    "hint_1": "The passage tells you where Tom went.",
+    "hint_2": "Look at the first sentence.",
+    "hint_3": "Tom went to a place with swings.",
+    "calculator_allowed": false
+  },
+  {
+    "grade": 3,
+    "subject": "reading",
+    "topic": "comprehension",
+    "subtopic": "sequence",
+    "sol_standard": "3.6",
+    "difficulty": 2,
+    "question_text": "First, Lisa brushed her teeth. Then she put on her jacket. Finally, she went to school. What did she do first?",
+    "answer_type": "multiple_choice",
+    "choices": [
+      {"id": "a", "text": "Brushed her teeth", "is_correct": true},
+      {"id": "b", "text": "Put on her jacket", "is_correct": false},
+      {"id": "c", "text": "Went to school", "is_correct": false},
+      {"id": "d", "text": "Ate breakfast", "is_correct": false}
+    ],
+    "hint_1": "The passage uses order words: first, then, finally.",
+    "hint_2": "What does 'first' mean?",
+    "hint_3": "First means at the beginning.",
+    "calculator_allowed": false
+  },
+  {
+    "grade": 3,
+    "subject": "reading",
+    "topic": "main idea",
+    "subtopic": "supporting details",
+    "sol_standard": "3.5",
+    "difficulty": 2,
+    "question_text": "Plants need water to grow. They need sunlight too. Soil helps them grow strong. What is this passage mostly about?",
+    "answer_type": "multiple_choice",
+    "choices": [
+      {"id": "a", "text": "What plants need to grow", "is_correct": true},
+      {"id": "b", "text": "How much water plants drink", "is_correct": false},
+      {"id": "c", "text": "The color of soil", "is_correct": false},
+      {"id": "d", "text": "When plants grow", "is_correct": false}
+    ],
+    "hint_1": "What do all the sentences talk about?",
+    "hint_2": "The passage mentions water, sunlight, and soil.",
+    "hint_3": "These are all things that plants need.",
+    "calculator_allowed": false
+  },
+  {
+    "grade": 4,
+    "subject": "math",
+    "topic": "place value",
+    "subtopic": "thousands",
+    "sol_standard": "4.1",
+    "difficulty": 1,
+    "question_text": "In the number 3,456, what digit is in the thousands place?",
+    "answer_type": "multiple_choice",
+    "choices": [
+      {"id": "a", "text": "3", "is_correct": true},
+      {"id": "b", "text": "4", "is_correct": false},
+      {"id": "c", "text": "5", "is_correct": false},
+      {"id": "d", "text": "6", "is_correct": false}
+    ],
+    "hint_1": "Count the places from the right: ones, tens, hundreds, thousands.",
+    "hint_2": "The thousands place is the 4th place from the right.",
+    "hint_3": "The digit 3 is in the leftmost place.",
+    "calculator_allowed": true
+  },
+  {
+    "grade": 4,
+    "subject": "math",
+    "topic": "fractions and decimals",
+    "subtopic": "comparing fractions",
+    "sol_standard": "4.2",
+    "difficulty": 2,
+    "question_text": "Which fraction is larger: 2/3 or 1/3?",
+    "answer_type": "multiple_choice",
+    "choices": [
+      {"id": "a", "text": "2/3", "is_correct": true},
+      {"id": "b", "text": "1/3", "is_correct": false},
+      {"id": "c", "text": "They are equal", "is_correct": false},
+      {"id": "d", "text": "Cannot be compared", "is_correct": false}
+    ],
+    "hint_1": "Both fractions have the same denominator (3).",
+    "hint_2": "When denominators are the same, look at the numerators.",
+    "hint_3": "2 is larger than 1, so 2/3 is larger.",
+    "calculator_allowed": true
+  },
+  {
+    "grade": 4,
+    "subject": "math",
+    "topic": "multiplication",
+    "subtopic": "two-digit by one-digit",
+    "sol_standard": "4.4",
+    "difficulty": 2,
+    "question_text": "What is 23 times 4?",
+    "answer_type": "multiple_choice",
+    "choices": [
+      {"id": "a", "text": "92", "is_correct": true},
+      {"id": "b", "text": "82", "is_correct": false},
+      {"id": "c", "text": "102", "is_correct": false},
+      {"id": "d", "text": "27", "is_correct": false}
+    ],
+    "hint_1": "Multiply 23 by 4.",
+    "hint_2": "20 times 4 = 80, and 3 times 4 = 12.",
+    "hint_3": "80 + 12 = 92.",
+    "calculator_allowed": true
+  },
+  {
+    "grade": 4,
+    "subject": "math",
+    "topic": "geometry",
+    "subtopic": "angles",
+    "sol_standard": "4.11",
+    "difficulty": 2,
+    "question_text": "Which angle is a right angle?",
+    "answer_type": "multiple_choice",
+    "choices": [
+      {"id": "a", "text": "An angle that looks like a corner of a square", "is_correct": true},
+      {"id": "b", "text": "An angle that is sharp and small", "is_correct": false},
+      {"id": "c", "text": "An angle that is very open and wide", "is_correct": false},
+      {"id": "d", "text": "An angle that is like a straight line", "is_correct": false}
+    ],
+    "hint_1": "A right angle is 90 degrees.",
+    "hint_2": "Look at the corner of a book or a square.",
+    "hint_3": "This angle looks like the corner of a room.",
+    "calculator_allowed": true
+  },
+  {
+    "grade": 4,
+    "subject": "math",
+    "topic": "place value",
+    "subtopic": "comparing numbers",
+    "sol_standard": "4.1",
+    "difficulty": 1,
+    "question_text": "Which number is greater: 2,450 or 2,540?",
+    "answer_type": "multiple_choice",
+    "choices": [
+      {"id": "a", "text": "2,540", "is_correct": true},
+      {"id": "b", "text": "2,450", "is_correct": false},
+      {"id": "c", "text": "They are equal", "is_correct": false},
+      {"id": "d", "text": "Cannot be compared", "is_correct": false}
+    ],
+    "hint_1": "Look at the hundreds place.",
+    "hint_2": "In 2,450, the hundreds place is 4.",
+    "hint_3": "In 2,540, the hundreds place is 5. 5 is greater than 4.",
+    "calculator_allowed": true
+  },
+  {
+    "grade": 4,
+    "subject": "reading",
+    "topic": "comprehension",
+    "subtopic": "story details",
+    "sol_standard": "4.5",
+    "difficulty": 1,
+    "question_text": "Ben found a puppy in the yard. The puppy was brown and had a wagging tail. Ben gave the puppy some water. What color was the puppy?",
+    "answer_type": "multiple_choice",
+    "choices": [
+      {"id": "a", "text": "Brown", "is_correct": true},
+      {"id": "b", "text": "White", "is_correct": false},
+      {"id": "c", "text": "Black", "is_correct": false},
+      {"id": "d", "text": "Golden", "is_correct": false}
+    ],
+    "hint_1": "Look for a color word in the passage.",
+    "hint_2": "The passage describes what the puppy looks like.",
+    "hint_3": "The puppy had a special color.",
+    "calculator_allowed": false
+  },
+  {
+    "grade": 4,
+    "subject": "reading",
+    "topic": "author's purpose",
+    "subtopic": "identifying purpose",
+    "sol_standard": "4.4",
+    "difficulty": 2,
+    "question_text": "A book explains how to make a bird feeder with a pine cone, peanut butter, and seeds. Why did the author write this?",
+    "answer_type": "multiple_choice",
+    "choices": [
+      {"id": "a", "text": "To teach someone how to make something", "is_correct": true},
+      {"id": "b", "text": "To tell a funny story", "is_correct": false},
+      {"id": "c", "text": "To scare people", "is_correct": false},
+      {"id": "d", "text": "To describe a bird", "is_correct": false}
+    ],
+    "hint_1": "The book explains steps to make something.",
+    "hint_2": "It gives instructions.",
+    "hint_3": "The author wants readers to learn how to do something.",
+    "calculator_allowed": false
+  },
+  {
+    "grade": 4,
+    "subject": "reading",
+    "topic": "literary elements",
+    "subtopic": "characters",
+    "sol_standard": "4.6",
+    "difficulty": 2,
+    "question_text": "In the story, Maya was brave and never gave up, even when things were hard. What does this tell us about Maya's character?",
+    "answer_type": "multiple_choice",
+    "choices": [
+      {"id": "a", "text": "She is strong and determined", "is_correct": true},
+      {"id": "b", "text": "She is mean to others", "is_correct": false},
+      {"id": "c", "text": "She is lazy", "is_correct": false},
+      {"id": "d", "text": "She is silly", "is_correct": false}
+    ],
+    "hint_1": "The passage says Maya was brave and never gave up.",
+    "hint_2": "What kind of person keeps trying even when things are hard?",
+    "hint_3": "This shows she has strong character traits.",
+    "calculator_allowed": false
+  },
+  {
+    "grade": 5,
+    "subject": "math",
+    "topic": "fractions and decimals",
+    "subtopic": "fraction operations",
+    "sol_standard": "5.1",
+    "difficulty": 2,
+    "question_text": "What is 1/2 + 1/4?",
+    "answer_type": "multiple_choice",
+    "choices": [
+      {"id": "a", "text": "3/4", "is_correct": true},
+      {"id": "b", "text": "2/6", "is_correct": false},
+      {"id": "c", "text": "1/6", "is_correct": false},
+      {"id": "d", "text": "2/4", "is_correct": false}
+    ],
+    "hint_1": "You need to find a common denominator.",
+    "hint_2": "1/2 is the same as 2/4.",
+    "hint_3": "2/4 + 1/4 = 3/4.",
+    "calculator_allowed": true
+  },
+  {
+    "grade": 5,
+    "subject": "math",
+    "topic": "order of operations",
+    "subtopic": "PEMDAS",
+    "sol_standard": "5.7",
+    "difficulty": 2,
+    "question_text": "What is 2 + 3 times 4?",
+    "answer_type": "multiple_choice",
+    "choices": [
+      {"id": "a", "text": "14", "is_correct": true},
+      {"id": "b", "text": "20", "is_correct": false},
+      {"id": "c", "text": "12", "is_correct": false},
+      {"id": "d", "text": "10", "is_correct": false}
+    ],
+    "hint_1": "Do multiplication before addition.",
+    "hint_2": "First do: 3 times 4 = 12.",
+    "hint_3": "Then do: 2 + 12 = 14.",
+    "calculator_allowed": true
+  },
+  {
+    "grade": 5,
+    "subject": "math",
+    "topic": "geometry",
+    "subtopic": "volume",
+    "sol_standard": "5.12",
+    "difficulty": 2,
+    "question_text": "A rectangular box is 3 units long, 2 units wide, and 2 units tall. What is its volume?",
+    "answer_type": "multiple_choice",
+    "choices": [
+      {"id": "a", "text": "12 cubic units", "is_correct": true},
+      {"id": "b", "text": "7 cubic units", "is_correct": false},
+      {"id": "c", "text": "10 cubic units", "is_correct": false},
+      {"id": "d", "text": "8 cubic units", "is_correct": false}
+    ],
+    "hint_1": "Volume is length times width times height.",
+    "hint_2": "3 times 2 times 2 = ?",
+    "hint_3": "3 times 2 = 6, then 6 times 2 = 12.",
+    "calculator_allowed": true
+  },
+  {
+    "grade": 5,
+    "subject": "math",
+    "topic": "data and statistics",
+    "subtopic": "mean",
+    "sol_standard": "5.16",
+    "difficulty": 2,
+    "question_text": "The scores were: 8, 9, 7, 10. What is the average (mean)?",
+    "answer_type": "multiple_choice",
+    "choices": [
+      {"id": "a", "text": "8.5", "is_correct": true},
+      {"id": "b", "text": "8", "is_correct": false},
+      {"id": "c", "text": "9", "is_correct": false},
+      {"id": "d", "text": "10", "is_correct": false}
+    ],
+    "hint_1": "Add all the scores together: 8 + 9 + 7 + 10.",
+    "hint_2": "The sum is 34. Divide by how many numbers there are.",
+    "hint_3": "34 divided by 4 = 8.5.",
+    "calculator_allowed": true
+  },
+  {
+    "grade": 5,
+    "subject": "reading",
+    "topic": "comprehension",
+    "subtopic": "main idea and details",
+    "sol_standard": "5.5",
+    "difficulty": 2,
+    "question_text": "The coral reef is one of the most important ecosystems in the ocean. Many fish and other animals live there. The reef protects these creatures from danger. What is the main idea of this passage?",
+    "answer_type": "multiple_choice",
+    "choices": [
+      {"id": "a", "text": "Coral reefs are important ocean ecosystems", "is_correct": true},
+      {"id": "b", "text": "Fish are dangerous", "is_correct": false},
+      {"id": "c", "text": "Reefs are colorful", "is_correct": false},
+      {"id": "d", "text": "The ocean is deep", "is_correct": false}
+    ],
+    "hint_1": "What is the passage mostly about?",
+    "hint_2": "The first sentence gives the main idea.",
+    "hint_3": "The passage talks about why reefs are important.",
+    "calculator_allowed": false
+  },
+  {
+    "grade": 5,
+    "subject": "reading",
+    "topic": "inference",
+    "subtopic": "drawing conclusions",
+    "sol_standard": "5.6",
+    "difficulty": 2,
+    "question_text": "Sarah studied hard for her test. She read her notes three times. She did practice problems. What can we infer about Sarah?",
+    "answer_type": "multiple_choice",
+    "choices": [
+      {"id": "a", "text": "She wants to do well on the test", "is_correct": true},
+      {"id": "b", "text": "She likes to read books", "is_correct": false},
+      {"id": "c", "text": "She hates studying", "is_correct": false},
+      {"id": "d", "text": "She will fail the test", "is_correct": false}
+    ],
+    "hint_1": "What do her actions tell us about her?",
+    "hint_2": "She prepared very carefully.",
+    "hint_3": "When people prepare hard, it means something matters to them.",
+    "calculator_allowed": false
+  },
+  {
+    "grade": 5,
+    "subject": "reading",
+    "topic": "vocabulary in context",
+    "subtopic": "word meaning",
+    "sol_standard": "5.4",
+    "difficulty": 1,
+    "question_text": "The old building was dilapidated, with broken windows and falling walls. What does 'dilapidated' mean?",
+    "answer_type": "multiple_choice",
+    "choices": [
+      {"id": "a", "text": "In bad condition and falling apart", "is_correct": true},
+      {"id": "b", "text": "Very big and tall", "is_correct": false},
+      {"id": "c", "text": "Bright and new", "is_correct": false},
+      {"id": "d", "text": "Empty with no people", "is_correct": false}
+    ],
+    "hint_1": "The passage describes broken windows and falling walls.",
+    "hint_2": "These describe something that is not in good shape.",
+    "hint_3": "The building is old and falling apart.",
+    "calculator_allowed": false
+  },
+  {
+    "grade": 4,
+    "subject": "math",
+    "topic": "fractions and decimals",
+    "subtopic": "decimal basics",
+    "sol_standard": "4.2",
+    "difficulty": 1,
+    "question_text": "Which decimal shows 3/10?",
+    "answer_type": "multiple_choice",
+    "choices": [
+      {"id": "a", "text": "0.3", "is_correct": true},
+      {"id": "b", "text": "0.03", "is_correct": false},
+      {"id": "c", "text": "3.0", "is_correct": false},
+      {"id": "d", "text": "30.0", "is_correct": false}
+    ],
+    "hint_1": "3/10 means 3 tenths.",
+    "hint_2": "The first place after the decimal point is the tenths place.",
+    "hint_3": "3 in the tenths place is 0.3.",
+    "calculator_allowed": true
+  },
+  {
+    "grade": 5,
+    "subject": "math",
+    "topic": "fractions and decimals",
+    "subtopic": "decimal multiplication",
+    "sol_standard": "5.1",
+    "difficulty": 2,
+    "question_text": "What is 0.5 times 8?",
+    "answer_type": "multiple_choice",
+    "choices": [
+      {"id": "a", "text": "4", "is_correct": true},
+      {"id": "b", "text": "4.5", "is_correct": false},
+      {"id": "c", "text": "3.5", "is_correct": false},
+      {"id": "d", "text": "8.5", "is_correct": false}
+    ],
+    "hint_1": "0.5 is the same as 1/2.",
+    "hint_2": "Half of 8 is 4.",
+    "hint_3": "0.5 times 8 = 4.",
+    "calculator_allowed": true
+  },
+  {
+    "grade": 3,
+    "subject": "math",
+    "topic": "measurement",
+    "subtopic": "time",
+    "sol_standard": "3.9",
+    "difficulty": 1,
+    "question_text": "What time does the clock show when the hour hand points to 3 and the minute hand points to 12?",
+    "answer_type": "multiple_choice",
+    "choices": [
+      {"id": "a", "text": "3:00", "is_correct": true},
+      {"id": "b", "text": "3:30", "is_correct": false},
+      {"id": "c", "text": "12:03", "is_correct": false},
+      {"id": "d", "text": "3:15", "is_correct": false}
+    ],
+    "hint_1": "The hour hand is on 3.",
+    "hint_2": "The minute hand on 12 means 0 minutes.",
+    "hint_3": "This is 3 o'clock exactly.",
+    "calculator_allowed": false
+  },
+  {
+    "grade": 4,
+    "subject": "reading",
+    "topic": "comprehension",
+    "subtopic": "inference",
+    "sol_standard": "4.5",
+    "difficulty": 2,
+    "question_text": "It was raining outside. Marco put on his raincoat and grabbed an umbrella. Why is Marco doing these things?",
+    "answer_type": "multiple_choice",
+    "choices": [
+      {"id": "a", "text": "To stay dry in the rain", "is_correct": true},
+      {"id": "b", "text": "Because he likes to play", "is_correct": false},
+      {"id": "c", "text": "To go to school", "is_correct": false},
+      {"id": "d", "text": "Because it is cold", "is_correct": false}
+    ],
+    "hint_1": "What is happening outside?",
+    "hint_2": "A raincoat and umbrella protect from what?",
+    "hint_3": "These items keep you dry from rain.",
+    "calculator_allowed": false
+  },
+  {
+    "grade": 5,
+    "subject": "math",
+    "topic": "geometry",
+    "subtopic": "area",
+    "sol_standard": "5.12",
+    "difficulty": 2,
+    "question_text": "A rectangle is 6 units long and 4 units wide. What is its area?",
+    "answer_type": "multiple_choice",
+    "choices": [
+      {"id": "a", "text": "24 square units", "is_correct": true},
+      {"id": "b", "text": "20 square units", "is_correct": false},
+      {"id": "c", "text": "10 square units", "is_correct": false},
+      {"id": "d", "text": "12 square units", "is_correct": false}
+    ],
+    "hint_1": "Area equals length times width.",
+    "hint_2": "6 times 4 = ?",
+    "hint_3": "6 times 4 = 24.",
+    "calculator_allowed": true
+  }
+]
