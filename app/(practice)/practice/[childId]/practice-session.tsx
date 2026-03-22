@@ -12,6 +12,7 @@ import { HintPanel } from '@/components/practice/hint-panel'
 import { AccommodationToolbar } from '@/components/accommodations/accommodation-toolbar'
 import { SessionComplete } from '@/components/practice/session-complete'
 import { playCorrectChime } from '@/lib/audio/web-audio'
+import { ChildFeedbackSheet } from '@/components/feedback/child-feedback-sheet'
 
 type Mode = 'practice' | 'test'
 type Phase = 'picking' | 'session' | 'complete'
@@ -209,7 +210,9 @@ export function PracticeSession({ child, availableSubjects, parentSettings }: Pr
           </div>
         )}
         <div className="flex justify-between items-center">
-          <div /> {/* Feedback button placeholder — added in Task 15 */}
+          {sessionId && (
+            <ChildFeedbackSheet sessionId={sessionId} questionId={q.id} childId={child.id} />
+          )}
           {streak >= 3 && accommodations.positive_reinforcement && (
             <span className="text-sm font-medium animate-bounce">🔥 {streak} in a row!</span>
           )}
