@@ -5,7 +5,7 @@ import { ProgressChart } from '@/components/dashboard/progress-chart'
 import { WeakAreasCallout } from '@/components/dashboard/weak-areas-callout'
 import { ChildCard } from '@/components/dashboard/child-card'
 import { SessionHistoryTable } from '@/components/dashboard/session-history-table'
-import { Button } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 import Link from 'next/link'
 
 export default async function DashboardPage({
@@ -25,7 +25,7 @@ export default async function DashboardPage({
       <main className="max-w-lg mx-auto p-8 text-center space-y-4">
         <h1 className="text-2xl font-bold">Welcome! 👋</h1>
         <p className="text-muted-foreground">Add your first child to get started.</p>
-        <Button asChild><Link href="/children/new">Add a Child</Link></Button>
+        <Link href="/children/new" className={buttonVariants()}>Add a Child</Link>
       </main>
     )
   }
@@ -35,7 +35,11 @@ export default async function DashboardPage({
 
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
   const mondayThisWeek = (() => {
-    const d = new Date(); d.setDate(d.getDate() - d.getDay() + 1); d.setHours(0,0,0,0); return d.toISOString()
+    const d = new Date()
+    const day = d.getDay()
+    d.setDate(d.getDate() - (day === 0 ? 6 : day - 1))
+    d.setHours(0,0,0,0)
+    return d.toISOString()
   })()
 
   const { data: sessions } = await supabase
@@ -87,7 +91,7 @@ export default async function DashboardPage({
     <main className="max-w-3xl mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Dashboard</h1>
-        <Button asChild variant="outline" size="sm"><Link href="/children/new">+ Add Child</Link></Button>
+        <Link href="/children/new" className={buttonVariants({ variant: 'outline', size: 'sm' })}>+ Add Child</Link>
       </div>
       <div className="flex gap-3 overflow-x-auto pb-2">
         {children.map((child) => (

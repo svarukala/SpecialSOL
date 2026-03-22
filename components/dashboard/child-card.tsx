@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 
-interface Child { id: string; name: string; grade: number; avatar_emoji: string | null }
+interface Child { id: string; name: string; grade: number; avatar: string | null }
 interface Props { child: Child; active: boolean }
 
 export function ChildCard({ child, active }: Props) {
@@ -13,7 +13,7 @@ export function ChildCard({ child, active }: Props) {
         active ? 'border-primary bg-primary/10' : 'border-muted hover:bg-muted/50'
       )}
     >
-      <span className="text-2xl">{child.avatar_emoji ?? '🧒'}</span>
+      <span className="text-2xl">{child.avatar ?? '🧒'}</span>
       <span>{child.name}</span>
       <span className="text-xs text-muted-foreground">Grade {child.grade}</span>
     </Link>
