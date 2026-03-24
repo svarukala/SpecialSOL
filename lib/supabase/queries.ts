@@ -113,3 +113,58 @@ export async function getChildTopicLevels(
     data.map((row: { topic: string; language_level: string }) => [row.topic, row.language_level])
   ) as Record<string, 'simplified' | 'standard'>
 }
+
+export async function bumpTopicLevelIfEarned(
+  supabase: SupabaseClient,
+  childId: string,
+  subject: string,
+  topicAccuracy: Record<string, { correct: number; total: number }>
+): Promise<void> {
+  // Fetch existing levels in one query
+  const fetchChain = supabase
+    .from('child_topic_levels')
+    .select('topic, language_level, sessions_at_level')
+    .eq('child_id', childId)
+    .eq('subject', subject)
+  const { data: existing } = await fetchChain
+
+  const levelMap: Record<string, { language_level: 'simplified' | 'standard'; sessions_at_level: number }> =
+    Object.fromEntries(
+      (existing ?? []).map((r: { topic: string; language_level: string; sessions_at_level: number }) => [
+        r.topic,
+        { language_level: r.language_level as 'simplified' | 'standard', sessions_at_level: r.sessions_at_level },
+      ])
+    )
+
+  for (const [topic, { correct, total }] of Object.entries(topicAccuracy)) {
+    if (total === 0) continue
+    const accuracy = correct / total
+    const current = levelMap[topic] ?? { language_level: 'simplified' as const, sessions_at_level: 0 }
+    const now = new Date().toISOString()
+
+    if (accuracy >= 0.8) {
+      const newSessionsAtLevel = current.sessions_at_level + 1
+      if (newSessionsAtLevel >= 2 && current.language_level === 'simplified') {
+        // Promote to standard
+        await supabase.from('child_topic_levels').upsert(
+          { child_id: childId, subject, topic, language_level: 'standard', sessions_at_level: 0, updated_at: now },
+          { onConflict: 'child_id,subject,topic' }
+        )
+      } else if (current.language_level === 'simplified') {
+        // Increment sessions_at_level (still working toward promotion)
+        await supabase.from('child_topic_levels').upsert(
+          { child_id: childId, subject, topic, language_level: 'simplified', sessions_at_level: newSessionsAtLevel, updated_at: now },
+          { onConflict: 'child_id,subject,topic' }
+        )
+      }
+      // If already at standard with high accuracy: no change needed
+    } else if (accuracy < 0.5 && current.language_level === 'standard') {
+      // Demote to simplified
+      await supabase.from('child_topic_levels').upsert(
+        { child_id: childId, subject, topic, language_level: 'simplified', sessions_at_level: 0, updated_at: now },
+        { onConflict: 'child_id,subject,topic' }
+      )
+    }
+    // 50–79%: no change
+  }
+}

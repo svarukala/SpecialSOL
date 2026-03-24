@@ -1,6 +1,6 @@
 // lib/supabase/queries.test.ts
 import { describe, it, expect, vi } from 'vitest'
-import { getQuestionsForSession, getChildTopicLevels } from './queries'
+import { getQuestionsForSession, getChildTopicLevels, bumpTopicLevelIfEarned } from './queries'
 
 // Helper to create a fake question
 const fakeQ = (id: string, difficulty: 1|2|3, simplified_text: string|null = 'simplified') => ({
@@ -80,5 +80,86 @@ describe('getChildTopicLevels', () => {
 
     const result = await getChildTopicLevels(sb, 'child-1', 'math')
     expect(result).toEqual({})
+  })
+})
+
+describe('bumpTopicLevelIfEarned', () => {
+  function makeSelectThenUpsert(existingRows: Record<string, unknown>[]) {
+    const selectChain: any = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+    }
+    selectChain.then = (resolve: (v: unknown) => void) =>
+      Promise.resolve({ data: existingRows, error: null }).then(resolve)
+
+    const upsertChain = {
+      upsert: vi.fn().mockResolvedValue({ error: null }),
+    }
+
+    let callCount = 0
+    const mockSb = {
+      from: vi.fn().mockImplementation(() => {
+        callCount++
+        return callCount === 1 ? selectChain : upsertChain
+      }),
+    } as any
+    return { mockSb, upsertChain }
+  }
+
+  it('promotes topic to standard after 2 sessions at 80%+ accuracy', async () => {
+    const { mockSb, upsertChain } = makeSelectThenUpsert([
+      { topic: 'fractions', language_level: 'simplified', sessions_at_level: 1 },
+    ])
+    await bumpTopicLevelIfEarned(mockSb, 'child-1', 'math', {
+      fractions: { correct: 9, total: 10 }, // 90% accuracy
+    })
+    expect(upsertChain.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({ language_level: 'standard', sessions_at_level: 0 }),
+      expect.any(Object)
+    )
+  })
+
+  it('demotes topic to simplified when accuracy drops below 50% at standard', async () => {
+    const { mockSb, upsertChain } = makeSelectThenUpsert([
+      { topic: 'fractions', language_level: 'standard', sessions_at_level: 0 },
+    ])
+    await bumpTopicLevelIfEarned(mockSb, 'child-1', 'math', {
+      fractions: { correct: 3, total: 10 }, // 30% accuracy
+    })
+    expect(upsertChain.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({ language_level: 'simplified', sessions_at_level: 0 }),
+      expect.any(Object)
+    )
+  })
+
+  it('increments sessions_at_level when accuracy >= 80% but not yet at threshold', async () => {
+    const { mockSb, upsertChain } = makeSelectThenUpsert([
+      { topic: 'fractions', language_level: 'simplified', sessions_at_level: 0 },
+    ])
+    await bumpTopicLevelIfEarned(mockSb, 'child-1', 'math', {
+      fractions: { correct: 9, total: 10 }, // 90%, but only 1st session
+    })
+    expect(upsertChain.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({ language_level: 'simplified', sessions_at_level: 1 }),
+      expect.any(Object)
+    )
+  })
+
+  it('does nothing when accuracy is between 50% and 80%', async () => {
+    const { mockSb, upsertChain } = makeSelectThenUpsert([
+      { topic: 'fractions', language_level: 'simplified', sessions_at_level: 0 },
+    ])
+    await bumpTopicLevelIfEarned(mockSb, 'child-1', 'math', {
+      fractions: { correct: 6, total: 10 }, // 60% — no change
+    })
+    expect(upsertChain.upsert).not.toHaveBeenCalled()
+  })
+
+  it('skips topics with total === 0', async () => {
+    const { mockSb, upsertChain } = makeSelectThenUpsert([])
+    await bumpTopicLevelIfEarned(mockSb, 'child-1', 'math', {
+      fractions: { correct: 0, total: 0 },
+    })
+    expect(upsertChain.upsert).not.toHaveBeenCalled()
   })
 })
