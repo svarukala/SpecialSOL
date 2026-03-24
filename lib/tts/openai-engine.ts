@@ -2,14 +2,17 @@ import { TTSEngine, TTSOptions } from './types'
 
 export class OpenAIEngine implements TTSEngine {
   constructor(
-    private apiKey: string,
     private voice: string = 'nova'
   ) {}
 
   async isAvailable(): Promise<boolean> {
+    // Availability is checked at factory time by calling the proxy
+    // with a short test phrase — if the route returns audio, it works.
     try {
-      const res = await fetch('https://api.openai.com/v1/models', {
-        headers: { Authorization: `Bearer ${this.apiKey}` },
+      const res = await fetch('/api/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: 'test', provider: 'openai', voice: this.voice }),
       })
       return res.ok
     } catch {
@@ -18,20 +21,17 @@ export class OpenAIEngine implements TTSEngine {
   }
 
   async speak(text: string, options: TTSOptions = {}): Promise<void> {
-    const res = await fetch('https://api.openai.com/v1/audio/speech', {
+    const res = await fetch('/api/tts', {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${this.apiKey}`,
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'tts-1',
-        input: text,
+        text,
+        provider: 'openai',
         voice: this.voice,
-        speed: options.rate ?? 1.0,
+        rate: options.rate ?? 1.0,
       }),
     })
-    if (!res.ok) throw new Error(`OpenAI TTS error: ${res.status}`)
+    if (!res.ok) throw new Error(`OpenAI TTS proxy error: ${res.status}`)
     const blob = await res.blob()
     const url = URL.createObjectURL(blob)
     await new Promise<void>((resolve, reject) => {

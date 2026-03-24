@@ -8,9 +8,11 @@ import { Volume2, VolumeX } from 'lucide-react'
 interface Props {
   text: string
   engine: TTSEngine
+  onBoundary?: (charIndex: number, charLength: number) => void
+  onSpeakEnd?: () => void
 }
 
-export function TTSButton({ text, engine }: Props) {
+export function TTSButton({ text, engine, onBoundary, onSpeakEnd }: Props) {
   const { state } = useAccommodations()
   const [speaking, setSpeaking] = useState(false)
 
@@ -20,13 +22,15 @@ export function TTSButton({ text, engine }: Props) {
     if (speaking) {
       engine.stop()
       setSpeaking(false)
+      onSpeakEnd?.()
       return
     }
     setSpeaking(true)
     try {
-      await engine.speak(text, { rate: state.tts_speed })
+      await engine.speak(text, { rate: state.tts_speed, onBoundary })
     } finally {
       setSpeaking(false)
+      onSpeakEnd?.()
     }
   }
 

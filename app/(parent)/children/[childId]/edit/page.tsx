@@ -66,7 +66,7 @@ export default function EditChildPage() {
             </div>
             <div className="space-y-1">
               <Label>Grade</Label>
-              <Select value={grade} onValueChange={setGrade}>
+              <Select value={grade} onValueChange={(v) => v && setGrade(v)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="3">Grade 3</SelectItem>

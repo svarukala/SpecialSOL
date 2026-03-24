@@ -12,6 +12,7 @@ export async function POST(
 
   const body = await req.json()
   const { questionId, answerId, isCorrect, timeSpent, hintsUsed, ttsUsed, attemptNumber } = body
+  // answerId may be a string, string[], or object depending on answer_type (stored as jsonb)
 
   const { error } = await supabase.from('session_answers').insert({
     session_id: sessionId,

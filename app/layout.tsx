@@ -1,17 +1,15 @@
 import type { Metadata } from 'next'
-import localFont from 'next/font/local'
-import { GeistSans } from 'geist/font/sans'
-import { GeistMono } from 'geist/font/mono'
+import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 
-const openDyslexic = localFont({
-  src: [
-    { path: '../public/fonts/OpenDyslexic/OpenDyslexic-Regular.otf', weight: '400', style: 'normal' },
-    { path: '../public/fonts/OpenDyslexic/OpenDyslexic-Bold.otf', weight: '700', style: 'normal' },
-  ],
-  variable: '--font-dyslexic',
-  display: 'swap',
-  // Font may not exist yet — next/font/local handles missing files gracefully in dev
+const geistSans = Geist({
+  variable: '--font-geist-sans',
+  subsets: ['latin'],
+})
+
+const geistMono = Geist_Mono({
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
 })
 
 export const metadata: Metadata = {
@@ -21,7 +19,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable} ${openDyslexic.variable}`}>
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body className="min-h-screen bg-background font-sans antialiased">
         {children}
       </body>

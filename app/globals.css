@@ -1,4 +1,20 @@
 @import "tailwindcss";
+
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("/fonts/OpenDyslexic/OpenDyslexic-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("/fonts/OpenDyslexic/OpenDyslexic-Bold.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
@@ -144,7 +160,7 @@ html.text-large-1 { font-size: 24px; }
 html.text-large-2 { font-size: 30px; }
 
 /* Dyslexia font */
-html.font-dyslexic { font-family: var(--font-dyslexic), sans-serif; }
+html.font-dyslexic { font-family: "OpenDyslexic", sans-serif; }
 
 /* Reduce distractions: suppress animations and non-essential UI */
 html.reduce-distractions * {

@@ -17,17 +17,22 @@ export async function getQuestionsForSession(
   count: number,
   excludeQuestionIds: string[] = []
 ) {
-  let query = supabase
-    .from('questions')
-    .select('*')
-    .eq('grade', grade)
-    .eq('subject', subject)
+  const base = supabase.from('questions').select('*').eq('grade', grade).eq('subject', subject)
+
+  // Try with exclusion first; fall back to full pool if too few results
   if (excludeQuestionIds.length > 0) {
-    query = query.not('id', 'in', `(${excludeQuestionIds.join(',')})`)
+    const { data, error } = await base
+      .not('id', 'in', `(${excludeQuestionIds.join(',')})`)
+      .limit(count * 3)
+    if (error) throw error
+    if ((data ?? []).length >= Math.min(count, 3)) {
+      return (data ?? []).sort(() => Math.random() - 0.5).slice(0, count)
+    }
   }
-  const { data, error } = await query.limit(count * 3)
+
+  // Fall back: use full question pool (repeat questions rather than show nothing)
+  const { data, error } = await base.limit(count * 3)
   if (error) throw error
-  // Shuffle and take requested count
   return (data ?? []).sort(() => Math.random() - 0.5).slice(0, count)
 }
 

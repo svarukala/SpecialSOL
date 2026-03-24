@@ -13,13 +13,14 @@ global.speechSynthesis = {
   paused: false,
 } as unknown as SpeechSynthesis
 
-global.SpeechSynthesisUtterance = vi.fn().mockImplementation((text) => ({
-  text,
-  rate: 1,
-  lang: '',
-  onend: null,
-  onerror: null,
-})) as unknown as typeof SpeechSynthesisUtterance
+const MockUtterance = vi.fn(function (this: Record<string, unknown>, text: string) {
+  this.text = text
+  this.rate = 1
+  this.lang = ''
+  this.onend = null
+  this.onerror = null
+})
+global.SpeechSynthesisUtterance = MockUtterance as unknown as typeof SpeechSynthesisUtterance
 
 describe('WebSpeechEngine', () => {
   let engine: WebSpeechEngine
@@ -35,7 +36,7 @@ describe('WebSpeechEngine', () => {
 
   it('speak calls speechSynthesis.speak', async () => {
     const speakPromise = engine.speak('Hello world')
-    const utterance = (global.SpeechSynthesisUtterance as unknown as ReturnType<typeof vi.fn>).mock.results[0].value
+    const utterance = MockUtterance.mock.instances[0] as Record<string, unknown>
     utterance.onend?.()
     await speakPromise
     expect(mockSpeak).toHaveBeenCalled()

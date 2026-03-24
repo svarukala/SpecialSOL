@@ -2,7 +2,6 @@
 import { AccommodationState } from '@/lib/accommodations/types'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
-import { Slider } from '@/components/ui/slider'
 
 interface Props {
   value: AccommodationState
@@ -37,14 +36,16 @@ export function AccommodationSettingsForm({ value, onChange }: Props) {
     <div className="space-y-1 divide-y">
       <Toggle label="Read Aloud (TTS)" field="tts_enabled" value={value} onChange={onChange} />
       <div className="py-2 space-y-1">
-        <Label>Speech Speed</Label>
-        <Slider
+        <Label htmlFor="tts-speed">Speech Speed — {value.tts_speed}x</Label>
+        <input
+          id="tts-speed"
+          type="range"
           min={0.5} max={2.0} step={0.25}
-          value={[value.tts_speed]}
-          onValueChange={([v]) => onChange({ ...value, tts_speed: v })}
+          value={value.tts_speed}
+          onChange={(e) => onChange({ ...value, tts_speed: parseFloat(e.target.value) })}
+          className="w-full accent-primary"
           aria-label="Speech speed"
         />
-        <span className="text-xs text-muted-foreground">{value.tts_speed}x</span>
       </div>
       <Toggle label="Simplified Language" field="simplified_language" value={value} onChange={onChange} />
       <Toggle label="High Contrast" field="high_contrast" value={value} onChange={onChange} />

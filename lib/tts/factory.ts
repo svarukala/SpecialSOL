@@ -5,14 +5,13 @@ type TTSProvider = 'web_speech' | 'openai' | 'elevenlabs'
 
 interface EngineConfig {
   provider: TTSProvider
-  apiKey?: string
   voice?: string
 }
 
 export async function createTTSEngine(config: EngineConfig): Promise<TTSEngine> {
   const fallback = new WebSpeechEngine()
 
-  if (config.provider === 'web_speech' || !config.apiKey) {
+  if (config.provider === 'web_speech') {
     return fallback
   }
 
@@ -20,10 +19,10 @@ export async function createTTSEngine(config: EngineConfig): Promise<TTSEngine> 
     let engine: TTSEngine
     if (config.provider === 'openai') {
       const { OpenAIEngine } = await import('./openai-engine')
-      engine = new OpenAIEngine(config.apiKey, config.voice)
+      engine = new OpenAIEngine(config.voice)
     } else {
       const { ElevenLabsEngine } = await import('./elevenlabs-engine')
-      engine = new ElevenLabsEngine(config.apiKey, config.voice)
+      engine = new ElevenLabsEngine(config.voice)
     }
     const available = await engine.isAvailable()
     if (!available) {

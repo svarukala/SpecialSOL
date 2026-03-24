@@ -1,0 +1,33 @@
+
+  Step 6 — Start the app
+
+  npm run dev
+
+  Open http://localhost:3000.
+
+  ---
+  First Run Walkthrough
+
+  Once the app loads:
+
+  1. Click Sign Up → create a parent account with your email + password
+  2. Click Add a Child → enter a name, select grade 3/4/5, pick an emoji avatar, configure accommodations (TTS is on by default)
+  3. Click your child's name in the header → you'll land on the practice picker
+  4. Choose Math or Reading, then Practice or Test → click Let's Go!
+  5. The first question loads — hit the speaker button to hear it read aloud (uses browser TTS by default)
+  6. After 10 questions you see the star rating + celebration screen
+  7. Go back to Dashboard to see your child's stats
+
+  ---
+  Stopping and Restarting
+
+  # Stop Supabase (preserves your data)
+  npx supabase stop
+
+  # Next time: just start Docker Desktop, then:
+  npx supabase start
+  npm run dev
+
+  Your data persists between stop/start cycles. To wipe and start fresh:
+  npx supabase db reset
+  npm run db:seed

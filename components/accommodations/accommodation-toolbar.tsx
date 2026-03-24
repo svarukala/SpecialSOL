@@ -10,16 +10,18 @@ interface Props {
   engine: TTSEngine
   questionText: string
   progress: { current: number; total: number }
+  onBoundary?: (charIndex: number, charLength: number) => void
+  onSpeakEnd?: () => void
 }
 
-export function AccommodationToolbar({ engine, questionText, progress }: Props) {
+export function AccommodationToolbar({ engine, questionText, progress, onBoundary, onSpeakEnd }: Props) {
   const { state, update } = useAccommodations()
   const percent = Math.round((progress.current / progress.total) * 100)
 
   return (
     <div className={`flex items-center gap-2 flex-wrap py-2 ${state.reduce_distractions ? 'justify-end' : 'justify-between'}`}>
       <div className="flex items-center gap-2">
-        <TTSButton text={questionText} engine={engine} />
+        <TTSButton text={questionText} engine={engine} onBoundary={onBoundary} onSpeakEnd={onSpeakEnd} />
         {!state.reduce_distractions && (
           <>
             <Button

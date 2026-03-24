@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { buttonVariants } from '@/components/ui/button'
 
 const NAV_LINKS = [
   { href: '/dashboard', label: '📊 Dashboard' },
@@ -9,6 +8,8 @@ const NAV_LINKS = [
   { href: '/settings', label: '⚙️ Settings' },
   { href: '/feedback', label: '💬 Feedback' },
 ]
+
+const navLinkClass = 'inline-flex items-center justify-center rounded-lg px-2.5 h-7 text-sm font-medium transition-colors hover:bg-muted hover:text-foreground'
 
 export default async function ParentLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -24,11 +25,7 @@ export default async function ParentLayout({ children }: { children: React.React
           </Link>
           <div className="flex items-center gap-1">
             {NAV_LINKS.map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                className={buttonVariants({ variant: 'ghost', size: 'sm' })}
-              >
+              <Link key={href} href={href} className={navLinkClass}>
                 {label}
               </Link>
             ))}

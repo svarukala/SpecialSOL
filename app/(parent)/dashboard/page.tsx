@@ -5,7 +5,6 @@ import { ProgressChart } from '@/components/dashboard/progress-chart'
 import { WeakAreasCallout } from '@/components/dashboard/weak-areas-callout'
 import { ChildCard } from '@/components/dashboard/child-card'
 import { SessionHistoryTable } from '@/components/dashboard/session-history-table'
-import { buttonVariants } from '@/components/ui/button'
 import Link from 'next/link'
 
 export default async function DashboardPage({
@@ -25,7 +24,7 @@ export default async function DashboardPage({
       <main className="max-w-lg mx-auto p-8 text-center space-y-4">
         <h1 className="text-2xl font-bold">Welcome! 👋</h1>
         <p className="text-muted-foreground">Add your first child to get started.</p>
-        <Link href="/children/new" className={buttonVariants()}>Add a Child</Link>
+        <Link href="/children/new" className="inline-flex items-center justify-center rounded-lg bg-primary text-primary-foreground px-4 h-8 text-sm font-medium transition-colors hover:bg-primary/80">Add a Child</Link>
       </main>
     )
   }
@@ -75,7 +74,7 @@ export default async function DashboardPage({
 
   const topicAccuracy: Record<string, { correct: number; total: number }> = {}
   for (const row of answersWithTopics ?? []) {
-    const topic = (row.questions as { topic: string } | null)?.topic
+    const topic = (row.questions as unknown as { topic: string } | null)?.topic
     if (!topic) continue
     if (!topicAccuracy[topic]) topicAccuracy[topic] = { correct: 0, total: 0 }
     topicAccuracy[topic].total++
@@ -91,13 +90,19 @@ export default async function DashboardPage({
     <main className="max-w-3xl mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Dashboard</h1>
-        <Link href="/children/new" className={buttonVariants({ variant: 'outline', size: 'sm' })}>+ Add Child</Link>
+        <Link href="/children/new" className="inline-flex items-center justify-center rounded-lg border border-border bg-background px-2.5 h-7 text-sm font-medium transition-colors hover:bg-muted">+ Add Child</Link>
       </div>
       <div className="flex gap-3 overflow-x-auto pb-2">
         {children.map((child) => (
           <ChildCard key={child.id} child={child} active={child.id === activeChild.id} />
         ))}
       </div>
+      <Link
+        href={`/practice/${activeChild.id}`}
+        className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground px-6 h-12 text-base font-semibold transition-colors hover:bg-primary/80 w-full"
+      >
+        🚀 Start Practice for {activeChild.name}
+      </Link>
       <div className="grid grid-cols-3 gap-4">
         <StatCard label="Sessions This Week" value={sessionsThisWeek} icon="📅" />
         <StatCard label="Avg Score" value={`${avgScore}%`} icon="⭐" />

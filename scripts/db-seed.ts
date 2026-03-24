@@ -1,5 +1,8 @@
+import { config } from 'dotenv'
 import { createClient } from '@supabase/supabase-js'
 import questions from '../supabase/seed/questions.json'
+
+config({ path: process.env.ENV_FILE ?? '.env.local', override: true })
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,

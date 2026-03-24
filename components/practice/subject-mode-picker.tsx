@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import Link from 'next/link'
 
 const SUBJECT_CONFIG = {
   math: { label: 'Math', emoji: '🔢', description: 'Numbers, shapes, and patterns' },
@@ -15,14 +16,21 @@ interface Props {
   childName: string
   availableSubjects: Subject[]
   onStart: (choice: { subject: Subject; mode: Mode }) => void
+  loading?: boolean
+  dashboardHref: string
 }
 
-export function SubjectModePicker({ childName, availableSubjects, onStart }: Props) {
+export function SubjectModePicker({ childName, availableSubjects, onStart, loading, dashboardHref }: Props) {
   const [subject, setSubject] = useState<Subject | null>(null)
   const [mode, setMode] = useState<Mode | null>(null)
 
   return (
     <div className="space-y-8 max-w-md mx-auto p-6">
+      <div className="flex items-center">
+        <Link href={dashboardHref} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+          ← Dashboard
+        </Link>
+      </div>
       <h1 className="text-3xl font-bold text-center">Hi {childName}! 👋</h1>
       <div className="space-y-3">
         <p className="text-center font-medium text-muted-foreground">What do you want to practice?</p>
@@ -70,8 +78,8 @@ export function SubjectModePicker({ childName, availableSubjects, onStart }: Pro
         </div>
       )}
       {subject && mode && (
-        <Button size="lg" className="w-full" onClick={() => onStart({ subject, mode })}>
-          Let&apos;s Go! 🚀
+        <Button size="lg" className="w-full" onClick={() => onStart({ subject, mode })} disabled={loading}>
+          {loading ? 'Loading…' : "Let's Go! 🚀"}
         </Button>
       )}
     </div>

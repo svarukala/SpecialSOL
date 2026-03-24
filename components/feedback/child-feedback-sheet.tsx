@@ -18,6 +18,7 @@ interface Props {
 export function ChildFeedbackSheet({ sessionId, questionId, childId }: Props) {
   const [open, setOpen] = useState(false)
   const [recording, setRecording] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
   const mediaRef = useRef<MediaRecorder | null>(null)
 
   async function submitFeedback(category: string, voiceNoteUrl?: string) {
@@ -33,10 +34,21 @@ export function ChildFeedbackSheet({ sessionId, questionId, childId }: Props) {
         voiceNoteUrl,
       }),
     })
-    setOpen(false)
+    setSubmitted(true)
+    setTimeout(() => {
+      setOpen(false)
+      setSubmitted(false)
+    }, 1500)
   }
 
-  async function handleVoiceNote(category: string) {
+  async function toggleVoiceNote(category: string) {
+    // Second tap: stop recording
+    if (recording && mediaRef.current) {
+      mediaRef.current.stop()
+      return
+    }
+
+    // First tap: start recording
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
     const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' })
     const chunks: BlobPart[] = []
@@ -63,32 +75,42 @@ export function ChildFeedbackSheet({ sessionId, questionId, childId }: Props) {
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
-        <Button variant="ghost" size="sm" aria-label="I need help with this question">😕</Button>
+      <SheetTrigger
+        className="inline-flex items-center justify-center rounded-lg px-2.5 h-7 text-sm transition-colors hover:bg-muted"
+        aria-label="I need help with this question"
+      >
+        😕
       </SheetTrigger>
       <SheetContent side="bottom" className="rounded-t-xl">
         <SheetHeader><SheetTitle>What&apos;s wrong?</SheetTitle></SheetHeader>
-        <div className="grid gap-3 mt-4">
-          {CHILD_REASONS.map(({ category, label }) => (
+        {submitted ? (
+          <div className="flex flex-col items-center justify-center py-8 gap-3">
+            <span className="text-5xl">🎉</span>
+            <p className="text-lg font-medium">Thanks for telling us!</p>
+          </div>
+        ) : (
+          <div className="grid gap-3 mt-4">
+            {CHILD_REASONS.map(({ category, label }) => (
+              <Button
+                key={category}
+                variant="outline"
+                size="lg"
+                className="text-lg h-14"
+                onClick={() => submitFeedback(category)}
+              >
+                {label}
+              </Button>
+            ))}
             <Button
-              key={category}
-              variant="outline"
-              size="lg"
-              className="text-lg h-14"
-              onClick={() => submitFeedback(category)}
+              variant="ghost"
+              size="sm"
+              onClick={() => toggleVoiceNote('other')}
+              className={recording ? 'text-destructive animate-pulse' : ''}
             >
-              {label}
+              {recording ? '🔴 Recording… tap to stop' : '🎤 Tap to record a voice note'}
             </Button>
-          ))}
-          <Button
-            variant="ghost"
-            size="sm"
-            onPointerDown={() => handleVoiceNote('other')}
-            className={recording ? 'text-destructive' : ''}
-          >
-            {recording ? '🔴 Recording... (release to send)' : '🎤 Hold to record a voice note'}
-          </Button>
-        </div>
+          </div>
+        )}
       </SheetContent>
     </Sheet>
   )

@@ -12,7 +12,7 @@ function hexToBytes(hex: string): Uint8Array {
 
 async function getKey(secret: string): Promise<CryptoKey> {
   const keyBytes = hexToBytes(secret.slice(0, 64)) // use first 32 bytes
-  return crypto.subtle.importKey('raw', keyBytes, ALGORITHM, false, ['encrypt', 'decrypt'])
+  return crypto.subtle.importKey('raw', keyBytes.buffer as ArrayBuffer, ALGORITHM, false, ['encrypt', 'decrypt'])
 }
 
 export async function encrypt(plaintext: string, secret: string): Promise<string> {

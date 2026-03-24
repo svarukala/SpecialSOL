@@ -110,8 +110,7 @@ CREATE POLICY "feedback_select_parent" ON feedback
   FOR SELECT USING (submitted_by_id = auth.uid());
 
 -- Unique index for seed upsert idempotency
-CREATE UNIQUE INDEX idx_questions_unique_text ON questions(sol_standard, question_text)
-  WHERE sol_standard IS NOT NULL;
+CREATE UNIQUE INDEX idx_questions_unique_text ON questions(sol_standard, question_text);
 
 -- Performance indexes
 CREATE INDEX idx_children_parent ON children(parent_id);
