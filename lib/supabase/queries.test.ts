@@ -1,6 +1,6 @@
 // lib/supabase/queries.test.ts
 import { describe, it, expect, vi } from 'vitest'
-import { getQuestionsForSession } from './queries'
+import { getQuestionsForSession, getChildTopicLevels } from './queries'
 
 // Helper to create a fake question
 const fakeQ = (id: string, difficulty: 1|2|3, simplified_text: string|null = 'simplified') => ({
@@ -47,5 +47,38 @@ describe('getQuestionsForSession', () => {
     }
     const result = await getQuestionsForSession(supabase as any, 3, 'math', 2, [], 'simplified')
     expect(result.length).toBeGreaterThan(0)
+  })
+})
+
+describe('getChildTopicLevels', () => {
+  it('returns a map of topic → language_level', async () => {
+    const rows = [
+      { topic: 'fractions', language_level: 'standard' },
+      { topic: 'multiplication', language_level: 'simplified' },
+    ]
+    const mockChain: any = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+    }
+    // Make the chain thenable so `await chain` resolves with data
+    mockChain.then = (resolve: (v: unknown) => void) =>
+      Promise.resolve({ data: rows, error: null }).then(resolve)
+    const sb = { from: vi.fn().mockReturnValue(mockChain) } as any
+
+    const result = await getChildTopicLevels(sb, 'child-1', 'math')
+    expect(result).toEqual({ fractions: 'standard', multiplication: 'simplified' })
+  })
+
+  it('returns empty object when no records exist', async () => {
+    const mockChain: any = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+    }
+    mockChain.then = (resolve: (v: unknown) => void) =>
+      Promise.resolve({ data: [], error: null }).then(resolve)
+    const sb = { from: vi.fn().mockReturnValue(mockChain) } as any
+
+    const result = await getChildTopicLevels(sb, 'child-1', 'math')
+    expect(result).toEqual({})
   })
 })

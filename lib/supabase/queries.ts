@@ -97,3 +97,19 @@ export async function getRecentSessionQuestionIds(
     .in('session_id', sessionIds)
   return [...new Set((answers ?? []).map((a) => a.question_id))]
 }
+
+export async function getChildTopicLevels(
+  supabase: SupabaseClient,
+  childId: string,
+  subject: string
+): Promise<Record<string, 'simplified' | 'standard'>> {
+  const { data } = await supabase
+    .from('child_topic_levels')
+    .select('topic, language_level')
+    .eq('child_id', childId)
+    .eq('subject', subject)
+  if (!data || data.length === 0) return {}
+  return Object.fromEntries(
+    data.map((row: { topic: string; language_level: string }) => [row.topic, row.language_level])
+  ) as Record<string, 'simplified' | 'standard'>
+}
