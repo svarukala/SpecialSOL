@@ -57,22 +57,22 @@ export function SubjectModePicker({ childName, availableSubjects, onStart, loadi
             <Button
               variant={mode === 'practice' ? 'default' : 'outline'}
               onClick={() => setMode('practice')}
-              className="h-auto py-4 flex-col"
+              className="h-auto py-4 flex-col items-center overflow-hidden"
               aria-label="Practice"
             >
               <span className="text-2xl">🌱</span>
               <span className="font-bold mt-1">Practice</span>
-              <span className="text-xs opacity-70">Take your time, try again if wrong</span>
+              <span className="text-xs opacity-70 whitespace-normal text-center leading-tight mt-1">Take your time, try again if wrong</span>
             </Button>
             <Button
               variant={mode === 'test' ? 'default' : 'outline'}
               onClick={() => setMode('test')}
-              className="h-auto py-4 flex-col"
+              className="h-auto py-4 flex-col items-center overflow-hidden"
               aria-label="Test"
             >
               <span className="text-2xl">📝</span>
               <span className="font-bold mt-1">Test</span>
-              <span className="text-xs opacity-70">Like the real SOL — one try each</span>
+              <span className="text-xs opacity-70 whitespace-normal text-center leading-tight mt-1">Like the real SOL — one try each</span>
             </Button>
           </div>
         </div>
