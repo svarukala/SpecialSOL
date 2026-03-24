@@ -267,7 +267,11 @@ export function PracticeSession({ child, availableSubjects, parentSettings, dash
         {ttsEngine && (
           <AccommodationToolbar
             engine={ttsEngine}
-            questionText={q.question_text}
+            questionText={
+              (accommodations.simplified_language && q.simplified_text)
+                ? q.simplified_text
+                : q.question_text
+            }
             progress={{ current: currentIndex + 1, total: questions.length }}
             onBoundary={(start, length) => setHighlightRange({ start, length })}
             onSpeakEnd={() => setHighlightRange(null)}
