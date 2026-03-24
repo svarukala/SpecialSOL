@@ -15,25 +15,66 @@ export async function getQuestionsForSession(
   grade: number,
   subject: string,
   count: number,
-  excludeQuestionIds: string[] = []
+  excludeQuestionIds: string[] = [],
+  languageLevel: 'simplified' | 'standard' = 'simplified'
 ) {
-  const base = supabase.from('questions').select('*').eq('grade', grade).eq('subject', subject)
+  const easyTarget   = Math.round(count * 0.4)
+  const mediumTarget = Math.round(count * 0.4)
+  const hardTarget   = count - easyTarget - mediumTarget
 
-  // Try with exclusion first; fall back to full pool if too few results
-  if (excludeQuestionIds.length > 0) {
-    const { data, error } = await base
-      .not('id', 'in', `(${excludeQuestionIds.join(',')})`)
-      .limit(count * 3)
-    if (error) throw error
-    if ((data ?? []).length >= Math.min(count, 3)) {
-      return (data ?? []).sort(() => Math.random() - 0.5).slice(0, count)
+  async function fetchTier(difficulty: number, target: number): Promise<Record<string, unknown>[]> {
+    const buildQuery = (withSimplifiedFilter: boolean) => {
+      let q = supabase
+        .from('questions')
+        .select('*')
+        .eq('grade', grade)
+        .eq('subject', subject)
+        .eq('difficulty', difficulty)
+      if (excludeQuestionIds.length > 0) {
+        q = q.not('id', 'in', `(${excludeQuestionIds.join(',')})`)
+      }
+      if (withSimplifiedFilter) {
+        q = q.not('simplified_text', 'is', null)
+      }
+      return q.limit(target * 3)
     }
+
+    // When serving simplified, prefer questions that have simplified_text populated
+    if (languageLevel === 'simplified') {
+      const { data } = await buildQuery(true)
+      if ((data ?? []).length >= target) {
+        return (data ?? []).sort(() => Math.random() - 0.5).slice(0, target)
+      }
+    }
+
+    // Fallback: no simplified_text filter
+    const { data, error } = await buildQuery(false)
+    if (error) throw error
+    return (data ?? []).sort(() => Math.random() - 0.5).slice(0, target)
   }
 
-  // Fall back: use full question pool (repeat questions rather than show nothing)
-  const { data, error } = await base.limit(count * 3)
-  if (error) throw error
-  return (data ?? []).sort(() => Math.random() - 0.5).slice(0, count)
+  const easy   = await fetchTier(1, easyTarget)
+  let   medium = await fetchTier(2, mediumTarget)
+  const hard   = await fetchTier(3, hardTarget)
+
+  // Fill deficit from medium tier if hard tier is short
+  const deficit = count - (easy.length + medium.length + hard.length)
+  if (deficit > 0) {
+    const extra = await fetchTier(2, mediumTarget + deficit)
+    medium = extra
+  }
+
+  const combined = [...easy, ...medium, ...hard].sort(() => Math.random() - 0.5)
+
+  // Final safety: if completely empty (very small question pool), fall back to unrestricted
+  if (combined.length === 0) {
+    const { data, error } = await supabase
+      .from('questions').select('*').eq('grade', grade).eq('subject', subject).limit(count * 3)
+    if (error) throw error
+    return (data ?? []).sort(() => Math.random() - 0.5).slice(0, count)
+  }
+
+  return combined.slice(0, count)
 }
 
 export async function getRecentSessionQuestionIds(
