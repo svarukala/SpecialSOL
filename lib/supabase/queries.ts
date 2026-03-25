@@ -16,11 +16,12 @@ export async function getQuestionsForSession(
   subject: string,
   count: number,
   excludeQuestionIds: string[] = [],
-  languageLevel: 'simplified' | 'standard' = 'simplified'
+  languageLevel: 'foundational' | 'simplified' | 'standard' = 'simplified'
 ) {
   const easyTarget   = Math.round(count * 0.4)
   const mediumTarget = Math.round(count * 0.4)
   const hardTarget   = count - easyTarget - mediumTarget
+  const tierFilter   = languageLevel === 'foundational' ? 'foundational' : 'standard'
 
   async function fetchTier(difficulty: number, target: number): Promise<Record<string, unknown>[]> {
     const buildQuery = (withSimplifiedFilter: boolean) => {
@@ -30,6 +31,7 @@ export async function getQuestionsForSession(
         .eq('grade', grade)
         .eq('subject', subject)
         .eq('difficulty', difficulty)
+        .eq('tier', tierFilter)
       if (excludeQuestionIds.length > 0) {
         q = q.not('id', 'in', `(${excludeQuestionIds.join(',')})`)
       }
@@ -47,7 +49,7 @@ export async function getQuestionsForSession(
       }
     }
 
-    // Fallback: no simplified_text filter
+    // Fallback: no simplified_text filter (tier filter still applied via buildQuery)
     const { data, error } = await buildQuery(false)
     if (error) throw error
     return (data ?? []).sort(() => Math.random() - 0.5).slice(0, target)
@@ -66,10 +68,14 @@ export async function getQuestionsForSession(
 
   const combined = [...easy, ...medium, ...hard].sort(() => Math.random() - 0.5)
 
-  // Final safety: if completely empty (very small question pool), fall back to unrestricted
+  // Final safety: if completely empty, fall back to unrestricted (but still tier-filtered)
   if (combined.length === 0) {
     const { data, error } = await supabase
-      .from('questions').select('*').eq('grade', grade).eq('subject', subject).limit(count * 3)
+      .from('questions').select('*')
+      .eq('grade', grade)
+      .eq('subject', subject)
+      .eq('tier', tierFilter)
+      .limit(count * 3)
     if (error) throw error
     return (data ?? []).sort(() => Math.random() - 0.5).slice(0, count)
   }
@@ -102,7 +108,7 @@ export async function getChildTopicLevels(
   supabase: SupabaseClient,
   childId: string,
   subject: string
-): Promise<Record<string, 'simplified' | 'standard'>> {
+): Promise<Record<string, 'foundational' | 'simplified' | 'standard'>> {
   const { data } = await supabase
     .from('child_topic_levels')
     .select('topic, language_level')
@@ -111,13 +117,13 @@ export async function getChildTopicLevels(
   if (!data || data.length === 0) return {}
   return Object.fromEntries(
     data.map((row: { topic: string; language_level: string }) => [row.topic, row.language_level])
-  ) as Record<string, 'simplified' | 'standard'>
+  ) as Record<string, 'foundational' | 'simplified' | 'standard'>
 }
 
 export async function getAllChildTopicLevels(
   supabase: SupabaseClient,
   childId: string
-): Promise<Record<string, 'simplified' | 'standard'>> {
+): Promise<Record<string, 'foundational' | 'simplified' | 'standard'>> {
   const { data } = await supabase
     .from('child_topic_levels')
     .select('topic, language_level')
@@ -126,7 +132,7 @@ export async function getAllChildTopicLevels(
   return Object.fromEntries(
     data.map((r: { topic: string; language_level: string }) => [
       r.topic,
-      r.language_level as 'simplified' | 'standard',
+      r.language_level as 'foundational' | 'simplified' | 'standard',
     ])
   )
 }
@@ -134,8 +140,8 @@ export async function getAllChildTopicLevels(
 export type Milestone = {
   subject: string
   topic: string
-  fromLevel: 'simplified' | 'standard'
-  toLevel: 'simplified' | 'standard'
+  fromLevel: 'foundational' | 'simplified' | 'standard'
+  toLevel: 'foundational' | 'simplified' | 'standard'
   changedAt: string
   direction: 'promoted' | 'demoted'
 }
@@ -157,14 +163,19 @@ export async function getRecentMilestones(
   return data.map((r: {
     subject: string; topic: string
     language_level: string; previous_level: string; changed_at: string
-  }) => ({
-    subject: r.subject,
-    topic: r.topic,
-    fromLevel: r.previous_level as 'simplified' | 'standard',
-    toLevel: r.language_level as 'simplified' | 'standard',
-    changedAt: r.changed_at,
-    direction: r.language_level === 'standard' ? 'promoted' : 'demoted',
-  }))
+  }) => {
+    const to = r.language_level as 'foundational' | 'simplified' | 'standard'
+    const from = r.previous_level as 'foundational' | 'simplified' | 'standard'
+    const levelOrder = { foundational: 0, simplified: 1, standard: 2 }
+    return {
+      subject: r.subject,
+      topic: r.topic,
+      fromLevel: from,
+      toLevel: to,
+      changedAt: r.changed_at,
+      direction: levelOrder[to] > levelOrder[from] ? 'promoted' : 'demoted',
+    }
+  })
 }
 
 export async function bumpTopicLevelIfEarned(
@@ -173,51 +184,72 @@ export async function bumpTopicLevelIfEarned(
   subject: string,
   topicAccuracy: Record<string, { correct: number; total: number }>
 ): Promise<void> {
-  // Fetch existing levels in one query
   const fetchChain = supabase
     .from('child_topic_levels')
-    .select('topic, language_level, sessions_at_level')
+    .select('topic, language_level, sessions_at_level, promotion_ready')
     .eq('child_id', childId)
     .eq('subject', subject)
   const { data: existing } = await fetchChain
 
-  const levelMap: Record<string, { language_level: 'simplified' | 'standard'; sessions_at_level: number }> =
+  type Level = 'foundational' | 'simplified' | 'standard'
+  const levelMap: Record<string, { language_level: Level; sessions_at_level: number; promotion_ready: boolean }> =
     Object.fromEntries(
-      (existing ?? []).map((r: { topic: string; language_level: string; sessions_at_level: number }) => [
+      (existing ?? []).map((r: { topic: string; language_level: string; sessions_at_level: number; promotion_ready: boolean }) => [
         r.topic,
-        { language_level: r.language_level as 'simplified' | 'standard', sessions_at_level: r.sessions_at_level },
+        {
+          language_level: r.language_level as Level,
+          sessions_at_level: r.sessions_at_level,
+          promotion_ready: r.promotion_ready ?? false,
+        },
       ])
     )
 
   for (const [topic, { correct, total }] of Object.entries(topicAccuracy)) {
     if (total === 0) continue
     const accuracy = correct / total
-    const current = levelMap[topic] ?? { language_level: 'simplified' as const, sessions_at_level: 0 }
+    const current = levelMap[topic] ?? { language_level: 'simplified' as Level, sessions_at_level: 0, promotion_ready: false }
     const now = new Date().toISOString()
 
+    // Foundational tier: parent-controlled entry and exit — never auto-promote or auto-demote
+    if (current.language_level === 'foundational') {
+      if (accuracy >= 0.8) {
+        const newSessionsAtLevel = current.sessions_at_level + 1
+        if (newSessionsAtLevel >= 3) {
+          // Signal to parent that child is ready — do NOT change language_level
+          await supabase.from('child_topic_levels').upsert(
+            { child_id: childId, subject, topic, language_level: 'foundational', sessions_at_level: newSessionsAtLevel, promotion_ready: true, updated_at: now },
+            { onConflict: 'child_id,subject,topic' }
+          )
+        } else {
+          await supabase.from('child_topic_levels').upsert(
+            { child_id: childId, subject, topic, language_level: 'foundational', sessions_at_level: newSessionsAtLevel, promotion_ready: false, updated_at: now },
+            { onConflict: 'child_id,subject,topic' }
+          )
+        }
+      }
+      // 50–79%: no change; <50%: no demotion (parents chose foundational intentionally)
+      continue
+    }
+
+    // Existing simplified ↔ standard logic (unchanged)
     if (accuracy >= 0.8) {
       const newSessionsAtLevel = current.sessions_at_level + 1
       if (newSessionsAtLevel >= 2 && current.language_level === 'simplified') {
-        // Promote to standard
         await supabase.from('child_topic_levels').upsert(
           { child_id: childId, subject, topic, language_level: 'standard', sessions_at_level: 0, updated_at: now, previous_level: 'simplified', changed_at: now },
           { onConflict: 'child_id,subject,topic' }
         )
       } else if (current.language_level === 'simplified') {
-        // Increment sessions_at_level (still working toward promotion)
         await supabase.from('child_topic_levels').upsert(
           { child_id: childId, subject, topic, language_level: 'simplified', sessions_at_level: newSessionsAtLevel, updated_at: now },
           { onConflict: 'child_id,subject,topic' }
         )
       }
-      // If already at standard with high accuracy: no change needed
     } else if (accuracy < 0.5 && current.language_level === 'standard') {
-      // Demote to simplified
       await supabase.from('child_topic_levels').upsert(
         { child_id: childId, subject, topic, language_level: 'simplified', sessions_at_level: 0, updated_at: now, previous_level: 'standard', changed_at: now },
         { onConflict: 'child_id,subject,topic' }
       )
     }
-    // 50–79%: no change
   }
 }

@@ -84,29 +84,29 @@ describe('getChildTopicLevels', () => {
   })
 })
 
-describe('bumpTopicLevelIfEarned', () => {
-  function makeSelectThenUpsert(existingRows: Record<string, unknown>[]) {
-    const selectChain: any = {
-      select: vi.fn().mockReturnThis(),
-      eq: vi.fn().mockReturnThis(),
-    }
-    selectChain.then = (resolve: (v: unknown) => void) =>
-      Promise.resolve({ data: existingRows, error: null }).then(resolve)
+function makeSelectThenUpsert(existingRows: Record<string, unknown>[]) {
+  const selectChain: any = {
+    select: vi.fn().mockReturnThis(),
+    eq: vi.fn().mockReturnThis(),
+  }
+  selectChain.then = (resolve: (v: unknown) => void) =>
+    Promise.resolve({ data: existingRows, error: null }).then(resolve)
 
-    const upsertChain = {
-      upsert: vi.fn().mockResolvedValue({ error: null }),
-    }
-
-    let callCount = 0
-    const mockSb = {
-      from: vi.fn().mockImplementation(() => {
-        callCount++
-        return callCount === 1 ? selectChain : upsertChain
-      }),
-    } as any
-    return { mockSb, upsertChain }
+  const upsertChain = {
+    upsert: vi.fn().mockResolvedValue({ error: null }),
   }
 
+  let callCount = 0
+  const mockSb = {
+    from: vi.fn().mockImplementation(() => {
+      callCount++
+      return callCount === 1 ? selectChain : upsertChain
+    }),
+  } as any
+  return { mockSb, upsertChain }
+}
+
+describe('bumpTopicLevelIfEarned', () => {
   it('promotes topic to standard after 2 sessions at 80%+ accuracy', async () => {
     const { mockSb, upsertChain } = makeSelectThenUpsert([
       { topic: 'fractions', language_level: 'simplified', sessions_at_level: 1 },
@@ -293,5 +293,116 @@ describe('getRecentMilestones', () => {
     const sb = makeChain(null, { message: 'db error' })
     const result = await getRecentMilestones(sb, 'child-1')
     expect(result).toEqual([])
+  })
+})
+
+// ─── getQuestionsForSession — tier filtering ──────────────────────────────
+
+describe('getQuestionsForSession — tier filtering', () => {
+  function makeTierTrackingClient() {
+    const eqCalls: Array<[string, unknown]> = []
+    const client = {
+      from: vi.fn().mockReturnValue({
+        select: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockImplementation(function (this: unknown, key: string, val: unknown) {
+          eqCalls.push([key, val])
+          return this
+        }),
+        not: vi.fn().mockReturnThis(),
+        limit: vi.fn().mockResolvedValue({ data: [], error: null }),
+      }),
+    }
+    return { client, eqCalls }
+  }
+
+  it('queries tier=foundational when languageLevel is foundational', async () => {
+    const { client, eqCalls } = makeTierTrackingClient()
+    await getQuestionsForSession(client as any, 3, 'math', 10, [], 'foundational')
+    const tierCalls = eqCalls.filter(([k]) => k === 'tier')
+    expect(tierCalls.length).toBeGreaterThan(0)
+    expect(tierCalls.every(([, v]) => v === 'foundational')).toBe(true)
+  })
+
+  it('queries tier=standard when languageLevel is simplified', async () => {
+    const { client, eqCalls } = makeTierTrackingClient()
+    await getQuestionsForSession(client as any, 3, 'math', 10, [], 'simplified')
+    const tierCalls = eqCalls.filter(([k]) => k === 'tier')
+    expect(tierCalls.length).toBeGreaterThan(0)
+    expect(tierCalls.every(([, v]) => v === 'standard')).toBe(true)
+  })
+
+  it('queries tier=standard when languageLevel is standard', async () => {
+    const { client, eqCalls } = makeTierTrackingClient()
+    await getQuestionsForSession(client as any, 3, 'math', 10, [], 'standard')
+    const tierCalls = eqCalls.filter(([k]) => k === 'tier')
+    expect(tierCalls.length).toBeGreaterThan(0)
+    expect(tierCalls.every(([, v]) => v === 'standard')).toBe(true)
+  })
+})
+
+// ─── bumpTopicLevelIfEarned — foundational tier ───────────────────────────
+
+describe('bumpTopicLevelIfEarned — foundational tier', () => {
+  it('sets promotion_ready=true after 3rd session at >=80% at foundational', async () => {
+    const { mockSb, upsertChain } = makeSelectThenUpsert([
+      { topic: 'fractions', language_level: 'foundational', sessions_at_level: 2, promotion_ready: false },
+    ])
+    await bumpTopicLevelIfEarned(mockSb, 'child-1', 'math', {
+      fractions: { correct: 9, total: 10 },
+    })
+    expect(upsertChain.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({ language_level: 'foundational', promotion_ready: true }),
+      expect.any(Object)
+    )
+  })
+
+  it('does NOT change language_level when setting promotion_ready', async () => {
+    const { mockSb, upsertChain } = makeSelectThenUpsert([
+      { topic: 'fractions', language_level: 'foundational', sessions_at_level: 2, promotion_ready: false },
+    ])
+    await bumpTopicLevelIfEarned(mockSb, 'child-1', 'math', {
+      fractions: { correct: 9, total: 10 },
+    })
+    expect(upsertChain.upsert).not.toHaveBeenCalledWith(
+      expect.objectContaining({ language_level: 'simplified' }),
+      expect.any(Object)
+    )
+  })
+
+  it('increments sessions_at_level before reaching threshold without setting promotion_ready', async () => {
+    const { mockSb, upsertChain } = makeSelectThenUpsert([
+      { topic: 'fractions', language_level: 'foundational', sessions_at_level: 1, promotion_ready: false },
+    ])
+    await bumpTopicLevelIfEarned(mockSb, 'child-1', 'math', {
+      fractions: { correct: 9, total: 10 },
+    })
+    expect(upsertChain.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        language_level: 'foundational',
+        sessions_at_level: 2,
+        promotion_ready: false,
+      }),
+      expect.any(Object)
+    )
+  })
+
+  it('does not demote from foundational even on very low accuracy', async () => {
+    const { mockSb, upsertChain } = makeSelectThenUpsert([
+      { topic: 'fractions', language_level: 'foundational', sessions_at_level: 0, promotion_ready: false },
+    ])
+    await bumpTopicLevelIfEarned(mockSb, 'child-1', 'math', {
+      fractions: { correct: 2, total: 10 }, // 20% — would demote standard→simplified, but not foundational
+    })
+    expect(upsertChain.upsert).not.toHaveBeenCalled()
+  })
+
+  it('does nothing at foundational when accuracy is 50-79%', async () => {
+    const { mockSb, upsertChain } = makeSelectThenUpsert([
+      { topic: 'fractions', language_level: 'foundational', sessions_at_level: 0, promotion_ready: false },
+    ])
+    await bumpTopicLevelIfEarned(mockSb, 'child-1', 'math', {
+      fractions: { correct: 6, total: 10 }, // 60%
+    })
+    expect(upsertChain.upsert).not.toHaveBeenCalled()
   })
 })
