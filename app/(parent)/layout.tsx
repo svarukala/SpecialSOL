@@ -17,6 +17,12 @@ export default async function ParentLayout({ children }: { children: React.React
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
+  const { data: parent } = await supabase
+    .from('parents')
+    .select('is_admin')
+    .eq('id', user.id)
+    .single()
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b">
@@ -33,6 +39,12 @@ export default async function ParentLayout({ children }: { children: React.React
                 <span className="hidden sm:inline">{label}</span>
               </Link>
             ))}
+            {parent?.is_admin && (
+              <Link href="/admin/generate" className={navLinkClass}>
+                <span>🛠️</span>
+                <span className="hidden sm:inline">Admin</span>
+              </Link>
+            )}
             <SignOutButton />
           </div>
         </nav>
