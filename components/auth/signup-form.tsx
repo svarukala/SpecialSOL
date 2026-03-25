@@ -13,7 +13,7 @@ export function SignupForm() {
   const [confirm, setConfirm] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  const router = useRouter()
+  const [confirmed, setConfirmed] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -29,8 +29,23 @@ export function SignupForm() {
     if (error) {
       setError(error.message)
     } else {
-      router.push('/dashboard')
+      setConfirmed(true)
     }
+  }
+
+  if (confirmed) {
+    return (
+      <Card className="w-full max-w-sm">
+        <CardContent className="pt-6 space-y-3 text-center">
+          <p className="text-2xl">📬</p>
+          <p className="font-semibold">Check your email</p>
+          <p className="text-sm text-muted-foreground">
+            We sent a confirmation link to <strong>{email}</strong>. Click it to activate your account, then{' '}
+            <a href="/login" className="underline">sign in</a>.
+          </p>
+        </CardContent>
+      </Card>
+    )
   }
 
   return (

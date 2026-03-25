@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
+import { SignOutButton } from '@/components/auth/sign-out-button'
 
 const NAV_LINKS = [
   { href: '/dashboard', emoji: '📊', label: 'Dashboard' },
@@ -32,6 +33,7 @@ export default async function ParentLayout({ children }: { children: React.React
                 <span className="hidden sm:inline">{label}</span>
               </Link>
             ))}
+            <SignOutButton />
           </div>
         </nav>
       </header>

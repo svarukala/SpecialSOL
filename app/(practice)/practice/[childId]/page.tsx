@@ -42,7 +42,7 @@ export default async function PracticePage({ params }: { params: Promise<{ child
       child={child}
       availableSubjects={availableSubjects}
       parentSettings={safeSettings}
-      dashboardHref="/dashboard"
+      dashboardHref={`/dashboard?child=${childId}`}
     />
   )
 }
