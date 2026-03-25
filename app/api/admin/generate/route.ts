@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
   const userIdOrErr = await assertAdmin(supabase).catch(e => e)
   if (userIdOrErr instanceof Response) return userIdOrErr
 
-  const { grade, subject, topic: topicName } = await req.json()
+  const { grade, subject, topic: topicName, tier = 'standard' } = await req.json()
 
   const topics = getTopicsForGradeSubject(grade, subject)
   const topic = topics.find(t => t.name === topicName)
@@ -19,15 +19,17 @@ export async function POST(req: NextRequest) {
 
   let questions
   try {
-    questions = await generateTopic(grade, subject, topic)
+    questions = await generateTopic(grade, subject, topic, tier)
   } catch (e) {
     return NextResponse.json({ error: (e as Error).message }, { status: 500 })
   }
 
+  const rows = questions.map((q) => ({ ...q, tier }))
+
   const adminDb = createAdminClient()
   const { data, error } = await adminDb
     .from('questions_pending')
-    .insert(questions)
+    .insert(rows)
     .select('id')
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })

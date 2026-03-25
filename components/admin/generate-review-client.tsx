@@ -24,6 +24,7 @@ export function GenerateReviewClient() {
   const [grade, setGrade] = useState<number>(3)
   const [subject, setSubject] = useState<'math' | 'reading'>('math')
   const [topicName, setTopicName] = useState<string>('')
+  const [tier, setTier] = useState<'standard' | 'foundational'>('standard')
   const [generating, setGenerating] = useState(false)
   const [generateError, setGenerateError] = useState<string | null>(null)
   const [pendingQuestions, setPendingQuestions] = useState<PendingQuestion[]>([])
@@ -55,7 +56,7 @@ export function GenerateReviewClient() {
       const res = await fetch('/api/admin/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ grade, subject, topic: topicName }),
+        body: JSON.stringify({ grade, subject, topic: topicName, tier }),
       })
       if (!res.ok) {
         const body = await res.json()
@@ -135,6 +136,17 @@ export function GenerateReviewClient() {
           <select value={topicName} onChange={e => setTopicName(e.target.value)}
             className="border rounded px-2 py-1 text-sm bg-background w-48">
             {topicsForCurrent.map(t => <option key={t.name} value={t.name}>{t.name}</option>)}
+          </select>
+        </div>
+        <div>
+          <div className="text-xs font-medium text-gray-500 mb-1">Tier</div>
+          <select
+            value={tier}
+            onChange={(e) => setTier(e.target.value as 'standard' | 'foundational')}
+            className="border border-gray-300 rounded px-2 py-1 text-sm bg-white w-32"
+          >
+            <option value="standard">Standard</option>
+            <option value="foundational">Foundational</option>
           </select>
         </div>
         <button onClick={handleGenerate} disabled={generating || !topicName}

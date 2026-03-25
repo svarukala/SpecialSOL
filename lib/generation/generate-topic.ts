@@ -3,8 +3,17 @@ import Anthropic from '@anthropic-ai/sdk'
 import { type SolTopic } from '@/lib/curriculum/sol-curriculum'
 import { validateQuestionBatch, type GeneratedQuestion } from '@/lib/generation/question-schema'
 
-function buildPrompt(grade: number, subject: 'math' | 'reading', topic: SolTopic): string {
-  return `You are creating Virginia SOL practice questions for Grade ${grade} ${subject}.
+function buildPrompt(grade: number, subject: 'math' | 'reading', topic: SolTopic, tier: 'foundational' | 'standard'): string {
+  const foundationalInstructions = tier === 'foundational'
+    ? `IMPORTANT: These questions are for children with special needs. You MUST follow these rules:
+- Every sentence must be 10 words or fewer.
+- Each question tests exactly ONE concept — no compound ideas.
+- Use only Grade 1–2 vocabulary. No subject-specific jargon unless it is the core concept being tested.
+- Use concrete, everyday scenarios (sharing food, counting objects, reading a sign).
+- The simplified_text field must be null — do not populate it.
+- All other fields (answer_type, choices, hints, difficulty, sol_standard) follow the normal format.\n\n`
+    : ''
+  return `${foundationalInstructions}You are creating Virginia SOL practice questions for Grade ${grade} ${subject}.
 
 Topic: ${topic.name}
 SOL Standard: ${topic.solStandard}
@@ -56,14 +65,15 @@ Return a JSON array only (no markdown, no explanation):
 export async function generateTopic(
   grade: number,
   subject: 'math' | 'reading',
-  topic: SolTopic
+  topic: SolTopic,
+  tier: 'foundational' | 'standard' = 'standard'
 ): Promise<GeneratedQuestion[]> {
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
   const message = await client.messages.create({
     model: 'claude-opus-4-6',
     max_tokens: 4096,
-    messages: [{ role: 'user', content: buildPrompt(grade, subject, topic) }],
+    messages: [{ role: 'user', content: buildPrompt(grade, subject, topic, tier) }],
   })
 
   const raw = (message.content[0] as { type: string; text: string }).text.trim()
