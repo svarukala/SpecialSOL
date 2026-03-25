@@ -29,7 +29,7 @@ export function MilestonesCard({ milestones }: { milestones: Milestone[] }) {
                 {m.direction === 'promoted' ? '🎉' : '⚠️'}{' '}
                 <strong>{m.topic}</strong>{' '}
                 <span className="text-muted-foreground">({m.subject})</span>
-                {' '}simplified → standard
+                {' '}{m.fromLevel} → {m.toLevel}
               </span>
               <span className="text-muted-foreground ml-4 whitespace-nowrap">
                 {formatRelativeTime(m.changedAt)}
