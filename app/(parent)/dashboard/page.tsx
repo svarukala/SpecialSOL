@@ -9,6 +9,7 @@ import Link from 'next/link'
 import { MilestonesCard } from '@/components/dashboard/milestones-card'
 import { getAllChildTopicLevels, getRecentMilestones } from '@/lib/supabase/queries'
 import type { Milestone } from '@/lib/supabase/queries'
+import { PromotionBanner } from '@/components/dashboard/promotion-banner'
 
 export default async function DashboardPage({
   searchParams,
@@ -21,6 +22,15 @@ export default async function DashboardPage({
 
   const { data: children } = await supabase
     .from('children').select('*').eq('parent_id', user.id).order('created_at')
+
+  // Fetch promotion-ready topics across all children
+  const { data: promotionReadyRows } = children && children.length > 0
+    ? await supabase
+        .from('child_topic_levels')
+        .select('child_id, subject, language_level')
+        .in('child_id', children.map((c) => c.id))
+        .eq('promotion_ready', true)
+    : { data: [] }
 
   if (!children || children.length === 0) {
     return (
@@ -100,6 +110,12 @@ export default async function DashboardPage({
         <h1 className="text-2xl font-bold">Dashboard</h1>
         <Link href="/children/new" className="inline-flex items-center justify-center rounded-lg border border-border bg-background px-2.5 h-7 text-sm font-medium transition-colors hover:bg-muted">+ Add Child</Link>
       </div>
+      {promotionReadyRows && promotionReadyRows.length > 0 && (
+        <PromotionBanner
+          children={children}
+          promotionReady={promotionReadyRows}
+        />
+      )}
       <div className="flex gap-3 overflow-x-auto pb-2">
         {children.map((child) => (
           <ChildCard key={child.id} child={child} active={child.id === activeChild.id} />
