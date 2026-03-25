@@ -58,7 +58,7 @@ Add an optional `tier: 'foundational' | 'standard'` parameter (default `'standar
 - One concept per question — no compound ideas
 - Use Grade 1–2 vocabulary only
 - Use concrete, relatable, everyday scenarios
-- Do not add a `simplified_text` field — leave it as an empty string or omit it; the foundational `question_text` is already the simplest form
+- Do not populate `simplified_text` — the field must be `null` for foundational questions; the foundational `question_text` is already the simplest form
 
 The SOL standard, subject, topic, grade, answer format, and choices structure are unchanged.
 
