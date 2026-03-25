@@ -1,11 +1,17 @@
 CREATE OR REPLACE FUNCTION approve_pending_question(
-  p_pending_id uuid,
-  p_admin_id uuid
+  p_pending_id uuid
 ) RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER AS $$
 DECLARE
   v_question_id uuid;
   v_pending questions_pending%ROWTYPE;
 BEGIN
+  -- Admin auth guard: verify the calling user is an admin
+  IF NOT EXISTS (
+    SELECT 1 FROM parents WHERE id = auth.uid() AND is_admin = true
+  ) THEN
+    RAISE EXCEPTION 'unauthorized';
+  END IF;
+
   SELECT * INTO v_pending
   FROM questions_pending WHERE id = p_pending_id FOR UPDATE;
 
@@ -40,7 +46,7 @@ BEGIN
   UPDATE questions_pending SET
     status = 'approved',
     reviewed_at = now(),
-    reviewed_by = p_admin_id
+    reviewed_by = auth.uid()
   WHERE id = p_pending_id;
 
   RETURN v_question_id;
