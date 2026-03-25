@@ -114,6 +114,23 @@ export async function getChildTopicLevels(
   ) as Record<string, 'simplified' | 'standard'>
 }
 
+export async function getAllChildTopicLevels(
+  supabase: SupabaseClient,
+  childId: string
+): Promise<Record<string, 'simplified' | 'standard'>> {
+  const { data } = await supabase
+    .from('child_topic_levels')
+    .select('topic, language_level')
+    .eq('child_id', childId)
+  if (!data) return {}
+  return Object.fromEntries(
+    data.map((r: { topic: string; language_level: string }) => [
+      r.topic,
+      r.language_level as 'simplified' | 'standard',
+    ])
+  )
+}
+
 export async function bumpTopicLevelIfEarned(
   supabase: SupabaseClient,
   childId: string,

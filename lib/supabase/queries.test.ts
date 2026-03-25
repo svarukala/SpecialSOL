@@ -1,6 +1,6 @@
 // lib/supabase/queries.test.ts
 import { describe, it, expect, vi } from 'vitest'
-import { getQuestionsForSession, getChildTopicLevels, bumpTopicLevelIfEarned } from './queries'
+import { getQuestionsForSession, getChildTopicLevels, bumpTopicLevelIfEarned, getAllChildTopicLevels } from './queries'
 
 // Helper to create a fake question
 const fakeQ = (id: string, difficulty: 1|2|3, simplified_text: string|null = 'simplified') => ({
@@ -207,5 +207,41 @@ describe('bumpTopicLevelIfEarned', () => {
     const payload = upsertChain.upsert.mock.calls[0][0]
     expect(payload).not.toHaveProperty('previous_level')
     expect(payload).not.toHaveProperty('changed_at')
+  })
+})
+
+describe('getAllChildTopicLevels', () => {
+  function makeChain(rows: Record<string, unknown>[]) {
+    const chain: any = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+    }
+    chain.then = (resolve: (v: unknown) => void) =>
+      Promise.resolve({ data: rows, error: null }).then(resolve)
+    return { from: vi.fn().mockReturnValue(chain) } as any
+  }
+
+  it('returns flat topic→level map from all subjects', async () => {
+    const sb = makeChain([
+      { topic: 'fractions', language_level: 'standard' },
+      { topic: 'poetry', language_level: 'simplified' },
+    ])
+    const result = await getAllChildTopicLevels(sb, 'child-1')
+    expect(result).toEqual({ fractions: 'standard', poetry: 'simplified' })
+  })
+
+  it('returns empty object when no rows exist', async () => {
+    const sb = makeChain([])
+    const result = await getAllChildTopicLevels(sb, 'child-1')
+    expect(result).toEqual({})
+  })
+
+  it('returns empty object on DB error', async () => {
+    const chain: any = { select: vi.fn().mockReturnThis(), eq: vi.fn().mockReturnThis() }
+    chain.then = (resolve: (v: unknown) => void) =>
+      Promise.resolve({ data: null, error: { message: 'db error' } }).then(resolve)
+    const sb = { from: vi.fn().mockReturnValue(chain) } as any
+    const result = await getAllChildTopicLevels(sb, 'child-1')
+    expect(result).toEqual({})
   })
 })
