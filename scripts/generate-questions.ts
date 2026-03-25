@@ -3,8 +3,8 @@ import Anthropic from '@anthropic-ai/sdk'
 import { writeFileSync, mkdirSync } from 'fs'
 import { join } from 'path'
 import { config } from 'dotenv'
-import { getTopicsForGradeSubject, type SolTopic } from './sol-curriculum'
-import { validateQuestionBatch } from './question-schema'
+import { getTopicsForGradeSubject, type SolTopic } from '@/lib/curriculum/sol-curriculum'
+import { validateQuestionBatch } from '@/lib/generation/question-schema'
 
 config({ path: '.env.local', override: true })
 

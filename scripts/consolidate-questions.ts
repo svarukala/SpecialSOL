@@ -1,7 +1,7 @@
 // scripts/consolidate-questions.ts
 import { readFileSync, readdirSync, writeFileSync } from 'fs'
 import { join } from 'path'
-import { validateQuestionBatch, type GeneratedQuestion } from './question-schema'
+import { validateQuestionBatch, type GeneratedQuestion } from '@/lib/generation/question-schema'
 
 const GENERATED_DIR = join(process.cwd(), 'supabase/seed/generated')
 const OUTPUT_FILE = join(process.cwd(), 'supabase/seed/questions.json')
