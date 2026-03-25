@@ -22,6 +22,13 @@ export default function EditChildPage() {
   const [accommodations, setAccommodations] = useState<AccommodationState>(DEFAULT_ACCOMMODATIONS)
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [topicLevels, setTopicLevels] = useState<Array<{
+    subject: string
+    topic: string
+    language_level: string
+    promotion_ready: boolean
+  }>>([])
+  const [levelLoading, setLevelLoading] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -34,10 +41,56 @@ export default function EditChildPage() {
         setAvatar(data.avatar)
         setAccommodations({ ...DEFAULT_ACCOMMODATIONS, ...data.accommodations })
       }
+      const { data: levels } = await supabase
+        .from('child_topic_levels')
+        .select('subject, topic, language_level, promotion_ready')
+        .eq('child_id', childId)
+      setTopicLevels(levels ?? [])
       setLoading(false)
     }
     load()
   }, [childId])
+
+  function subjectIsFoundational(subject: string) {
+    const rows = topicLevels.filter((r) => r.subject === subject)
+    if (rows.length === 0) return false
+    return rows.filter((r) => r.language_level === 'foundational').length > rows.length / 2
+  }
+
+  function subjectHasPromotionReady(subject: string) {
+    return topicLevels.some((r) => r.subject === subject && r.promotion_ready)
+  }
+
+  async function refreshTopicLevels() {
+    const supabase = createClient()
+    const { data } = await supabase
+      .from('child_topic_levels')
+      .select('subject, topic, language_level, promotion_ready')
+      .eq('child_id', childId)
+    setTopicLevels(data ?? [])
+  }
+
+  async function handleSetLearningLevel(subject: string, tier: 'foundational' | 'simplified') {
+    setLevelLoading(true)
+    await fetch(`/api/children/${childId}/learning-level`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ subject, tier }),
+    })
+    await refreshTopicLevels()
+    setLevelLoading(false)
+  }
+
+  async function handlePromote(subject: string, action: 'confirm' | 'dismiss') {
+    setLevelLoading(true)
+    await fetch(`/api/children/${childId}/promote`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ subject, action }),
+    })
+    await refreshTopicLevels()
+    setLevelLoading(false)
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -89,6 +142,73 @@ export default function EditChildPage() {
             <div className="space-y-2">
               <Label className="text-base font-semibold">Accommodations</Label>
               <AccommodationSettingsForm value={accommodations} onChange={setAccommodations} />
+            </div>
+            <div className="space-y-3">
+              <Label className="text-base font-semibold">Learning Level</Label>
+              <p className="text-sm text-muted-foreground">
+                Foundational questions use simpler language for children who need extra support.
+              </p>
+              {(['math', 'reading'] as const).map((subject) => {
+                const isFoundational = subjectIsFoundational(subject)
+                const hasPromotion = subjectHasPromotionReady(subject)
+                return (
+                  <div key={subject} className="flex flex-col gap-2 p-3 border rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium capitalize">{subject}</span>
+                      {isFoundational ? (
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded">
+                            Foundational
+                          </span>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            disabled={levelLoading}
+                            onClick={() => handleSetLearningLevel(subject, 'simplified')}
+                          >
+                            Remove
+                          </Button>
+                        </div>
+                      ) : (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={levelLoading}
+                          onClick={() => handleSetLearningLevel(subject, 'foundational')}
+                        >
+                          Set to Foundational
+                        </Button>
+                      )}
+                    </div>
+                    {hasPromotion && (
+                      <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded p-2">
+                        <span className="text-xs text-green-700 font-medium">Ready to move up &rarr;</span>
+                        <div className="flex gap-2">
+                          <Button
+                            type="button"
+                            size="sm"
+                            disabled={levelLoading}
+                            onClick={() => handlePromote(subject, 'confirm')}
+                          >
+                            Promote
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            disabled={levelLoading}
+                            onClick={() => handlePromote(subject, 'dismiss')}
+                          >
+                            Not yet
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
             </div>
             <Button type="submit" className="w-full" disabled={saving}>
               {saving ? 'Saving...' : 'Save Changes'}
