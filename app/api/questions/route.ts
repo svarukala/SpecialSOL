@@ -14,14 +14,17 @@ export async function GET(req: NextRequest) {
   const recentIds = childId ? await getRecentSessionQuestionIds(supabase, childId) : []
 
   // Derive the child's current dominant language level
-  let languageLevel: 'simplified' | 'standard' = 'simplified'
+  type LanguageLevel = 'foundational' | 'simplified' | 'standard'
+  let languageLevel: LanguageLevel = 'simplified'
   if (childId) {
     const topicLevels = await getChildTopicLevels(supabase, childId, subject)
     const levels = Object.values(topicLevels)
-    const standardCount = levels.filter((l) => l === 'standard').length
-    // Majority at standard → serve standard; ties and new children default to simplified
-    if (levels.length > 0 && standardCount > levels.length / 2) {
-      languageLevel = 'standard'
+    if (levels.length > 0) {
+      const foundationalCount = levels.filter((l) => l === 'foundational').length
+      const standardCount = levels.filter((l) => l === 'standard').length
+      if (foundationalCount > levels.length / 2) languageLevel = 'foundational'
+      else if (standardCount > levels.length / 2) languageLevel = 'standard'
+      // else: simplified (default — covers ties and mixed levels)
     }
   }
 
