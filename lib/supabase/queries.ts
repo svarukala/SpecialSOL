@@ -147,7 +147,7 @@ export async function bumpTopicLevelIfEarned(
       if (newSessionsAtLevel >= 2 && current.language_level === 'simplified') {
         // Promote to standard
         await supabase.from('child_topic_levels').upsert(
-          { child_id: childId, subject, topic, language_level: 'standard', sessions_at_level: 0, updated_at: now },
+          { child_id: childId, subject, topic, language_level: 'standard', sessions_at_level: 0, updated_at: now, previous_level: 'simplified', changed_at: now },
           { onConflict: 'child_id,subject,topic' }
         )
       } else if (current.language_level === 'simplified') {
@@ -161,7 +161,7 @@ export async function bumpTopicLevelIfEarned(
     } else if (accuracy < 0.5 && current.language_level === 'standard') {
       // Demote to simplified
       await supabase.from('child_topic_levels').upsert(
-        { child_id: childId, subject, topic, language_level: 'simplified', sessions_at_level: 0, updated_at: now },
+        { child_id: childId, subject, topic, language_level: 'simplified', sessions_at_level: 0, updated_at: now, previous_level: 'standard', changed_at: now },
         { onConflict: 'child_id,subject,topic' }
       )
     }

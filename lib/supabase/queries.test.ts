@@ -162,4 +162,50 @@ describe('bumpTopicLevelIfEarned', () => {
     })
     expect(upsertChain.upsert).not.toHaveBeenCalled()
   })
+
+  it('promotion upsert includes previous_level and changed_at', async () => {
+    const { mockSb, upsertChain } = makeSelectThenUpsert([
+      { topic: 'fractions', language_level: 'simplified', sessions_at_level: 1 },
+    ])
+    await bumpTopicLevelIfEarned(mockSb, 'child-1', 'math', {
+      fractions: { correct: 9, total: 10 },
+    })
+    expect(upsertChain.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        language_level: 'standard',
+        previous_level: 'simplified',
+        changed_at: expect.any(String),
+      }),
+      expect.any(Object)
+    )
+  })
+
+  it('demotion upsert includes previous_level and changed_at', async () => {
+    const { mockSb, upsertChain } = makeSelectThenUpsert([
+      { topic: 'fractions', language_level: 'standard', sessions_at_level: 0 },
+    ])
+    await bumpTopicLevelIfEarned(mockSb, 'child-1', 'math', {
+      fractions: { correct: 3, total: 10 },
+    })
+    expect(upsertChain.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        language_level: 'simplified',
+        previous_level: 'standard',
+        changed_at: expect.any(String),
+      }),
+      expect.any(Object)
+    )
+  })
+
+  it('increment upsert does NOT include previous_level or changed_at', async () => {
+    const { mockSb, upsertChain } = makeSelectThenUpsert([
+      { topic: 'fractions', language_level: 'simplified', sessions_at_level: 0 },
+    ])
+    await bumpTopicLevelIfEarned(mockSb, 'child-1', 'math', {
+      fractions: { correct: 9, total: 10 },
+    })
+    const payload = upsertChain.upsert.mock.calls[0][0]
+    expect(payload).not.toHaveProperty('previous_level')
+    expect(payload).not.toHaveProperty('changed_at')
+  })
 })
