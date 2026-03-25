@@ -131,6 +131,42 @@ export async function getAllChildTopicLevels(
   )
 }
 
+export type Milestone = {
+  subject: string
+  topic: string
+  fromLevel: 'simplified' | 'standard'
+  toLevel: 'simplified' | 'standard'
+  changedAt: string
+  direction: 'promoted' | 'demoted'
+}
+
+export async function getRecentMilestones(
+  supabase: SupabaseClient,
+  childId: string
+): Promise<Milestone[]> {
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+  const { data } = await supabase
+    .from('child_topic_levels')
+    .select('subject, topic, language_level, previous_level, changed_at')
+    .eq('child_id', childId)
+    .not('previous_level', 'is', null)
+    .gte('changed_at', thirtyDaysAgo)
+    .order('changed_at', { ascending: false })
+    .limit(10)
+  if (!data) return []
+  return data.map((r: {
+    subject: string; topic: string
+    language_level: string; previous_level: string; changed_at: string
+  }) => ({
+    subject: r.subject,
+    topic: r.topic,
+    fromLevel: r.previous_level as 'simplified' | 'standard',
+    toLevel: r.language_level as 'simplified' | 'standard',
+    changedAt: r.changed_at,
+    direction: r.language_level === 'standard' ? 'promoted' : 'demoted',
+  }))
+}
+
 export async function bumpTopicLevelIfEarned(
   supabase: SupabaseClient,
   childId: string,

@@ -1,6 +1,7 @@
 // lib/supabase/queries.test.ts
 import { describe, it, expect, vi } from 'vitest'
-import { getQuestionsForSession, getChildTopicLevels, bumpTopicLevelIfEarned, getAllChildTopicLevels } from './queries'
+import { getQuestionsForSession, getChildTopicLevels, bumpTopicLevelIfEarned, getAllChildTopicLevels, getRecentMilestones } from './queries'
+import type { Milestone } from './queries'
 
 // Helper to create a fake question
 const fakeQ = (id: string, difficulty: 1|2|3, simplified_text: string|null = 'simplified') => ({
@@ -243,5 +244,54 @@ describe('getAllChildTopicLevels', () => {
     const sb = { from: vi.fn().mockReturnValue(chain) } as any
     const result = await getAllChildTopicLevels(sb, 'child-1')
     expect(result).toEqual({})
+  })
+})
+
+describe('getRecentMilestones', () => {
+  const now = new Date().toISOString()
+
+  function makeChain(rows: Record<string, unknown>[] | null, error: unknown = null) {
+    const chain: any = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      not: vi.fn().mockReturnThis(),
+      gte: vi.fn().mockReturnThis(),
+      order: vi.fn().mockReturnThis(),
+      limit: vi.fn().mockReturnThis(),
+    }
+    chain.then = (resolve: (v: unknown) => void) =>
+      Promise.resolve({ data: rows, error }).then(resolve)
+    return { from: vi.fn().mockReturnValue(chain) } as any
+  }
+
+  it('returns empty array when no milestones in window', async () => {
+    const sb = makeChain([])
+    const result = await getRecentMilestones(sb, 'child-1')
+    expect(result).toEqual([])
+  })
+
+  it('maps DB rows to Milestone objects with correct fields', async () => {
+    const sb = makeChain([
+      { subject: 'math', topic: 'fractions', language_level: 'standard', previous_level: 'simplified', changed_at: now },
+      { subject: 'math', topic: 'division', language_level: 'simplified', previous_level: 'standard', changed_at: now },
+    ])
+    const result = await getRecentMilestones(sb, 'child-1')
+    expect(result).toHaveLength(2)
+    expect(result[0]).toEqual({
+      subject: 'math', topic: 'fractions',
+      fromLevel: 'simplified', toLevel: 'standard',
+      changedAt: now, direction: 'promoted',
+    })
+    expect(result[1]).toEqual({
+      subject: 'math', topic: 'division',
+      fromLevel: 'standard', toLevel: 'simplified',
+      changedAt: now, direction: 'demoted',
+    })
+  })
+
+  it('returns empty array on DB error', async () => {
+    const sb = makeChain(null, { message: 'db error' })
+    const result = await getRecentMilestones(sb, 'child-1')
+    expect(result).toEqual([])
   })
 })
