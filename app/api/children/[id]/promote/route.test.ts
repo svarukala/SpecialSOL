@@ -54,9 +54,15 @@ describe('POST /api/children/[id]/promote', () => {
     expect(await res.json()).toEqual({ affected: 2 })
     expect(upsertMock).toHaveBeenCalledWith(
       expect.arrayContaining([
-        expect.objectContaining({ language_level: 'simplified', promotion_ready: false, sessions_at_level: 0 }),
+        expect.objectContaining({
+          language_level: 'simplified',
+          promotion_ready: false,
+          sessions_at_level: 0,
+          previous_level: 'foundational',
+          changed_at: expect.any(String),
+        }),
       ]),
-      expect.any(Object)
+      expect.objectContaining({ onConflict: 'child_id,subject,topic' })
     )
   })
 
@@ -78,7 +84,7 @@ describe('POST /api/children/[id]/promote', () => {
       expect.arrayContaining([
         expect.objectContaining({ language_level: 'foundational', promotion_ready: false, sessions_at_level: 0 }),
       ]),
-      expect.any(Object)
+      expect.objectContaining({ onConflict: 'child_id,subject,topic' })
     )
   })
 
