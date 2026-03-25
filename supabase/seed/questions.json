@@ -1724,7 +1724,7 @@
     "sol_standard": "3.3",
     "difficulty": 1,
     "question_text": "What is 783 − 261?",
-    "simplified_text": "You have 783 stickers and give away 261 stickers. How many stickers do you have left?",
+    "simplified_text": "Subtract: 783 − 261. What is the answer?",
     "answer_type": "multiple_choice",
     "choices": [
       {
@@ -1864,7 +1864,7 @@
     ],
     "hint_1": "You need to subtract. Be careful — there are zeros in the middle, so you will need to regroup.",
     "hint_2": "You cannot take 7 from 3 in the ones place. Borrow from the thousands by working through the zeros.",
-    "hint_3": "After regrouping, 5,003 becomes 4,9,9,13 (thousands, hundreds, tens, ones). Now subtract each place from 1,847.",
+    "hint_3": "After regrouping, think of 5,003 as 4 thousands, 9 hundreds, 9 tens, and 13 ones. Now subtract 1,847.",
     "calculator_allowed": false,
     "source": "ai_generated"
   },
@@ -2206,7 +2206,7 @@
     ],
     "hint_1": "Equal sharing means each person gets the same amount.",
     "hint_2": "Divide 20 by 5 to find the answer.",
-    "hint_3": "5 × ___ = 20. The answer is close to 5.",
+    "hint_3": "5 × 4 = 20. So 20 ÷ 5 = 4.",
     "calculator_allowed": false,
     "source": "ai_generated"
   },
@@ -3346,7 +3346,7 @@
     ],
     "hint_1": "The commutative property means you can switch the order of the numbers you add.",
     "hint_2": "The same two numbers are added, just flipped around.",
-    "hint_3": "Switch 3 and 7. What do you get?",
+    "hint_3": "3 + 7 = 10, so 7 + 3 = 10. The answer stays the same when you switch the order.",
     "calculator_allowed": false,
     "source": "ai_generated"
   },
@@ -4214,7 +4214,7 @@
       },
       {
         "id": "d",
-        "text": "the and and",
+        "text": "run and jump",
         "is_correct": false
       }
     ],
@@ -5073,28 +5073,28 @@
     "choices": [
       {
         "id": "a",
-        "text": "not able to give comfort",
+        "text": "not comfortable; causing discomfort",
         "is_correct": true
       },
       {
         "id": "b",
-        "text": "very able to give comfort",
+        "text": "very comfortable",
         "is_correct": false
       },
       {
         "id": "c",
-        "text": "able to give comfort again",
+        "text": "able to be made comfortable",
         "is_correct": false
       },
       {
         "id": "d",
-        "text": "giving more comfort than before",
+        "text": "full of comfort",
         "is_correct": false
       }
     ],
     "hint_1": "This word has three parts: a prefix, a root word, and a suffix. Figure out what each part means on its own.",
-    "hint_2": "The prefix 'un-' means 'not,' 'comfort' means a feeling of ease, and '-able' means 'able to.' Now put them all together.",
-    "hint_3": "Un (not) + comfort (ease) + able (able to) = not able to give comfort. Which answer matches that?",
+    "hint_2": "The prefix 'un-' means 'not,' and 'comfortable' means feeling at ease. Put them together.",
+    "hint_3": "Un (not) + comfortable (at ease) = not comfortable, or causing discomfort. Which answer matches that?",
     "calculator_allowed": false,
     "source": "ai_generated"
   },
@@ -5491,7 +5491,7 @@
     "choices": [
       {
         "id": "a",
-        "text": "2.__(blank)538",
+        "text": "2.5038",
         "is_correct": false
       },
       {
@@ -5790,7 +5790,7 @@
     "sol_standard": "4.5",
     "difficulty": 1,
     "question_text": "What is 2/6 + 3/6?",
-    "simplified_text": "You eat 2/6 of a pizza and your friend eats 3/6 of the same pizza. How much pizza did you eat together?",
+    "simplified_text": "Add 2/6 and 3/6. What do you get?",
     "answer_type": "multiple_choice",
     "choices": [
       {
@@ -5828,7 +5828,7 @@
     "sol_standard": "4.5",
     "difficulty": 1,
     "question_text": "What is 7/8 − 3/8?",
-    "simplified_text": "You have 7/8 of a pie and you give away 3/8 of the pie. How much pie do you have left?",
+    "simplified_text": "Subtract: 7/8 − 3/8. What do you get?",
     "answer_type": "multiple_choice",
     "choices": [
       {
@@ -5866,7 +5866,7 @@
     "sol_standard": "4.5",
     "difficulty": 1,
     "question_text": "What is 1/5 + 2/5?",
-    "simplified_text": "You walk 1/5 of a mile and then walk 2/5 of a mile more. How far did you walk in all?",
+    "simplified_text": "Add 1/5 and 2/5. What do you get?",
     "answer_type": "multiple_choice",
     "choices": [
       {
@@ -7125,7 +7125,7 @@
     "choices": [
       {
         "id": "a",
-        "text": "3,__(4)57,218",
+        "text": "3,454,329",
         "is_correct": false
       },
       {
@@ -9177,7 +9177,7 @@
     "choices": [
       {
         "id": "a",
-        "text": "5.__(select)749",
+        "text": "5.749",
         "is_correct": false
       },
       {
@@ -9514,7 +9514,7 @@
     "sol_standard": "5.4",
     "difficulty": 1,
     "question_text": "What is 1/4 + 1/2?",
-    "simplified_text": "You walk 1/4 of a mile and then walk 1/2 of a mile more. How far did you walk in all?",
+    "simplified_text": "Add 1/4 and 1/2. What do you get?",
     "answer_type": "multiple_choice",
     "choices": [
       {
