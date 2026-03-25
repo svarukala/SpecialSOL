@@ -6,6 +6,9 @@ import { WeakAreasCallout } from '@/components/dashboard/weak-areas-callout'
 import { ChildCard } from '@/components/dashboard/child-card'
 import { SessionHistoryTable } from '@/components/dashboard/session-history-table'
 import Link from 'next/link'
+import { MilestonesCard } from '@/components/dashboard/milestones-card'
+import { getAllChildTopicLevels, getRecentMilestones } from '@/lib/supabase/queries'
+import type { Milestone } from '@/lib/supabase/queries'
 
 export default async function DashboardPage({
   searchParams,
@@ -86,6 +89,11 @@ export default async function DashboardPage({
     .sort((a, b) => a.accuracy - b.accuracy)
   const weakTopics = topicList.filter((t) => t.accuracy < 0.65).slice(0, 2)
 
+  const [milestones, topicLevels] = await Promise.all([
+    getRecentMilestones(supabase, activeChild.id).catch(() => [] as Milestone[]),
+    getAllChildTopicLevels(supabase, activeChild.id).catch(() => ({} as Record<string, 'simplified' | 'standard'>)),
+  ])
+
   return (
     <main className="max-w-3xl mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
@@ -108,10 +116,11 @@ export default async function DashboardPage({
         <StatCard label="Avg Score" value={`${avgScore}%`} icon="⭐" />
         <StatCard label="Current Streak" value={`${streak} days`} icon="🔥" />
       </div>
+      <MilestonesCard milestones={milestones} />
       <WeakAreasCallout topics={weakTopics} childName={activeChild.name} />
       <div>
         <h2 className="font-semibold mb-3">Progress by Topic</h2>
-        <ProgressChart topics={topicList} />
+        <ProgressChart topics={topicList} topicLevels={topicLevels} />
       </div>
       <div>
         <h2 className="font-semibold mb-3">Recent Sessions</h2>
