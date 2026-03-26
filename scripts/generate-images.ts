@@ -82,6 +82,8 @@ async function main() {
     ?? (args.indexOf('--subject') >= 0 ? args[args.indexOf('--subject') + 1] : undefined)
   const topicArg = args.find((a) => a.startsWith('--topic='))?.split('=')[1]
     ?? (args.indexOf('--topic') >= 0 ? args[args.indexOf('--topic') + 1] : undefined)
+  const tierArg = args.find((a) => a.startsWith('--tier='))?.split('=')[1]
+    ?? (args.indexOf('--tier') >= 0 ? args[args.indexOf('--tier') + 1] : undefined)
 
   if (dryRun) {
     console.log('[dry-run] No changes will be written to the database.')
@@ -108,6 +110,9 @@ async function main() {
     }
     if (topicArg) {
       query = query.eq('topic', topicArg)
+    }
+    if (tierArg) {
+      query = query.eq('tier', tierArg)
     }
 
     const { data, error } = await query
