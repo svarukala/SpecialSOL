@@ -34,6 +34,7 @@ export function QuestionCard({ question, simplified, highlightRange }: Props) {
         {question.image_svg && (
           <div className="flex justify-center my-3">
             <div
+              data-testid="svg-container"
               className="max-w-xs w-full rounded border border-border p-2 bg-muted/30"
               dangerouslySetInnerHTML={{ __html: sanitizeSvg(question.image_svg) }}
             />
