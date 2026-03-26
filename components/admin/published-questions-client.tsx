@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { SOL_CURRICULUM } from '@/lib/curriculum/sol-curriculum'
+import { sanitizeSvg } from '@/lib/svg/sanitize'
 
 type Choice = { id: string; text: string; is_correct: boolean }
 
@@ -167,12 +168,17 @@ export function PublishedQuestionsClient({
                 </div>
                 <div className="mb-3">
                   <label className="text-xs font-medium block mb-1">Image SVG</label>
-                  {(drafts[q.id]?.image_svg !== undefined ? drafts[q.id].image_svg : q.image_svg) && (
-                    <div
-                      className="mb-2 border rounded p-2 max-w-xs overflow-hidden"
-                      dangerouslySetInnerHTML={{ __html: (drafts[q.id]?.image_svg !== undefined ? drafts[q.id].image_svg : q.image_svg) as string }}
-                    />
-                  )}
+                  {(() => {
+                    const svgValue = typeof drafts[q.id]?.image_svg === 'string'
+                      ? drafts[q.id].image_svg as string
+                      : q.image_svg
+                    return svgValue ? (
+                      <div
+                        className="mb-2 border rounded p-2 max-w-xs overflow-hidden"
+                        dangerouslySetInnerHTML={{ __html: sanitizeSvg(svgValue) }}
+                      />
+                    ) : null
+                  })()}
                   <textarea defaultValue={q.image_svg ?? ''}
                     onChange={e => setDrafts(prev => ({ ...prev, [q.id]: { ...prev[q.id], image_svg: e.target.value || null } }))}
                     placeholder="Paste SVG markup here, or clear to remove"
