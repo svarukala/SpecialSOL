@@ -60,6 +60,17 @@ describe('validateQuestion', () => {
     const result = validateQuestion(q)
     expect(result.simplified_text).toBeNull()
   })
+
+  it('passes through image_svg when present', () => {
+    const q = { ...validQuestion, image_svg: '<svg viewBox="0 0 100 50"><rect/></svg>' }
+    const result = validateQuestion(q)
+    expect(result.image_svg).toBe('<svg viewBox="0 0 100 50"><rect/></svg>')
+  })
+
+  it('normalises missing image_svg to null', () => {
+    const result = validateQuestion(validQuestion)  // validQuestion has no image_svg
+    expect(result.image_svg).toBeNull()
+  })
 })
 
 describe('validateQuestionBatch', () => {

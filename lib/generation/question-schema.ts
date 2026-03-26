@@ -24,6 +24,7 @@ export interface GeneratedQuestion {
   calculator_allowed: boolean
   source: string
   tier?: 'foundational' | 'standard'
+  image_svg?: string | null
 }
 
 export function validateQuestion(q: Partial<GeneratedQuestion>): GeneratedQuestion {
@@ -42,6 +43,11 @@ export function validateQuestion(q: Partial<GeneratedQuestion>): GeneratedQuesti
   // simplified_text is optional — foundational questions intentionally omit it
   if (q.simplified_text === undefined) {
     (q as Record<string, unknown>).simplified_text = null
+  }
+
+  // image_svg is optional — normalize missing to null
+  if (q.image_svg === undefined) {
+    (q as Record<string, unknown>).image_svg = null
   }
 
   if (![1, 2, 3].includes(q.difficulty!)) {
