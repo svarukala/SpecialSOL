@@ -130,6 +130,46 @@ Simple string-based stripping. SVG content is admin/AI-controlled (not user inpu
 
 ---
 
+### 5. Backfill Script
+
+**`scripts/generate-images.ts`** (new file) — one-time script to generate SVG images for already-published questions that have `image_svg IS NULL`.
+
+**Behaviour:**
+- Fetches all questions from `questions` where `image_svg IS NULL` (paginated, 50 at a time)
+- For each question, calls Claude with a focused image-only prompt:
+  ```
+  Given this practice question for Grade {grade} {subject}:
+  "{question_text}"
+
+  Return ONLY a compact inline SVG (no markdown, no explanation) that visually supports
+  this question, OR return the single word null if no image would help.
+
+  SVG rules: viewBox-based, no <style>, no scripts, no on* attributes, monochrome or
+  2-color max, under 1 KB.
+  ```
+- Parses the response: if the model returns `null` (the word), skips; otherwise UPSERTs `image_svg` for that question ID
+- Prints progress: `✓ <id> — SVG generated` or `– <id> — skipped (null)`
+- 500ms pause between API calls to avoid rate limiting
+
+**Flags:**
+- `--dry-run` — prints what would happen without writing to DB
+- `--grade=3` / `--subject=math` / `--topic="fractions"` — filter to a subset
+- `--regenerate` — also processes questions that already have a non-null `image_svg`
+
+**Example usage:**
+```bash
+npx tsx scripts/generate-images.ts --grade 3 --subject math
+npx tsx scripts/generate-images.ts --all
+npx tsx scripts/generate-images.ts --dry-run
+```
+
+**Files:**
+| File | Action |
+|------|--------|
+| `scripts/generate-images.ts` | Create |
+
+---
+
 ## Other Notes
 
 - Add `.superpowers/` to `.gitignore` (brainstorming artifacts, not for commit)
@@ -140,5 +180,5 @@ Simple string-based stripping. SVG content is admin/AI-controlled (not user inpu
 
 - PNG/JPEG support (future: could add `image_url` column pointing to Supabase Storage)
 - Admin image upload UI
-- Re-generating images for existing questions (can be done via `--regenerate` flag in a future script)
+- Re-generating images for existing questions via `--regenerate` flag (handled by the backfill script below)
 - Images on answer choices (only question-level images for now)
