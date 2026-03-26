@@ -60,11 +60,10 @@ async function generateImageForQuestion(
 
   const { error } = await supabase
     .from('questions')
-    .update({ image_svg: raw })
-    .eq('id', question.id)
+    .upsert({ id: question.id, image_svg: raw }, { onConflict: 'id' })
 
   if (error) {
-    console.error(`✗ ${question.id} — DB update failed: ${error.message}`)
+    console.error(`✗ ${question.id} — DB upsert failed: ${error.message}`)
     return
   }
 
@@ -124,7 +123,7 @@ async function main() {
 
     for (const question of data as QuestionRow[]) {
       await generateImageForQuestion(question, dryRun)
-      await new Promise((r) => setTimeout(r, PAUSE_MS))
+      if (!dryRun) await new Promise((r) => setTimeout(r, PAUSE_MS))
       totalProcessed++
     }
 
