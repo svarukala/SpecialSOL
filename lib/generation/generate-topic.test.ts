@@ -21,6 +21,7 @@ const mockQuestion = {
   ],
   hint_1: 'H1', hint_2: 'H2', hint_3: 'H3',
   calculator_allowed: false, source: 'ai_generated',
+  image_svg: null,
 }
 
 // Shared mock for the messages.create call — can be overridden per test
