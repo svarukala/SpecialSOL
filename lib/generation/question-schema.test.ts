@@ -68,7 +68,7 @@ describe('validateQuestion', () => {
   })
 
   it('normalises missing image_svg to null', () => {
-    const result = validateQuestion(validQuestion)  // validQuestion has no image_svg
+    const result = validateQuestion({ ...validQuestion })  // spread to avoid mutating fixture
     expect(result.image_svg).toBeNull()
   })
 })

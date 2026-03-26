@@ -23,6 +23,7 @@ export interface GeneratedQuestion {
   hint_3: string
   calculator_allowed: boolean
   source: string
+  image_svg?: string | null
 }
 
 export function validateQuestion(q: Partial<GeneratedQuestion>): GeneratedQuestion {
