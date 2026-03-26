@@ -19,8 +19,8 @@ function buildImagePrompt(grade: number, subject: string, questionText: string):
   return `Given this practice question for Grade ${grade} ${subject}:
 "${questionText}"
 
-Return ONLY a compact inline SVG (no markdown, no explanation) that visually supports
-this question, OR return the single word null if no image would help.
+Return ONLY a compact inline SVG starting with <svg and ending with </svg> — no markdown
+fences, no explanation, no extra text. OR return the single word null if no image would help.
 
 SVG rules: viewBox-based, no <style>, no scripts, no on* attributes, monochrome or
 2-color max, under 1 KB.`
