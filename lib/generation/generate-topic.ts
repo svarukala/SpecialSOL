@@ -35,6 +35,17 @@ Rules:
 - calculator_allowed: true only for Grade 5 multi-step decimal/fraction computation, otherwise false
 - source: always "ai_generated"
 
+For each question, include an "image_svg" field:
+- Set to a compact inline SVG string when a visual genuinely helps (fraction diagrams,
+  number lines, geometric shapes, bar/line graphs, coordinate grids, place value blocks).
+- Set to null for text-only questions (arithmetic word problems, vocabulary, reading
+  comprehension, poetry).
+SVG rules:
+- Use a viewBox (e.g. viewBox="0 0 200 100"), no fixed pixel width/height
+- No <style> tags, no external hrefs, no JavaScript, no on* attributes
+- Monochrome or 2-color max; simple strokes and fills only
+- Keep it small — target under 1 KB
+
 Return a JSON array only (no markdown, no explanation):
 [
   {
@@ -46,6 +57,7 @@ Return a JSON array only (no markdown, no explanation):
     "difficulty": 1,
     "question_text": "<standard SOL phrasing>",
     "simplified_text": "<plain language version>",
+    "image_svg": null,
     "answer_type": "multiple_choice",
     "choices": [
       {"id": "a", "text": "<correct answer>", "is_correct": true},

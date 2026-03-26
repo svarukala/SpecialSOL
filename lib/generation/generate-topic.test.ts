@@ -58,4 +58,14 @@ describe('generateTopic', () => {
     })
     await expect(generateTopic(3, 'math', mockTopic)).rejects.toThrow()
   })
+
+  it('includes image_svg instructions in the prompt', async () => {
+    mockCreate.mockResolvedValueOnce({
+      content: [{ type: 'text', text: JSON.stringify([mockQuestion]) }],
+    })
+    await generateTopic(3, 'math', mockTopic)
+    const lastCall = mockCreate.mock.calls[mockCreate.mock.calls.length - 1]
+    const prompt: string = lastCall[0].messages[0].content
+    expect(prompt).toContain('image_svg')
+  })
 })

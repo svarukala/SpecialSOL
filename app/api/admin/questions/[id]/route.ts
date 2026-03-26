@@ -3,7 +3,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { assertAdmin } from '@/lib/admin/assert-admin'
 
 const EDITABLE_FIELDS = [
-  'question_text', 'simplified_text', 'choices',
+  'question_text', 'simplified_text', 'image_svg', 'choices',
   'hint_1', 'hint_2', 'hint_3', 'difficulty', 'calculator_allowed',
 ] as const
 
