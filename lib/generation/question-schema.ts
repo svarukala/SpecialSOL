@@ -15,7 +15,7 @@ export interface GeneratedQuestion {
   sol_standard: string
   difficulty: number
   question_text: string
-  simplified_text: string
+  simplified_text: string | null
   answer_type: string
   choices: { id: string; text: string; is_correct: boolean }[]
   hint_1: string
@@ -23,12 +23,13 @@ export interface GeneratedQuestion {
   hint_3: string
   calculator_allowed: boolean
   source: string
+  tier?: 'foundational' | 'standard'
 }
 
 export function validateQuestion(q: Partial<GeneratedQuestion>): GeneratedQuestion {
   const required = [
     'grade', 'subject', 'topic', 'subtopic', 'sol_standard', 'difficulty',
-    'question_text', 'simplified_text', 'answer_type', 'choices',
+    'question_text', 'answer_type', 'choices',
     'hint_1', 'hint_2', 'hint_3', 'calculator_allowed', 'source',
   ] as const
 
@@ -36,6 +37,11 @@ export function validateQuestion(q: Partial<GeneratedQuestion>): GeneratedQuesti
     if (q[field] === undefined || q[field] === null) {
       throw new ValidationError(`Missing required field: ${field}`)
     }
+  }
+
+  // simplified_text is optional — foundational questions intentionally omit it
+  if (q.simplified_text === undefined) {
+    (q as Record<string, unknown>).simplified_text = null
   }
 
   if (![1, 2, 3].includes(q.difficulty!)) {

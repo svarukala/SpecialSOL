@@ -20,9 +20,10 @@ type Question = {
   hint_2: string | null
   hint_3: string | null
   calculator_allowed: boolean
+  tier: 'foundational' | 'standard'
 }
 
-type Filters = { grade: string; subject: string; topic: string }
+type Filters = { grade: string; subject: string; topic: string; tier: string }
 
 export function PublishedQuestionsClient({
   initialQuestions,
@@ -34,7 +35,7 @@ export function PublishedQuestionsClient({
   const [questions, setQuestions] = useState<Question[]>(initialQuestions)
   const [total, setTotal] = useState(initialTotal)
   const [offset, setOffset] = useState(initialQuestions.length)
-  const [filters, setFilters] = useState<Filters>({ grade: '', subject: '', topic: '' })
+  const [filters, setFilters] = useState<Filters>({ grade: '', subject: '', topic: '', tier: '' })
   const [editingId, setEditingId] = useState<string | null>(null)
   const [drafts, setDrafts] = useState<Record<string, Record<string, unknown>>>({})
   const [saving, setSaving] = useState(false)
@@ -48,6 +49,7 @@ export function PublishedQuestionsClient({
     if (newFilters.grade) params.set('grade', newFilters.grade)
     if (newFilters.subject) params.set('subject', newFilters.subject)
     if (newFilters.topic) params.set('topic', newFilters.topic)
+    if (newFilters.tier) params.set('tier', newFilters.tier)
     params.set('offset', String(newOffset))
     params.set('limit', '20')
     const res = await fetch(`/api/admin/questions?${params}`)
@@ -122,6 +124,15 @@ export function PublishedQuestionsClient({
             {topicsForFilter.map(t => <option key={t.name} value={t.name}>{t.name}</option>)}
           </select>
         </div>
+        <div>
+          <label className="text-xs font-medium block mb-1">Tier</label>
+          <select value={filters.tier} onChange={e => handleFilterChange('tier', e.target.value)}
+            className="border rounded px-2 py-1 text-sm bg-background">
+            <option value="">All</option>
+            <option value="standard">Standard</option>
+            <option value="foundational">Foundational</option>
+          </select>
+        </div>
       </div>
 
       {/* Cards */}
@@ -139,6 +150,7 @@ export function PublishedQuestionsClient({
                   <span className="bg-muted text-muted-foreground text-xs px-2 py-0.5 rounded">{q.topic}</span>
                   <span className={`text-xs px-2 py-0.5 rounded ${difficultyColor(q.difficulty)}`}>Difficulty {q.difficulty}</span>
                   {q.sol_standard && <span className="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded">SOL {q.sol_standard}</span>}
+                  {q.tier === 'foundational' && <span className="bg-purple-100 text-purple-800 text-xs px-2 py-0.5 rounded">Foundational</span>}
                 </div>
                 <div className="mb-3">
                   <label className="text-xs font-medium block mb-1">Question</label>
@@ -181,6 +193,9 @@ export function PublishedQuestionsClient({
               <div className="px-4 py-3 flex justify-between items-center gap-3">
                 <div className="flex items-center gap-2 min-w-0">
                   <span className={`text-xs px-2 py-0.5 rounded shrink-0 ${difficultyColor(q.difficulty)}`}>Difficulty {q.difficulty}</span>
+                  {q.tier === 'foundational' && (
+                    <span className="bg-purple-100 text-purple-800 text-xs px-2 py-0.5 rounded shrink-0">Foundational</span>
+                  )}
                   <span className="text-sm truncate">{q.question_text}</span>
                 </div>
                 <button onClick={() => setEditingId(q.id)} className="px-3 py-1 border rounded text-xs shrink-0 hover:bg-muted">Edit</button>

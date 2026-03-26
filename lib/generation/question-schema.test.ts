@@ -55,9 +55,10 @@ describe('validateQuestion', () => {
     expect(() => validateQuestion(bad)).toThrow(ValidationError)
   })
 
-  it('rejects missing simplified_text', () => {
-    const bad = { ...validQuestion, simplified_text: undefined }
-    expect(() => validateQuestion(bad)).toThrow(ValidationError)
+  it('allows missing simplified_text (foundational questions omit it)', () => {
+    const q = { ...validQuestion, simplified_text: undefined }
+    const result = validateQuestion(q)
+    expect(result.simplified_text).toBeNull()
   })
 })
 

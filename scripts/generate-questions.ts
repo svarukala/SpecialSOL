@@ -13,14 +13,16 @@ function topicSlug(name: string): string {
   return name.replace(/[^a-z0-9]+/gi, '-').toLowerCase()
 }
 
-async function generateAndSave(grade: number, subject: 'math' | 'reading', topic: SolTopic) {
-  console.log(`Generating: Grade ${grade} ${subject} — ${topic.name} (${topic.solStandard})...`)
+async function generateAndSave(grade: number, subject: 'math' | 'reading', topic: SolTopic, tier: 'foundational' | 'standard') {
+  console.log(`Generating: Grade ${grade} ${subject} — ${topic.name} (${topic.solStandard}) [${tier}]...`)
   try {
-    const validated = await generateTopic(grade, subject, topic)
+    const validated = await generateTopic(grade, subject, topic, tier)
+    const stamped = validated.map((q) => ({ ...q, tier }))
     const slug = topicSlug(topic.name)
-    const outPath = join(OUT_DIR, `grade${grade}-${subject}-${slug}.json`)
-    writeFileSync(outPath, JSON.stringify(validated, null, 2))
-    console.log(`  ✓ ${validated.length} questions → ${outPath}`)
+    const tierSuffix = tier === 'foundational' ? '-foundational' : ''
+    const outPath = join(OUT_DIR, `grade${grade}-${subject}-${slug}${tierSuffix}.json`)
+    writeFileSync(outPath, JSON.stringify(stamped, null, 2))
+    console.log(`  ✓ ${stamped.length} questions → ${outPath}`)
   } catch (e) {
     console.error(`  ✗ ${topic.name}: ${(e as Error).message}`)
   }
@@ -36,6 +38,9 @@ async function main() {
     ?? args[args.indexOf('--subject') + 1]
   const topicArg = args.find((a) => a.startsWith('--topic='))?.split('=')[1]
     ?? (args.indexOf('--topic') >= 0 ? args[args.indexOf('--topic') + 1] : undefined)
+  const tierArg = (args.find((a) => a.startsWith('--tier='))?.split('=')[1]
+    ?? (args.indexOf('--tier') >= 0 ? args[args.indexOf('--tier') + 1] : undefined)
+    ?? 'standard') as 'foundational' | 'standard'
   const allFlag = args.includes('--all')
 
   const gradesToRun: number[] = allFlag
@@ -47,8 +52,8 @@ async function main() {
     : subjectArg ? [subjectArg as 'math' | 'reading'] : []
 
   if (gradesToRun.length === 0 || subjectsToRun.length === 0) {
-    console.error('Usage: npx tsx scripts/generate-questions.ts --grade 3 --subject math [--topic "fractions"]')
-    console.error('       npx tsx scripts/generate-questions.ts --all')
+    console.error('Usage: npx tsx scripts/generate-questions.ts --grade 3 --subject math [--topic "fractions"] [--tier foundational]')
+    console.error('       npx tsx scripts/generate-questions.ts --all [--tier foundational]')
     process.exit(1)
   }
 
@@ -57,7 +62,7 @@ async function main() {
       const topics = getTopicsForGradeSubject(grade, subject)
       for (const topic of topics) {
         if (topicArg && topic.name !== topicArg) continue
-        await generateAndSave(grade, subject, topic)
+        await generateAndSave(grade, subject, topic, tierArg)
         // Respectful pause between API calls
         await new Promise((r) => setTimeout(r, 1000))
       }

@@ -11,6 +11,7 @@ export async function GET(req: NextRequest) {
   const grade = searchParams.get('grade')
   const subject = searchParams.get('subject')
   const topic = searchParams.get('topic')
+  const tier = searchParams.get('tier')
   const offset = parseInt(searchParams.get('offset') ?? '0', 10)
   const limit = parseInt(searchParams.get('limit') ?? '20', 10)
 
@@ -19,6 +20,7 @@ export async function GET(req: NextRequest) {
   if (grade) query = query.eq('grade', parseInt(grade, 10))
   if (subject) query = query.eq('subject', subject)
   if (topic) query = query.eq('topic', topic)
+  if (tier) query = query.eq('tier', tier)
 
   const { data, count, error } = await query
     .order('created_at', { ascending: false })

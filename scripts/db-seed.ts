@@ -11,8 +11,10 @@ const supabase = createClient(
 
 async function seed() {
   console.log(`Seeding ${questions.length} questions...`)
+  // Ensure tier defaults to 'standard' for legacy rows that predate the tier column
+  const rows = (questions as Record<string, unknown>[]).map((q) => ({ tier: 'standard', ...q }))
   // idempotent: unique index on (sol_standard, question_text) prevents duplicates
-  const { error } = await supabase.from('questions').upsert(questions, {
+  const { error } = await supabase.from('questions').upsert(rows, {
     onConflict: 'sol_standard,question_text',
   })
   if (error) {
