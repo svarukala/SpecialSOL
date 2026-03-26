@@ -60,10 +60,11 @@ async function generateImageForQuestion(
 
   const { error } = await supabase
     .from('questions')
-    .upsert({ id: question.id, image_svg: raw }, { onConflict: 'id' })
+    .update({ image_svg: raw })
+    .eq('id', question.id)
 
   if (error) {
-    console.error(`✗ ${question.id} — DB upsert failed: ${error.message}`)
+    console.error(`✗ ${question.id} — DB update failed: ${error.message}`)
     return
   }
 
