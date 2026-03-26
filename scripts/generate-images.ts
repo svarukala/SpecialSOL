@@ -51,7 +51,10 @@ async function generateImageForQuestion(
     messages: [{ role: 'user', content: prompt }],
   })
 
-  const raw = (message.content[0] as { type: string; text: string }).text.trim()
+  const responseText = (message.content[0] as { type: string; text: string }).text.trim()
+
+  // Strip markdown code fences the model sometimes wraps around the SVG
+  const raw = responseText.replace(/^```(?:svg|xml)?\s*/i, '').replace(/\s*```$/, '').trim()
 
   if (raw.toLowerCase() === 'null') {
     console.log(`– ${question.id} — skipped (null)`)
