@@ -21,6 +21,7 @@ type Question = {
   hint_3: string | null
   calculator_allowed: boolean
   tier: 'foundational' | 'standard'
+  image_svg: string | null
 }
 
 type Filters = { grade: string; subject: string; topic: string; tier: string }
@@ -164,6 +165,19 @@ export function PublishedQuestionsClient({
                     onChange={e => setDrafts(prev => ({ ...prev, [q.id]: { ...prev[q.id], simplified_text: e.target.value } }))}
                     className="w-full border rounded px-2 py-1 text-sm text-muted-foreground bg-background resize-y" rows={2} />
                 </div>
+                <div className="mb-3">
+                  <label className="text-xs font-medium block mb-1">Image SVG</label>
+                  {(drafts[q.id]?.image_svg !== undefined ? drafts[q.id].image_svg : q.image_svg) && (
+                    <div
+                      className="mb-2 border rounded p-2 max-w-xs overflow-hidden"
+                      dangerouslySetInnerHTML={{ __html: (drafts[q.id]?.image_svg !== undefined ? drafts[q.id].image_svg : q.image_svg) as string }}
+                    />
+                  )}
+                  <textarea defaultValue={q.image_svg ?? ''}
+                    onChange={e => setDrafts(prev => ({ ...prev, [q.id]: { ...prev[q.id], image_svg: e.target.value || null } }))}
+                    placeholder="Paste SVG markup here, or clear to remove"
+                    className="w-full border rounded px-2 py-1 text-sm font-mono bg-background resize-y" rows={3} />
+                </div>
                 <div className="grid grid-cols-2 gap-2 mb-3">
                   {(q.choices as Choice[]).map(c => (
                     <div key={c.id} className={`border rounded px-3 py-1.5 text-sm ${c.is_correct ? 'border-green-400 bg-green-50' : ''}`}>
@@ -195,6 +209,9 @@ export function PublishedQuestionsClient({
                   <span className={`text-xs px-2 py-0.5 rounded shrink-0 ${difficultyColor(q.difficulty)}`}>Difficulty {q.difficulty}</span>
                   {q.tier === 'foundational' && (
                     <span className="bg-purple-100 text-purple-800 text-xs px-2 py-0.5 rounded shrink-0">Foundational</span>
+                  )}
+                  {q.image_svg != null && (
+                    <span className="bg-sky-100 text-sky-800 text-xs px-2 py-0.5 rounded shrink-0">[img]</span>
                   )}
                   <span className="text-sm truncate">{q.question_text}</span>
                 </div>
