@@ -1,6 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card'
 import { OnScreenCalculator } from './on-screen-calculator'
 import type { Question } from '@/lib/practice/question-types'
+import { sanitizeSvg } from '@/lib/svg/sanitize'
 
 export type { Question }
 
@@ -30,6 +31,14 @@ export function QuestionCard({ question, simplified, highlightRange }: Props) {
         <p className="text-lg font-medium leading-relaxed">
           <HighlightedText text={text} highlight={highlightRange} />
         </p>
+        {question.image_svg && (
+          <div className="flex justify-center my-3">
+            <div
+              className="max-w-xs w-full rounded border border-border p-2 bg-muted/30"
+              dangerouslySetInnerHTML={{ __html: sanitizeSvg(question.image_svg) }}
+            />
+          </div>
+        )}
         <OnScreenCalculator hidden={!question.calculator_allowed} />
       </CardContent>
     </Card>

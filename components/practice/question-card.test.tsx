@@ -17,6 +17,7 @@ const mockQuestion = {
   hint_2: null,
   hint_3: null,
   calculator_allowed: false,
+  image_svg: null,
 }
 
 describe('QuestionCard', () => {
@@ -34,5 +35,16 @@ describe('QuestionCard', () => {
     const q = { ...mockQuestion, simplified_text: null }
     render(<QuestionCard question={q} simplified={true} />)
     expect(screen.getByText('What is 2 + 2?')).toBeInTheDocument()
+  })
+
+  it('does not render SVG container when image_svg is null', () => {
+    render(<QuestionCard question={mockQuestion} simplified={false} />)
+    expect(document.querySelector('.max-w-xs')).toBeNull()
+  })
+
+  it('renders SVG container when image_svg is a non-empty string', () => {
+    const q = { ...mockQuestion, image_svg: '<svg><circle r="10"/></svg>' }
+    render(<QuestionCard question={q} simplified={false} />)
+    expect(document.querySelector('.max-w-xs')).toBeInTheDocument()
   })
 })
