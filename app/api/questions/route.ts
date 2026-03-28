@@ -30,5 +30,5 @@ export async function GET(req: NextRequest) {
 
   const questions = await getQuestionsForSession(supabase, grade, subject, count, recentIds, languageLevel)
 
-  return NextResponse.json(questions)
+  return NextResponse.json({ questions, languageLevel })
 }

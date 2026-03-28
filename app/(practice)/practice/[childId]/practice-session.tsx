@@ -62,6 +62,7 @@ export function PracticeSession({ child, availableSubjects, parentSettings, dash
   const [scorePercent, setScorePercent] = useState(0)
   const [ttsEngine, setTTSEngine] = useState<TTSEngine | null>(null)
   const [highlightRange, setHighlightRange] = useState<{ start: number; length: number } | null>(null)
+  const [languageLevel, setLanguageLevel] = useState<'foundational' | 'simplified' | 'standard'>('simplified')
   const [isStarting, setIsStarting] = useState(false)
   const [attemptNumber, setAttemptNumber] = useState(1)
   const ttsEngineRef = useRef<TTSEngine | null>(null)
@@ -89,7 +90,8 @@ export function PracticeSession({ child, availableSubjects, parentSettings, dash
     const res = await fetch(
       `/api/questions?grade=${child.grade}&subject=${subject}&mode=${m}&childId=${child.id}`
     )
-    const qs: Question[] = await res.json()
+    const { questions: qs, languageLevel: ll }: { questions: Question[]; languageLevel: 'foundational' | 'simplified' | 'standard' } = await res.json()
+    setLanguageLevel(ll)
     if (!qs || qs.length === 0) {
       setIsStarting(false)
       alert('No questions available for this subject. Please try again later.')
@@ -268,7 +270,7 @@ export function PracticeSession({ child, availableSubjects, parentSettings, dash
           <AccommodationToolbar
             engine={ttsEngine}
             questionText={
-              (accommodations.simplified_language && q.simplified_text)
+              (languageLevel !== 'standard' && q.simplified_text)
                 ? q.simplified_text
                 : q.question_text
             }
@@ -277,7 +279,7 @@ export function PracticeSession({ child, availableSubjects, parentSettings, dash
             onSpeakEnd={() => setHighlightRange(null)}
           />
         )}
-        <QuestionCard question={q} simplified={accommodations.simplified_language} highlightRange={highlightRange} />
+        <QuestionCard question={q} simplified={languageLevel !== 'standard'} highlightRange={highlightRange} />
         <AnswerInput
           key={`${q.id}-${attemptNumber}`}
           question={q}

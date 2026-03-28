@@ -51,10 +51,14 @@ export default function EditChildPage() {
     load()
   }, [childId])
 
-  function subjectIsFoundational(subject: string) {
+  function subjectDominantLevel(subject: string): 'foundational' | 'simplified' | 'standard' {
     const rows = topicLevels.filter((r) => r.subject === subject)
-    if (rows.length === 0) return false
-    return rows.filter((r) => r.language_level === 'foundational').length > rows.length / 2
+    if (rows.length === 0) return 'standard'
+    const counts = { foundational: 0, simplified: 0, standard: 0 }
+    for (const r of rows) counts[r.language_level as keyof typeof counts]++
+    if (counts.foundational > rows.length / 2) return 'foundational'
+    if (counts.simplified > rows.length / 2) return 'simplified'
+    return 'standard'
   }
 
   function subjectHasPromotionReady(subject: string) {
@@ -70,7 +74,7 @@ export default function EditChildPage() {
     setTopicLevels(data ?? [])
   }
 
-  async function handleSetLearningLevel(subject: string, tier: 'foundational' | 'simplified') {
+  async function handleSetLearningLevel(subject: string, tier: 'foundational' | 'simplified' | 'standard') {
     setLevelLoading(true)
     await fetch(`/api/children/${childId}/learning-level`, {
       method: 'POST',
@@ -144,43 +148,43 @@ export default function EditChildPage() {
               <AccommodationSettingsForm value={accommodations} onChange={setAccommodations} />
             </div>
             <div className="space-y-3">
-              <Label className="text-base font-semibold">Learning Level</Label>
-              <p className="text-sm text-muted-foreground">
-                Foundational questions use simpler language for children who need extra support.
-              </p>
+              <div>
+                <Label className="text-base font-semibold">Learning Level</Label>
+                <p className="text-sm text-muted-foreground mt-0.5">
+                  Controls question difficulty per subject. You can set each independently.
+                </p>
+              </div>
               {(['math', 'reading'] as const).map((subject) => {
-                const isFoundational = subjectIsFoundational(subject)
+                const currentLevel = subjectDominantLevel(subject)
                 const hasPromotion = subjectHasPromotionReady(subject)
+                const options: { value: 'foundational' | 'simplified' | 'standard'; label: string; note: string }[] = [
+                  { value: 'standard',    label: 'Standard',    note: 'Grade-level questions with full academic language.' },
+                  { value: 'simplified',  label: 'Simplified',  note: 'Same topics with clearer, simpler language.' },
+                  { value: 'foundational', label: 'Foundational', note: 'Special support tier — you approve level changes.' },
+                ]
                 return (
                   <div key={subject} className="flex flex-col gap-2 p-3 border rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium capitalize">{subject}</span>
-                      {isFoundational ? (
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded">
-                            Foundational
-                          </span>
-                          <Button
+                    <span className="text-sm font-medium capitalize">{subject}</span>
+                    <div className="flex gap-2">
+                      {options.map((opt) => {
+                        const active = currentLevel === opt.value
+                        return (
+                          <button
+                            key={opt.value}
                             type="button"
-                            variant="ghost"
-                            size="sm"
-                            disabled={levelLoading}
-                            onClick={() => handleSetLearningLevel(subject, 'simplified')}
+                            disabled={levelLoading || active}
+                            onClick={() => handleSetLearningLevel(subject, opt.value)}
+                            title={opt.note}
+                            className={`flex-1 rounded-md border px-2 py-1.5 text-xs font-medium transition-colors ${
+                              active
+                                ? 'border-primary bg-primary/5 text-primary cursor-default'
+                                : 'border-border hover:border-muted-foreground/40 text-muted-foreground'
+                            }`}
                           >
-                            Remove
-                          </Button>
-                        </div>
-                      ) : (
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          disabled={levelLoading}
-                          onClick={() => handleSetLearningLevel(subject, 'foundational')}
-                        >
-                          Set to Foundational
-                        </Button>
-                      )}
+                            {opt.label}
+                          </button>
+                        )
+                      })}
                     </div>
                     {hasPromotion && (
                       <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded p-2">

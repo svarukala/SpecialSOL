@@ -12,6 +12,7 @@ export async function GET(req: NextRequest) {
   const subject = searchParams.get('subject')
   const topic = searchParams.get('topic')
   const tier = searchParams.get('tier')
+  const sort = searchParams.get('sort') ?? 'newest'
   const offset = parseInt(searchParams.get('offset') ?? '0', 10)
   const limit = parseInt(searchParams.get('limit') ?? '20', 10)
 
@@ -23,7 +24,7 @@ export async function GET(req: NextRequest) {
   if (tier) query = query.eq('tier', tier)
 
   const { data, count, error } = await query
-    .order('created_at', { ascending: false })
+    .order('created_at', { ascending: sort === 'oldest' })
     .range(offset, offset + limit - 1)
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })

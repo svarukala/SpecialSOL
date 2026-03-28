@@ -5,11 +5,29 @@ import { validateQuestionBatch, type GeneratedQuestion } from '@/lib/generation/
 
 function buildPrompt(grade: number, subject: 'math' | 'reading', topic: SolTopic, tier: 'foundational' | 'standard'): string {
   const foundationalInstructions = tier === 'foundational'
-    ? `IMPORTANT: These questions are for children with special needs. You MUST follow these rules:
+    ? `IMPORTANT: These questions are for children who are significantly behind grade level and need extra scaffolding. Apply every rule below without exception.
+
+DIFFICULTY: Generate exactly 6 questions, ALL at difficulty 1. Do NOT generate difficulty 2 or 3.
+
+SINGLE OPERATION RULE: Every question must require exactly one mental step to answer.
+- GOOD: "There are 8 apples. Sam eats 3. How many are left?" (one subtraction)
+- BAD: "Each picture equals 5 boxes. Monday has 4 pictures. How many boxes?" (scale × multiply — two steps)
+- BAD: "Round 467 to the nearest hundred, then compare it to 500." (two operations)
+- BAD: "A table shows snacks sold. What fraction were cookies?" (read table THEN compute fraction — two steps)
+
+LANGUAGE:
 - Every sentence must be 10 words or fewer.
-- Each question tests exactly ONE concept — no compound ideas.
-- Use only Grade 1–2 vocabulary. No subject-specific jargon unless it is the core concept being tested.
-- Use concrete, everyday scenarios (sharing food, counting objects, reading a sign).
+- Use only Grade 1–2 vocabulary. Avoid jargon unless it IS the concept being tested.
+- Use concrete, everyday scenarios: counting objects, sharing food, reading simple signs.
+- Numbers should be small and friendly (under 20 for addition/subtraction; under 10 for multiplication).
+
+TOPIC ADAPTATION: If the grade-level topic inherently requires multiple steps (e.g. pictographs with scale factors, multi-digit operations, data tables with computations), simplify it to its most basic sub-skill:
+- Pictograph with scale → just "count the pictures, each = 1"
+- Multi-digit addition → single-digit addition with a story context
+- Fractions → identify which shape shows one half or one third (visual recognition only)
+- Data table → read a single value from the table, no computation
+
+OTHER:
 - The simplified_text field must be null — do not populate it.
 - All other fields (answer_type, choices, hints, difficulty, sol_standard) follow the normal format.\n\n`
     : ''
@@ -19,10 +37,10 @@ Topic: ${topic.name}
 SOL Standard: ${topic.solStandard}
 Standard Description: ${topic.description}
 
-Generate exactly 6 multiple-choice questions for this topic:
+${tier === 'foundational' ? 'Generate exactly 6 multiple-choice questions for this topic, ALL at difficulty 1 (see rules above).' : `Generate exactly 6 multiple-choice questions for this topic:
 - 2–3 at difficulty 1 (easy): single step, familiar context, straightforward distractors
 - 2 at difficulty 2 (medium): two steps or less familiar context, one plausible distractor
-- 1–2 at difficulty 3 (hard): multi-step, abstract phrasing, strong distractors
+- 1–2 at difficulty 3 (hard): multi-step, abstract phrasing, strong distractors`}
 
 For EVERY question, provide TWO text versions:
 - "question_text": standard SOL test-style phrasing, grade-appropriate vocabulary
@@ -45,6 +63,15 @@ SVG rules:
 - No <style> tags, no external hrefs, no JavaScript, no on* attributes
 - Monochrome or 2-color max; simple strokes and fills only
 - Keep it small — target under 1 KB
+
+FORMATTING RULE — question_text and simplified_text:
+When a question begins with a preamble instruction followed by the content to read, separate
+them with a blank line (\\n\\n). Examples:
+  "Read the story.\\n\\nRosa wanted to win the race..."
+  "Read this passage:\\n\\nBees are important to..."
+  "Read the sentence.\\n\\n\\"The dog was tiny.\\"..."
+  "Read the following lines from a poem.\\n\\n\\"The stars winked...\\"..."
+Do NOT run the instruction and the content together on one line.
 
 Return a JSON array only (no markdown, no explanation):
 [

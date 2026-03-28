@@ -11,7 +11,7 @@ export function ProgressChart({
   topicLevels = {},
 }: {
   topics: TopicAccuracy[]
-  topicLevels?: Record<string, 'simplified' | 'standard'>
+  topicLevels?: Record<string, 'foundational' | 'simplified' | 'standard'>
 }) {
   if (topics.length === 0) {
     return <p className="text-muted-foreground text-sm">No data yet — complete some sessions to see progress.</p>
@@ -33,6 +33,11 @@ export function ProgressChart({
                 {level === 'simplified' && (
                   <span className="text-xs px-1.5 py-0.5 rounded bg-muted text-muted-foreground font-semibold">
                     simplified
+                  </span>
+                )}
+                {level === 'foundational' && (
+                  <span className="text-xs px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 font-semibold">
+                    foundational
                   </span>
                 )}
               </span>

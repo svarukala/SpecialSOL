@@ -1,7 +1,6 @@
 export interface AccommodationState {
   tts_enabled: boolean
   tts_speed: number           // 0.5 – 2.0
-  simplified_language: boolean
   high_contrast: boolean
   large_text: 0 | 1 | 2      // 0=18px, 1=24px, 2=30px
   dyslexia_font: boolean

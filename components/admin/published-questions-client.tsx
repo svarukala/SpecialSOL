@@ -25,7 +25,7 @@ type Question = {
   image_svg: string | null
 }
 
-type Filters = { grade: string; subject: string; topic: string; tier: string }
+type Filters = { grade: string; subject: string; topic: string; tier: string; sort: string }
 
 export function PublishedQuestionsClient({
   initialQuestions,
@@ -37,7 +37,7 @@ export function PublishedQuestionsClient({
   const [questions, setQuestions] = useState<Question[]>(initialQuestions)
   const [total, setTotal] = useState(initialTotal)
   const [offset, setOffset] = useState(initialQuestions.length)
-  const [filters, setFilters] = useState<Filters>({ grade: '', subject: '', topic: '', tier: '' })
+  const [filters, setFilters] = useState<Filters>({ grade: '', subject: '', topic: '', tier: '', sort: 'newest' })
   const [editingId, setEditingId] = useState<string | null>(null)
   const [drafts, setDrafts] = useState<Record<string, Record<string, unknown>>>({})
   const [saving, setSaving] = useState(false)
@@ -52,6 +52,7 @@ export function PublishedQuestionsClient({
     if (newFilters.subject) params.set('subject', newFilters.subject)
     if (newFilters.topic) params.set('topic', newFilters.topic)
     if (newFilters.tier) params.set('tier', newFilters.tier)
+    if (newFilters.sort) params.set('sort', newFilters.sort)
     params.set('offset', String(newOffset))
     params.set('limit', '20')
     const res = await fetch(`/api/admin/questions?${params}`)
@@ -133,6 +134,14 @@ export function PublishedQuestionsClient({
             <option value="">All</option>
             <option value="standard">Standard</option>
             <option value="foundational">Foundational</option>
+          </select>
+        </div>
+        <div>
+          <label className="text-xs font-medium block mb-1">Sort</label>
+          <select value={filters.sort} onChange={e => handleFilterChange('sort', e.target.value)}
+            className="border rounded px-2 py-1 text-sm bg-background">
+            <option value="newest">Newest first</option>
+            <option value="oldest">Oldest first</option>
           </select>
         </div>
       </div>
