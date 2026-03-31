@@ -40,6 +40,15 @@ export function AccommodationToolbar({ engine, questionText, progress, onBoundar
             >
               Aa
             </Button>
+            <Button
+              variant={state.bionic_reading ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => update({ bionic_reading: !state.bionic_reading })}
+              aria-label="Toggle bionic reading"
+              title="Bionic Reading: bold the first letters of each word"
+            >
+              B
+            </Button>
             <div className="flex items-center gap-1">
               <Button
                 variant="outline"

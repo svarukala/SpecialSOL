@@ -10,4 +10,5 @@ export const DEFAULT_ACCOMMODATIONS: AccommodationState = {
   extended_time: false,
   hints_enabled: true,
   positive_reinforcement: true,
+  bionic_reading: false,
 }

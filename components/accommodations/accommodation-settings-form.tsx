@@ -21,6 +21,7 @@ const TOOLTIPS: Partial<Record<BooleanKey | 'tts_speed' | 'large_text', string>>
   high_contrast:           'Increases color contrast between text and background, making content easier to read.',
   large_text:              'Increases the font size throughout the practice session.',
   dyslexia_font:           'Uses a specially designed font that improves readability for children with dyslexia.',
+  bionic_reading:          'Bolds the first letters of each word to guide the eye and speed up reading.',
   reduce_distractions:     'Simplifies the interface by hiding decorative animations and elements. Automatically turns off Positive Reinforcement, since animations can be distracting.',
   extended_time:           'Removes time pressure — no timers or time-based scoring during sessions.',
   hints_enabled:           'Shows hint buttons during questions so children can get step-by-step guidance when stuck.',
@@ -93,6 +94,7 @@ export function AccommodationSettingsForm({ value, onChange }: Props) {
       </div>
       <Toggle label="High Contrast" field="high_contrast" value={value} onChange={onChange} />
       <Toggle label="Dyslexia-Friendly Font" field="dyslexia_font" value={value} onChange={onChange} />
+      <Toggle label="Bionic Reading" field="bionic_reading" value={value} onChange={onChange} />
       <Toggle label="Reduce Distractions" field="reduce_distractions" value={value} onChange={(next) =>
         onChange(next.reduce_distractions ? { ...next, positive_reinforcement: false } : next)
       } />

@@ -221,11 +221,15 @@ export function PracticeSession({ child, availableSubjects, parentSettings, dash
   }
 
   if (phase === 'complete') {
+    const correctCount = Math.round((scorePercent / 100) * questions.length)
     return (
       <AccommodationProvider initial={accommodations}>
         <SessionComplete
           scorePercent={scorePercent}
+          correctCount={correctCount}
+          questionsTotal={questions.length}
           positiveReinforcement={accommodations.positive_reinforcement}
+          onGoHome={() => router.push(dashboardHref)}
           onPracticeAgain={() => {
             setPhase('picking')
             setCurrentIndex(0)

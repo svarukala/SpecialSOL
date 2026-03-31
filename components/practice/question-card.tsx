@@ -2,6 +2,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { OnScreenCalculator } from './on-screen-calculator'
 import type { Question } from '@/lib/practice/question-types'
 import { sanitizeSvg } from '@/lib/svg/sanitize'
+import { useAccommodations } from '@/lib/accommodations/context'
 
 export type { Question }
 
@@ -9,6 +10,24 @@ interface Props {
   question: Question
   simplified: boolean
   highlightRange?: { start: number; length: number } | null
+}
+
+// Bionic Reading: bold the first N characters of each word (N = min(ceil(len/2), 4))
+function BionicText({ text }: { text: string }) {
+  const tokens = text.split(/(\s+)/)
+  return (
+    <>
+      {tokens.map((token, i) => {
+        if (/^\s+$/.test(token)) return <span key={i}>{token}</span>
+        const boldLen = Math.min(Math.ceil(token.length / 2), 4)
+        return (
+          <span key={i}>
+            <strong>{token.slice(0, boldLen)}</strong>{token.slice(boldLen)}
+          </span>
+        )
+      })}
+    </>
+  )
 }
 
 function HighlightedText({ text, highlight }: { text: string; highlight?: { start: number; length: number } | null }) {
@@ -23,13 +42,63 @@ function HighlightedText({ text, highlight }: { text: string; highlight?: { star
   )
 }
 
+// Render text with \n\n as paragraph breaks and \n as line breaks
+function FormattedText({
+  text,
+  highlight,
+  bionic,
+}: {
+  text: string
+  highlight?: { start: number; length: number } | null
+  bionic: boolean
+}) {
+  const paragraphs = text.split('\n\n')
+  return (
+    <>
+      {paragraphs.map((para, pi) => (
+        <span key={pi}>
+          {pi > 0 && <br />}
+          {para.split('\n').map((line, li) => (
+            <span key={li}>
+              {li > 0 && <br />}
+              {bionic ? <BionicText text={line} /> : <HighlightedText text={line} highlight={highlight} />}
+            </span>
+          ))}
+        </span>
+      ))}
+    </>
+  )
+}
+
+// Question-type badge for reading comprehension questions
+const QUESTION_WORD_BADGES: { pattern: RegExp; label: string; className: string }[] = [
+  { pattern: /\bwho\b/i,   label: 'Who',   className: 'bg-purple-100 text-purple-800' },
+  { pattern: /\bwhat\b/i,  label: 'What',  className: 'bg-blue-100 text-blue-800' },
+  { pattern: /\bwhere\b/i, label: 'Where', className: 'bg-green-100 text-green-800' },
+  { pattern: /\bwhen\b/i,  label: 'When',  className: 'bg-yellow-100 text-yellow-800' },
+  { pattern: /\bwhy\b/i,   label: 'Why',   className: 'bg-orange-100 text-orange-800' },
+  { pattern: /\bhow\b/i,   label: 'How',   className: 'bg-pink-100 text-pink-800' },
+]
+
+function QuestionTypeBadge({ questionText }: { questionText: string }) {
+  const match = QUESTION_WORD_BADGES.find(b => b.pattern.test(questionText))
+  if (!match) return null
+  return (
+    <span className={`inline-block text-xs font-semibold px-2 py-0.5 rounded-full ${match.className}`}>
+      {match.label}
+    </span>
+  )
+}
+
 export function QuestionCard({ question, simplified, highlightRange }: Props) {
+  const { state } = useAccommodations()
   const text = (simplified && question.simplified_text) ? question.simplified_text : question.question_text
   return (
     <Card>
-      <CardContent className="p-6 space-y-4">
-        <p className="text-lg font-medium leading-relaxed">
-          <HighlightedText text={text} highlight={highlightRange} />
+      <CardContent className="p-6 space-y-3">
+        <QuestionTypeBadge questionText={text} />
+        <p className="text-lg font-medium reading-text">
+          <FormattedText text={text} highlight={highlightRange} bionic={state.bionic_reading} />
         </p>
         {question.image_svg && (
           <div className="flex justify-center my-3">

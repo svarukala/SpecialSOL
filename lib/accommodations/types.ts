@@ -8,4 +8,5 @@ export interface AccommodationState {
   extended_time: boolean
   hints_enabled: boolean
   positive_reinforcement: boolean
+  bionic_reading: boolean
 }
