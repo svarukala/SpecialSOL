@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { SOL_CURRICULUM } from '@/lib/curriculum/sol-curriculum'
+import { SOL_CURRICULUM, SUPPORTED_GRADES } from '@/lib/curriculum/sol-curriculum'
 import { sanitizeSvg } from '@/lib/svg/sanitize'
 
 type Choice = { id: string; text: string; is_correct: boolean }
@@ -106,7 +106,7 @@ export function PublishedQuestionsClient({
           <select value={filters.grade} onChange={e => handleFilterChange('grade', e.target.value)}
             className="border rounded px-2 py-1 text-sm bg-background">
             <option value="">All</option>
-            {[3, 4, 5].map(g => <option key={g} value={String(g)}>{g}</option>)}
+            {SUPPORTED_GRADES.map(g => <option key={g} value={String(g)}>{g}</option>)}
           </select>
         </div>
         <div>

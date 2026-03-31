@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { SOL_CURRICULUM } from '@/lib/curriculum/sol-curriculum'
+import { SOL_CURRICULUM, SUPPORTED_GRADES } from '@/lib/curriculum/sol-curriculum'
 
 type Choice = { id: string; text: string; is_correct: boolean }
 
@@ -120,7 +120,7 @@ export function GenerateReviewClient() {
           <label className="text-xs font-medium block mb-1">Grade</label>
           <select value={grade} onChange={e => setGrade(Number(e.target.value))}
             className="border rounded px-2 py-1 text-sm bg-background">
-            {[3, 4, 5].map(g => <option key={g} value={g}>{g}</option>)}
+            {SUPPORTED_GRADES.map(g => <option key={g} value={g}>{g}</option>)}
           </select>
         </div>
         <div>

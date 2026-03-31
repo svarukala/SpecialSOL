@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { AccommodationSettingsForm } from '@/components/accommodations/accommodation-settings-form'
 import { DEFAULT_ACCOMMODATIONS } from '@/lib/accommodations/defaults'
 import { AccommodationState } from '@/lib/accommodations/types'
+import { SUPPORTED_GRADES } from '@/lib/curriculum/sol-curriculum'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -126,9 +127,9 @@ export default function EditChildPage() {
               <Select value={grade} onValueChange={(v) => v && setGrade(v)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="3">Grade 3</SelectItem>
-                  <SelectItem value="4">Grade 4</SelectItem>
-                  <SelectItem value="5">Grade 5</SelectItem>
+                  {SUPPORTED_GRADES.map(g => (
+                    <SelectItem key={g} value={String(g)}>Grade {g}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
