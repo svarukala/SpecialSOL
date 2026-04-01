@@ -65,6 +65,7 @@ export interface Question {
   hint_3: string | null
   calculator_allowed: boolean
   image_svg: string | null
+  difficulty?: 1 | 2 | 3
 }
 
 // ── typed choices accessors ────────────────────────────────────────────────

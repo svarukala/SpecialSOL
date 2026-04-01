@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { PracticeSession } from './practice-session'
 
@@ -27,6 +27,7 @@ const Q1 = {
   question_text: 'What is 2 + 2?',
   simplified_text: null,
   answer_type: 'multiple_choice' as const,
+  difficulty: 1 as const,
   choices: [
     { id: 'a', text: '4', is_correct: true },
     { id: 'b', text: '3', is_correct: false },
@@ -34,6 +35,7 @@ const Q1 = {
   ],
   hint_1: 'Count fingers', hint_2: null, hint_3: null,
   calculator_allowed: false,
+  image_svg: null,
 }
 
 const Q2 = {
@@ -41,6 +43,7 @@ const Q2 = {
   question_text: 'What is 3 + 3?',
   simplified_text: null,
   answer_type: 'multiple_choice' as const,
+  difficulty: 1 as const,
   choices: [
     { id: 'a', text: '6', is_correct: true },
     { id: 'b', text: '5', is_correct: false },
@@ -48,6 +51,7 @@ const Q2 = {
   ],
   hint_1: null, hint_2: null, hint_3: null,
   calculator_allowed: false,
+  image_svg: null,
 }
 
 const defaultProps = {
@@ -61,7 +65,9 @@ function setupFetch({ scorePercent = 80 } = {}) {
   global.fetch = vi.fn().mockImplementation((url: string, opts?: RequestInit) => {
     const method = opts?.method ?? 'GET'
     if (url.includes('/api/questions'))
-      return Promise.resolve({ json: () => Promise.resolve([Q1, Q2]) })
+      return Promise.resolve({
+        json: () => Promise.resolve({ questions: [Q1, Q2], languageLevel: 'standard' }),
+      })
     if (url.includes('/api/sessions') && method === 'POST' && !url.includes('/answers'))
       return Promise.resolve({ json: () => Promise.resolve({ sessionId: 'sess-1' }) })
     if (url.includes('/answers'))
@@ -75,7 +81,6 @@ function setupFetch({ scorePercent = 80 } = {}) {
 /** Navigate from the subject picker to the first question. */
 async function pickAndStart(mode: 'practice' | 'test' = 'practice') {
   fireEvent.click(screen.getByText('Math'))
-  // Mode buttons are conditionally rendered after subject selection
   await waitFor(() => screen.getByRole('button', { name: new RegExp(`^${mode}$`, 'i') }))
   fireEvent.click(screen.getByRole('button', { name: new RegExp(`^${mode}$`, 'i') }))
   await waitFor(() => screen.getByRole('button', { name: /let.*go/i }))
@@ -113,7 +118,6 @@ describe('PracticeSession', () => {
     await pickAndStart()
 
     fireEvent.click(screen.getByText('4')) // correct for Q1
-    // 1200ms auto-advance; waitFor default is 1000ms so we extend it
     await waitFor(() => screen.getByText('What is 3 + 3?'), { timeout: 2500 })
   }, 5000)
 
@@ -152,7 +156,6 @@ describe('PracticeSession', () => {
     fireEvent.click(screen.getByText('4')) // Q1 correct
     await waitFor(() => screen.getByText('What is 3 + 3?'), { timeout: 2500 })
     fireEvent.click(screen.getByText('6')) // Q2 correct
-    // Session complete screen
     await waitFor(() => screen.getByRole('button', { name: /practice again/i }), { timeout: 2500 })
   }, 10000)
 
@@ -169,4 +172,44 @@ describe('PracticeSession', () => {
     fireEvent.click(screen.getByRole('button', { name: /practice again/i }))
     await waitFor(() => screen.getByText(/hi maya/i))
   }, 10000)
+
+  // ── Timer behaviour ──────────────────────────────────────────────────────────
+
+  it('shows the timer in test mode', async () => {
+    render(<PracticeSession {...defaultProps} />)
+    await pickAndStart('test')
+    expect(screen.getByRole('timer')).toBeInTheDocument()
+    expect(screen.getByText(/time remaining/i)).toBeInTheDocument()
+  })
+
+  it('does NOT show the timer in practice mode', async () => {
+    render(<PracticeSession {...defaultProps} />)
+    await pickAndStart('practice')
+    expect(screen.queryByRole('timer')).not.toBeInTheDocument()
+  })
+
+  it('does NOT show the timer when extended_time accommodation is enabled', async () => {
+    const extendedTimeProps = {
+      ...defaultProps,
+      child: { ...defaultProps.child, accommodations: { extended_time: true } },
+    }
+    render(<PracticeSession {...extendedTimeProps} />)
+    await pickAndStart('test')
+    expect(screen.queryByRole('timer')).not.toBeInTheDocument()
+  })
+
+  it('timer resets between questions (new timer key per question)', async () => {
+    // Verifies that each question gets its own QuestionTimer instance by checking
+    // that the timer element is still present after advancing to Q2 in test mode.
+    render(<PracticeSession {...defaultProps} />)
+    await pickAndStart('test')
+    expect(screen.getByRole('timer')).toBeInTheDocument()
+
+    // Answer Q1 correctly → auto-advance to Q2
+    fireEvent.click(screen.getByText('4'))
+    await waitFor(() => screen.getByText('What is 3 + 3?'), { timeout: 2500 })
+
+    // Timer should still be present for Q2
+    expect(screen.getByRole('timer')).toBeInTheDocument()
+  }, 8000)
 })

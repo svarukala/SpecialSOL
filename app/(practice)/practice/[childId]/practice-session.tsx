@@ -15,6 +15,7 @@ import { HintPanel } from '@/components/practice/hint-panel'
 import { AccommodationToolbar } from '@/components/accommodations/accommodation-toolbar'
 import { SessionComplete } from '@/components/practice/session-complete'
 import { playCorrectChime } from '@/lib/audio/web-audio'
+import { QuestionTimer } from '@/components/practice/question-timer'
 import { ChildFeedbackSheet } from '@/components/feedback/child-feedback-sheet'
 import {
   AlertDialog,
@@ -30,6 +31,13 @@ import {
 
 type Mode = 'practice' | 'test'
 type Phase = 'picking' | 'session' | 'complete'
+
+/** Seconds allocated per question in test mode by difficulty level. */
+function testTimerSeconds(difficulty: 1 | 2 | 3 | undefined): number {
+  if (difficulty === 3) return 120
+  if (difficulty === 2) return 90
+  return 60 // difficulty 1 or unknown
+}
 
 interface Props {
   child: {
@@ -198,6 +206,27 @@ export function PracticeSession({ child, availableSubjects, parentSettings, dash
     setIsCorrect(null)
   }, [])
 
+  // Called when the per-question countdown expires in test mode.
+  // Records the question as unanswered (wrong) and advances.
+  const handleTimerExpire = useCallback(async () => {
+    if (!sessionId || isCorrect === true) return
+    const q = questions[currentIndex]
+    await fetch(`/api/sessions/${sessionId}/answers`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        questionId: q.id,
+        answerId: null,
+        isCorrect: false,
+        timeSpent: testTimerSeconds(q.difficulty),
+        hintsUsed,
+        ttsUsed: accommodations.tts_enabled,
+        attemptNumber,
+      }),
+    })
+    advance(currentIndex + 1, questions.length)
+  }, [sessionId, isCorrect, questions, currentIndex, hintsUsed, accommodations.tts_enabled, attemptNumber, advance])
+
   const handleExit = useCallback(async () => {
     ttsEngineRef.current?.stop()
     if (sessionId) {
@@ -281,6 +310,14 @@ export function PracticeSession({ child, availableSubjects, parentSettings, dash
             progress={{ current: currentIndex + 1, total: questions.length }}
             onBoundary={(start, length) => setHighlightRange({ start, length })}
             onSpeakEnd={() => setHighlightRange(null)}
+          />
+        )}
+        {mode === 'test' && !accommodations.extended_time && (
+          <QuestionTimer
+            key={`timer-${q.id}`}
+            questionKey={q.id}
+            durationSeconds={testTimerSeconds(q.difficulty)}
+            onExpire={handleTimerExpire}
           />
         )}
         <QuestionCard question={q} simplified={languageLevel !== 'standard'} highlightRange={highlightRange} />

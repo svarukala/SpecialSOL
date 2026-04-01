@@ -23,7 +23,7 @@ const TOOLTIPS: Partial<Record<BooleanKey | 'tts_speed' | 'large_text', string>>
   dyslexia_font:           'Uses a specially designed font that improves readability for children with dyslexia.',
   bionic_reading:          'Bolds the first letters of each word to guide the eye and speed up reading.',
   reduce_distractions:     'Simplifies the interface by hiding decorative animations and elements. Automatically turns off Positive Reinforcement, since animations can be distracting.',
-  extended_time:           'Removes time pressure — no timers or time-based scoring during sessions.',
+  extended_time:           'Removes the per-question countdown timer during test sessions. Questions will never auto-advance due to time running out.',
   hints_enabled:           'Shows hint buttons during questions so children can get step-by-step guidance when stuck.',
   positive_reinforcement:  'Displays encouraging messages and animations after correct answers. Automatically turns off Reduce Distractions, since the two settings conflict.',
 }
