@@ -11,6 +11,17 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
 
 const AVATARS = ['🌟', '🦁', '🐬', '🦋', '🚀', '🌈', '🎨', '⚡', '🦊', '🐸']
 
@@ -22,6 +33,7 @@ export default function EditChildPage() {
   const [avatar, setAvatar] = useState(AVATARS[0])
   const [accommodations, setAccommodations] = useState<AccommodationState>(DEFAULT_ACCOMMODATIONS)
   const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const [loading, setLoading] = useState(true)
   const [topicLevels, setTopicLevels] = useState<Array<{
     subject: string
@@ -95,6 +107,12 @@ export default function EditChildPage() {
     })
     await refreshTopicLevels()
     setLevelLoading(false)
+  }
+
+  async function handleDelete() {
+    setDeleting(true)
+    await fetch(`/api/children/${childId}`, { method: 'DELETE' })
+    router.push('/dashboard')
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -219,6 +237,34 @@ export default function EditChildPage() {
               {saving ? 'Saving...' : 'Save Changes'}
             </Button>
           </form>
+
+          <div className="mt-8 pt-6 border-t">
+            <AlertDialog>
+              <AlertDialogTrigger
+                disabled={deleting}
+                className="w-full inline-flex items-center justify-center rounded-md text-sm font-medium h-10 px-4 py-2 bg-destructive text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50 disabled:pointer-events-none transition-colors"
+              >
+                {deleting ? 'Deleting...' : 'Delete Child Profile'}
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete {name}&apos;s profile?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This permanently deletes {name}&apos;s profile, all practice sessions, answers, and progress. This cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDelete}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    Yes, delete everything
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         </CardContent>
       </Card>
     </main>
