@@ -4,6 +4,7 @@ import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { LandingNav } from '@/components/marketing/landing-nav'
 import { LandingFooter } from '@/components/marketing/landing-footer'
+import { AccommodationTiles } from '@/components/marketing/accommodation-tiles'
 
 export const metadata: Metadata = {
   alternates: { canonical: 'https://solprep.app' },
@@ -34,16 +35,6 @@ const STRENGTHS = [
   },
 ]
 
-const ACCOMMODATIONS = [
-  { icon: '🔊', label: 'Read Aloud (TTS)' },
-  { icon: '🔤', label: 'Dyslexia Font' },
-  { icon: '👁️', label: 'Bionic Reading' },
-  { icon: '🌗', label: 'High Contrast' },
-  { icon: '⏱️', label: 'Extended Time' },
-  { icon: '💡', label: 'Step-by-Step Hints' },
-  { icon: '🔕', label: 'Reduce Distractions' },
-  { icon: '🎉', label: 'Positive Reinforcement' },
-]
 
 const STEPS = [
   { n: '1', title: 'Create a free account', body: 'Sign up in seconds — no credit card required.' },
@@ -160,14 +151,7 @@ export default async function HomePage() {
           <p className="text-muted-foreground mb-10 max-w-lg mx-auto text-sm leading-relaxed">
             Every accommodation is a single toggle — set it once per child and it applies to every session automatically.
           </p>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {ACCOMMODATIONS.map(({ icon, label }) => (
-              <div key={label} className="flex flex-col items-center gap-2 bg-background rounded-xl border p-4">
-                <span className="text-2xl">{icon}</span>
-                <span className="text-xs font-medium text-center leading-tight">{label}</span>
-              </div>
-            ))}
-          </div>
+          <AccommodationTiles />
         </div>
       </section>
 
