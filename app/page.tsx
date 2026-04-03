@@ -2,6 +2,8 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
+import { LandingNav } from '@/components/marketing/landing-nav'
+import { LandingFooter } from '@/components/marketing/landing-footer'
 
 export const metadata: Metadata = {
   alternates: { canonical: 'https://solprep.app' },
@@ -90,23 +92,7 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      {/* ── Nav ────────────────────────────────────────────────── */}
-      <header className="border-b sticky top-0 z-10 bg-background/95 backdrop-blur">
-        <nav className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
-          <span className="font-bold text-lg tracking-tight">SolPrep ⭐</span>
-          <div className="flex items-center gap-3">
-            <Link href="/login" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Sign in
-            </Link>
-            <Link
-              href="/signup"
-              className="text-sm font-medium bg-primary text-primary-foreground px-4 py-1.5 rounded-lg hover:bg-primary/90 transition-colors"
-            >
-              Get started free
-            </Link>
-          </div>
-        </nav>
-      </header>
+      <LandingNav activePage="home" />
 
       {/* ── Hero ───────────────────────────────────────────────── */}
       <section className="max-w-3xl mx-auto px-4 pt-20 pb-16 text-center">
@@ -150,7 +136,7 @@ export default async function HomePage() {
       </section>
 
       {/* ── Strengths ──────────────────────────────────────────── */}
-      <section className="max-w-5xl mx-auto px-4 py-20">
+      <section id="features" className="max-w-5xl mx-auto px-4 py-20 scroll-mt-14">
         <h2 className="text-2xl sm:text-3xl font-bold text-center mb-12">
           Why SolPrep is different
         </h2>
@@ -166,7 +152,7 @@ export default async function HomePage() {
       </section>
 
       {/* ── Accommodations showcase ────────────────────────────── */}
-      <section className="bg-muted/30 border-y">
+      <section id="accommodations" className="bg-muted/30 border-y scroll-mt-14">
         <div className="max-w-4xl mx-auto px-4 py-16 text-center">
           <h2 className="text-2xl sm:text-3xl font-bold mb-3">
             Classroom accommodations, built in
@@ -219,17 +205,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── Footer ─────────────────────────────────────────────── */}
-      <footer className="border-t">
-        <div className="max-w-5xl mx-auto px-4 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <span className="font-semibold text-foreground">SolPrep ⭐</span>
-          <span>Virginia SOL practice for every learner · Grades 3–8</span>
-          <div className="flex gap-4">
-            <Link href="/login" className="hover:text-foreground transition-colors">Sign in</Link>
-            <Link href="/signup" className="hover:text-foreground transition-colors">Sign up</Link>
-          </div>
-        </div>
-      </footer>
+      <LandingFooter />
 
     </div>
   )
