@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Lexend, Geist_Mono } from 'next/font/google'
+import Script from 'next/script'
 import './globals.css'
 
 const lexend = Lexend({
@@ -73,6 +74,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${lexend.variable} ${geistMono.variable} antialiased`}>
       <body className="min-h-screen bg-background font-sans antialiased">
         {children}
+        <Script src="https://www.googletagmanager.com/gtag/js?id=G-LTDBK0L31S" strategy="afterInteractive" />
+        <Script id="gtag-init" strategy="afterInteractive">{`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-LTDBK0L31S');
+        `}</Script>
       </body>
     </html>
   )
