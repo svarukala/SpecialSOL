@@ -43,3 +43,7 @@ next-env.d.ts
 
 supabase/seed/generated/
 .superpowers/
+
+# Downloaded PDFs and extracted data (large binary/generated files)
+data/sol-pdfs/
+data/sol-extracted/

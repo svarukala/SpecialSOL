@@ -66,6 +66,9 @@ export interface Question {
   calculator_allowed: boolean
   image_svg: string | null
   difficulty?: 1 | 2 | 3
+  source?: 'doe_released' | 'ai_generated'
+  source_year?: number
+  reading_passage?: string | null
 }
 
 // ── typed choices accessors ────────────────────────────────────────────────
