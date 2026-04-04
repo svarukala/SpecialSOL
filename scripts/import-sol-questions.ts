@@ -182,16 +182,16 @@ async function main() {
       if (!dryRun) {
         inserts.push(
           `INSERT INTO questions_pending
-            (grade, subject, topic, sol_standard, question_text, simplified_text,
+            (grade, subject, topic, subtopic, sol_standard, question_text, simplified_text,
              answer_type, choices, hint_1, hint_2, hint_3, calculator_allowed,
-             image_svg, difficulty, source, source_year, source_test,
+             image_svg, difficulty, tier, source, source_year, source_test,
              reading_passage, standards_rewritten, status)
            VALUES (
-             ${sqlLiteral(importGrade)}, ${sqlLiteral(subject)}, ${sqlLiteral(q.matched_topic)},
-             ${sqlLiteral(q.matched_standard)}, ${sqlLiteral(questionText)}, NULL,
+             ${sqlLiteral(importGrade)}, ${sqlLiteral(subject)}, ${sqlLiteral(q.matched_topic ?? '')},
+             '', ${sqlLiteral(q.matched_standard ?? '')}, ${sqlLiteral(questionText)}, '',
              'multiple_choice', ${sqlLiteral(JSON.stringify(q.choices))}::jsonb,
-             NULL, NULL, NULL, ${sqlLiteral(q.calculator_allowed)},
-             NULL, NULL, 'doe_released', ${sqlLiteral(year)}, ${sqlLiteral(sourceTest)},
+             '', '', '', ${sqlLiteral(q.calculator_allowed)},
+             NULL, 2, 'standard', 'doe_released', ${sqlLiteral(year)}, ${sqlLiteral(sourceTest)},
              ${sqlLiteral(passage)}, ${sqlLiteral(q.tier === 'yellow')}, 'pending'
            );`
         )
@@ -213,9 +213,9 @@ async function main() {
 
       try {
         if (isLocal) {
-          // Copy SQL file into container and execute
+          // Copy SQL file into container and execute; ON_ERROR_STOP ensures psql exits non-zero on any failure
           execSync(`docker cp "${sqlPath}" ${DOCKER_CONTAINER}:/tmp/import_batch.sql`, { stdio: 'pipe' })
-          execSync(`docker exec ${DOCKER_CONTAINER} psql -U postgres -d postgres -f /tmp/import_batch.sql`, { stdio: 'pipe' })
+          execSync(`docker exec ${DOCKER_CONTAINER} psql -U postgres -d postgres -v ON_ERROR_STOP=1 -f /tmp/import_batch.sql`, { stdio: 'pipe' })
         } else {
           await pool!.query(inserts.join('\n'))
         }
