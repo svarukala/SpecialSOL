@@ -94,23 +94,37 @@ export function QuestionCard({ question, simplified, highlightRange }: Props) {
   const { state } = useAccommodations()
   const text = (simplified && question.simplified_text) ? question.simplified_text : question.question_text
   return (
-    <Card>
-      <CardContent className="p-6 space-y-3">
-        <QuestionTypeBadge questionText={text} />
-        <p className="text-lg font-medium reading-text">
-          <FormattedText text={text} highlight={highlightRange} bionic={state.bionic_reading} />
-        </p>
-        {question.image_svg && (
-          <div className="flex justify-center my-3">
-            <div
-              data-testid="svg-container"
-              className="max-w-xs w-full rounded border border-border p-2 bg-muted/30"
-              dangerouslySetInnerHTML={{ __html: sanitizeSvg(question.image_svg) }}
-            />
-          </div>
-        )}
-        <OnScreenCalculator hidden={!question.calculator_allowed} />
-      </CardContent>
-    </Card>
+    <div className="space-y-3">
+      {question.reading_passage && (
+        <Card className="border-blue-200 bg-blue-50/40 dark:border-blue-900 dark:bg-blue-950/20">
+          <CardContent className="p-5">
+            <p className="text-xs font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-400 mb-3">
+              Reading Passage
+            </p>
+            <div className="max-h-64 overflow-y-auto pr-1 text-sm leading-relaxed reading-text text-foreground/90">
+              <FormattedText text={question.reading_passage} bionic={state.bionic_reading} />
+            </div>
+          </CardContent>
+        </Card>
+      )}
+      <Card>
+        <CardContent className="p-6 space-y-3">
+          <QuestionTypeBadge questionText={text} />
+          <p className="text-lg font-medium reading-text">
+            <FormattedText text={text} highlight={highlightRange} bionic={state.bionic_reading} />
+          </p>
+          {question.image_svg && (
+            <div className="flex justify-center my-3">
+              <div
+                data-testid="svg-container"
+                className="max-w-xs w-full rounded border border-border p-2 bg-muted/30"
+                dangerouslySetInnerHTML={{ __html: sanitizeSvg(question.image_svg) }}
+              />
+            </div>
+          )}
+          <OnScreenCalculator hidden={!question.calculator_allowed} />
+        </CardContent>
+      </Card>
+    </div>
   )
 }
