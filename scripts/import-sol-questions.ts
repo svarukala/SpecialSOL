@@ -5,21 +5,21 @@
 // Usage:
 //   npx tsx scripts/import-sol-questions.ts [--grades=3,4,5] [--subject=math|reading] [--year=2014] [--dry-run]
 //
-// Only green and yellow questions are imported.
-// Red questions are skipped (already logged to -rejected.json by the extractor).
+// Only green, yellow, and regraded questions are imported. Red are skipped.
+// Deduplication: fuzzy match on question_text against existing questions.
 //
-// Deduplication: fuzzy match on question_text — if a normalized form of the
-// question already exists in questions or questions_pending, it is skipped.
+// Local dev: connects to Supabase via docker exec (bypasses unreliable port forwarding on Windows).
+// Remote:    set DATABASE_URL in .env.local and it uses a direct Postgres connection.
 
-import { createClient } from '@supabase/supabase-js'
+import { Pool } from 'pg'
+import { execSync } from 'child_process'
 import * as fs from 'fs'
 import * as path from 'path'
 import * as dotenv from 'dotenv'
 
-// Load .env.local for local dev
 dotenv.config({ path: '.env.local' })
 
-// ── Types (mirror the extracted JSON) ───────────────────────────────────────
+// ── Types ────────────────────────────────────────────────────────────────────
 
 interface ExtractedChoice {
   id: string
@@ -58,23 +58,39 @@ interface ExtractedFile {
   questions: ExtractedQuestion[]
 }
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
 function getArg(flag: string) {
   return process.argv.find(a => a.startsWith(`--${flag}=`))?.split('=')[1]
 }
 
-/** Normalize question text for deduplication: lowercase, collapse whitespace, strip punctuation. */
 function normalizeForDedup(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^\w\s]/g, '')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .slice(0, 200)  // only compare the first 200 chars to avoid false negatives from trailing edits
+  return text.toLowerCase().replace(/[^\w\s]/g, '').replace(/\s+/g, ' ').trim().slice(0, 200)
 }
 
-// ── Main ─────────────────────────────────────────────────────────────────────
+/** Escape a value for inline SQL using dollar-quoting (safe for any text content). */
+function sqlLiteral(v: unknown): string {
+  if (v === null || v === undefined) return 'NULL'
+  if (typeof v === 'boolean') return v ? 'TRUE' : 'FALSE'
+  if (typeof v === 'number') return String(v)
+  // Dollar-quote with a unique tag to handle any content including $$ sequences
+  const s = String(v)
+  return `$SOLIMPORT$${s}$SOLIMPORT$`
+}
+
+// ── DB abstraction (local = docker exec, remote = pg pool) ───────────────────
+
+const DOCKER_CONTAINER = 'supabase_db_SPL-SOL'
+const isLocal = (process.env.NEXT_PUBLIC_SUPABASE_URL ?? '').includes('127.0.0.1')
+
+function dockerQuery(sql: string): string {
+  return execSync(
+    `docker exec ${DOCKER_CONTAINER} psql -U postgres -d postgres -t -A -c "${sql.replace(/"/g, '\\"')}"`,
+    { encoding: 'utf-8' }
+  ).trim()
+}
+
+// ── Main ──────────────────────────────────────────────────────────────────────
 
 async function main() {
   const dryRun = process.argv.includes('--dry-run')
@@ -85,16 +101,18 @@ async function main() {
   const grades = gradesArg ? gradesArg.split(',').map(Number) : [3, 4, 5, 6, 7, 8]
   const subjects: Array<'math' | 'reading'> = subjectFilter ? [subjectFilter] : ['math', 'reading']
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-  if (!supabaseUrl || !serviceKey) {
-    console.error('Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in .env.local')
-    process.exit(1)
+  // Remote connection setup
+  let pool: Pool | null = null
+  if (!isLocal) {
+    const pgUrl = process.env.DATABASE_URL ?? ''
+    if (!pgUrl) {
+      console.error('For remote: set DATABASE_URL in .env.local (Supabase Dashboard → Settings → Database → Connection string)')
+      process.exit(1)
+    }
+    pool = new Pool({ connectionString: pgUrl })
   }
 
-  const db = createClient(supabaseUrl, serviceKey)
-
-  // Build list of extracted JSON files to process
+  // Build file queue
   const queue: string[] = []
   for (const grade of grades.sort()) {
     for (const subject of subjects) {
@@ -118,115 +136,112 @@ async function main() {
   console.log(`Found ${queue.length} extracted files to import\n`)
   if (dryRun) console.log('[dry-run] No database writes will occur.\n')
 
-  // Pre-load existing question fingerprints for deduplication
+  // Load existing fingerprints for dedup
   console.log('Loading existing question fingerprints for dedup...')
-  const { data: existingQuestions } = await db
-    .from('questions')
-    .select('question_text')
-    .in('subject', ['math', 'reading'])
-
-  const { data: existingPending } = await db
-    .from('questions_pending')
-    .select('question_text')
-
   const existingFingerprints = new Set<string>()
-  for (const q of existingQuestions ?? []) existingFingerprints.add(normalizeForDedup(q.question_text))
-  for (const q of existingPending ?? []) existingFingerprints.add(normalizeForDedup(q.question_text))
+
+  if (isLocal) {
+    const out = dockerQuery(
+      'SELECT question_text FROM questions UNION ALL SELECT question_text FROM questions_pending'
+    )
+    if (out) out.split('\n').forEach(line => existingFingerprints.add(normalizeForDedup(line)))
+  } else {
+    const { rows } = await pool!.query<{ question_text: string }>(
+      `SELECT question_text FROM questions UNION ALL SELECT question_text FROM questions_pending`
+    )
+    rows.forEach(r => existingFingerprints.add(normalizeForDedup(r.question_text)))
+  }
   console.log(`  ${existingFingerprints.size} existing fingerprints loaded\n`)
 
   let totalGreen = 0, totalYellow = 0, totalRegraded = 0, totalRed = 0, totalDupes = 0, totalInserted = 0, totalFailed = 0
 
   for (const filePath of queue) {
-    const raw = fs.readFileSync(filePath, 'utf-8')
-    const extracted: ExtractedFile = JSON.parse(raw)
+    const extracted: ExtractedFile = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
     const { grade, subject, year, passages, questions } = extracted
-
     const sourceTest = `${year} Grade ${grade} ${subject === 'math' ? 'Math' : 'Reading'}`
-    console.log(`📦 ${sourceTest}`)
-    console.log(`   ${questions.length} questions — green: ${questions.filter(q => q.tier === 'green').length}, yellow: ${questions.filter(q => q.tier === 'yellow').length}, red: ${questions.filter(q => q.tier === 'red').length}`)
 
+    console.log(`📦 ${sourceTest}`)
+    console.log(`   ${questions.length} questions — 🟢 ${questions.filter(q => q.tier === 'green').length}  🟡 ${questions.filter(q => q.tier === 'yellow').length}  🔄 ${questions.filter(q => q.tier === 'regraded').length}  🔴 ${questions.filter(q => q.tier === 'red').length}`)
+
+    // Build INSERT statements for this file
+    const inserts: string[] = []
     let fileInserted = 0, fileDupes = 0, fileSkippedRed = 0, fileRegraded = 0
 
     for (const q of questions) {
-      if (q.tier === 'red') {
-        fileSkippedRed++
-        totalRed++
-        continue
-      }
+      if (q.tier === 'red') { fileSkippedRed++; totalRed++; continue }
 
       const questionText = q.tier === 'yellow' && q.rewritten_question_text
-        ? q.rewritten_question_text
-        : q.question_text
+        ? q.rewritten_question_text : q.question_text
 
       const fingerprint = normalizeForDedup(questionText)
-      if (existingFingerprints.has(fingerprint)) {
-        fileDupes++
-        totalDupes++
-        continue
-      }
+      if (existingFingerprints.has(fingerprint)) { fileDupes++; totalDupes++; continue }
 
-      const passage = q.reading_passage_index !== null
-        ? (passages[q.reading_passage_index]?.text ?? null)
-        : null
-
-      // For regraded questions, use the correct grade instead of the source test's grade
       const importGrade = q.tier === 'regraded' && q.correct_grade ? q.correct_grade : grade
+      const passage = q.reading_passage_index !== null ? (passages[q.reading_passage_index]?.text ?? null) : null
 
-      const row = {
-        grade: importGrade,
-        subject,
-        topic: q.matched_topic,
-        sol_standard: q.matched_standard,
-        question_text: questionText,
-        simplified_text: null,
-        answer_type: 'multiple_choice',
-        choices: q.choices,
-        hint_1: null,
-        hint_2: null,
-        hint_3: null,
-        calculator_allowed: q.calculator_allowed,
-        image_svg: null,
-        difficulty: null,
-        source: 'doe_released' as const,
-        source_year: year,
-        source_test: sourceTest,
-        reading_passage: passage,
-        standards_rewritten: q.tier === 'yellow',
-        status: 'pending' as const,
+      if (!dryRun) {
+        inserts.push(
+          `INSERT INTO questions_pending
+            (grade, subject, topic, sol_standard, question_text, simplified_text,
+             answer_type, choices, hint_1, hint_2, hint_3, calculator_allowed,
+             image_svg, difficulty, source, source_year, source_test,
+             reading_passage, standards_rewritten, status)
+           VALUES (
+             ${sqlLiteral(importGrade)}, ${sqlLiteral(subject)}, ${sqlLiteral(q.matched_topic)},
+             ${sqlLiteral(q.matched_standard)}, ${sqlLiteral(questionText)}, NULL,
+             'multiple_choice', ${sqlLiteral(JSON.stringify(q.choices))}::jsonb,
+             NULL, NULL, NULL, ${sqlLiteral(q.calculator_allowed)},
+             NULL, NULL, 'doe_released', ${sqlLiteral(year)}, ${sqlLiteral(sourceTest)},
+             ${sqlLiteral(passage)}, ${sqlLiteral(q.tier === 'yellow')}, 'pending'
+           );`
+        )
       }
 
-      if (dryRun) {
-        fileInserted++
-        totalInserted++
-        existingFingerprints.add(fingerprint)
-        if (q.tier === 'green') totalGreen++
-        else if (q.tier === 'yellow') totalYellow++
-        else { totalRegraded++; fileRegraded++ }
-        continue
-      }
+      existingFingerprints.add(fingerprint)
+      fileInserted++
+      totalInserted++
+      if (q.tier === 'green') totalGreen++
+      else if (q.tier === 'yellow') totalYellow++
+      else { totalRegraded++; fileRegraded++ }
+    }
 
-      const { error } = await db.from('questions_pending').insert(row)
-      if (error) {
-        console.log(`   ⚠️  Insert failed for Q${q.question_number}: ${error.message}`)
-        totalFailed++
-      } else {
-        fileInserted++
-        totalInserted++
-        existingFingerprints.add(fingerprint)  // prevent duplicates within this run
-        if (q.tier === 'green') totalGreen++
-        else if (q.tier === 'yellow') totalYellow++
-        else { totalRegraded++; fileRegraded++ }
+    // Execute inserts for this file
+    if (!dryRun && inserts.length > 0) {
+      const sqlPath = path.join('data', '_import_batch.sql')
+      fs.mkdirSync('data', { recursive: true })
+      fs.writeFileSync(sqlPath, inserts.join('\n'))
+
+      try {
+        if (isLocal) {
+          // Copy SQL file into container and execute
+          execSync(`docker cp "${sqlPath}" ${DOCKER_CONTAINER}:/tmp/import_batch.sql`, { stdio: 'pipe' })
+          execSync(`docker exec ${DOCKER_CONTAINER} psql -U postgres -d postgres -f /tmp/import_batch.sql`, { stdio: 'pipe' })
+        } else {
+          await pool!.query(inserts.join('\n'))
+        }
+      } catch (e) {
+        console.log(`   ⚠️  Batch insert failed: ${(e as Error).message}`)
+        totalFailed += inserts.length
+        totalInserted -= inserts.length
+        // Revert tier counts for this file
+        totalGreen -= questions.filter(q => q.tier === 'green' && !existingFingerprints.has(normalizeForDedup(q.question_text))).length
       }
     }
 
     console.log(`   ✅ ${fileInserted} inserted  ⏭️  ${fileDupes} dupes  ❌ ${fileSkippedRed} red  🔄 ${fileRegraded} regraded\n`)
   }
 
+  // Cleanup temp file
+  const tmpSql = path.join('data', '_import_batch.sql')
+  if (fs.existsSync(tmpSql)) fs.unlinkSync(tmpSql)
+
   console.log('─'.repeat(50))
-  console.log(`Total inserted:  ${totalInserted}  (🟢 ${totalGreen} green, 🟡 ${totalYellow} yellow — flagged for review, 🔄 ${totalRegraded} regraded to correct grade)`)
+  console.log(`Total inserted:  ${totalInserted}  (🟢 ${totalGreen} green, 🟡 ${totalYellow} yellow, 🔄 ${totalRegraded} regraded)`)
   console.log(`Total skipped:   ${totalRed} red (removed from SOL) + ${totalDupes} duplicates`)
   if (totalFailed > 0) console.log(`Total failed:    ${totalFailed} (check errors above)`)
   console.log('\nReview pending questions at /admin/questions')
+
+  if (pool) await pool.end()
 }
 
 main().catch((e) => { console.error(e); process.exit(1) })
