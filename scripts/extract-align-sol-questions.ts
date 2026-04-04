@@ -13,15 +13,19 @@
 // Each output JSON file contains:
 //   { grade, subject, year, extractedAt, questions: ExtractedQuestion[] }
 //
-// Three-tier classification:
-//   green  — aligned to current standards, import as-is
-//   yellow — remediable (AI-rewritten to match current standards language)
-//   red    — topic no longer in curriculum at this grade; skip
+// Four-tier classification:
+//   green    — aligned to current standards, import as-is
+//   yellow   — remediable (AI-rewritten to match current standards language)
+//   regraded — topic exists in VA SOL but at a different grade; import with correct_grade
+//   red      — topic removed from VA SOL entirely; skip
 
 import Anthropic from '@anthropic-ai/sdk'
 import * as fs from 'fs'
 import * as path from 'path'
+import * as dotenv from 'dotenv'
 import { getTopicsForGradeSubject, type SolTopic } from '../lib/curriculum/sol-curriculum'
+
+dotenv.config({ path: '.env.local' })
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -42,11 +46,12 @@ interface ExtractedQuestion {
   reading_passage_index: number | null  // null = standalone; 0-based index into passages[]
 
   // Standards alignment
-  tier: 'green' | 'yellow' | 'red'
+  tier: 'green' | 'yellow' | 'regraded' | 'red'
   matched_topic: string | null          // topic name from sol-curriculum.ts
   matched_standard: string | null       // current standard code
   alignment_reason: string
   rewritten_question_text: string | null  // only for yellow tier
+  correct_grade: number | null           // only for regraded tier (3–8)
 }
 
 interface ExtractedPassage {
@@ -115,7 +120,7 @@ ${isReading ? '- Identify reading passages: extract the full passage text and as
 - Do NOT extract non-question content (instructions, headers, sample questions marked "Example").
 
 ## Standards Alignment Rules
-For each question, classify it into one of three tiers:
+For each question, classify it into one of four tiers:
 
 **green** — The concept tested exists in the current curriculum topics above AND the question's framing, vocabulary, and expectations match current standards. Import as-is.
 
@@ -124,7 +129,9 @@ For each question, classify it into one of three tiers:
   - The question uses outdated terminology or framing that can be updated without changing the core skill being tested.
   For yellow questions: rewrite the question_text (and choices if needed) to match current SOL language. Preserve the correct answer and difficulty. Do NOT change the mathematical concept or reading skill being tested.
 
-**red** — The topic has been removed from this grade level, moved to a different grade, or tests a concept outside the current curriculum above. Do NOT import.
+**regraded** — The topic is NOT in the grade ${grade} curriculum above, but it IS a valid topic in the current VA SOL curriculum for a DIFFERENT grade (3–8). Set correct_grade to the grade where this topic now belongs. The question will be imported under that correct grade instead of being discarded.
+
+**red** — The topic has been removed from the VA SOL entirely (not taught at any grade 3–8), or the question tests a concept outside the grades 3–8 SOL scope altogether. Skip these only.
 
 ## Output Format
 Respond with ONLY a valid JSON object matching this exact structure (no markdown, no explanation):
@@ -150,14 +157,16 @@ Respond with ONLY a valid JSON object matching this exact structure (no markdown
       "matched_topic": "multiplication",
       "matched_standard": "3.4",
       "alignment_reason": "Tests multiplication facts, directly aligned to standard 3.4.",
-      "rewritten_question_text": null
+      "rewritten_question_text": null,
+      "correct_grade": null
     }
   ]
 }
 
 For math tests, "passages" should be an empty array [].
-For red-tier questions, set matched_topic and matched_standard to null.
-For yellow-tier questions, rewritten_question_text must be the complete rewritten question text.`
+For red-tier questions, set matched_topic, matched_standard, and correct_grade to null.
+For yellow-tier questions, rewritten_question_text must be the complete rewritten question text; correct_grade is null.
+For regraded-tier questions, set correct_grade to the integer grade (3–8) where this topic belongs; matched_topic and matched_standard should reflect the topic/standard at that correct grade.`
 }
 
 // ── Claude call ──────────────────────────────────────────────────────────────
@@ -277,6 +286,7 @@ async function main() {
 
       const green = result.questions.filter(q => q.tier === 'green').length
       const yellow = result.questions.filter(q => q.tier === 'yellow').length
+      const regraded = result.questions.filter(q => q.tier === 'regraded').length
       const red = result.questions.filter(q => q.tier === 'red').length
 
       const output: ExtractedFile = {
@@ -291,7 +301,7 @@ async function main() {
       fs.mkdirSync(path.dirname(outPath), { recursive: true })
       fs.writeFileSync(outPath, JSON.stringify(output, null, 2))
 
-      console.log(`done — ${result.questions.length} questions (🟢 ${green} 🟡 ${yellow} 🔴 ${red})`)
+      console.log(`done — ${result.questions.length} questions (🟢 ${green} 🟡 ${yellow} 🔄 ${regraded} 🔴 ${red})`)
 
       if (red > 0) {
         // Write rejection log

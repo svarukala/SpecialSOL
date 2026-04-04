@@ -35,11 +35,12 @@ interface ExtractedQuestion {
   diagram_description: string | null
   calculator_allowed: boolean
   reading_passage_index: number | null
-  tier: 'green' | 'yellow' | 'red'
+  tier: 'green' | 'yellow' | 'regraded' | 'red'
   matched_topic: string | null
   matched_standard: string | null
   alignment_reason: string
   rewritten_question_text: string | null
+  correct_grade: number | null
 }
 
 interface ExtractedPassage {
@@ -133,7 +134,7 @@ async function main() {
   for (const q of existingPending ?? []) existingFingerprints.add(normalizeForDedup(q.question_text))
   console.log(`  ${existingFingerprints.size} existing fingerprints loaded\n`)
 
-  let totalGreen = 0, totalYellow = 0, totalRed = 0, totalDupes = 0, totalInserted = 0, totalFailed = 0
+  let totalGreen = 0, totalYellow = 0, totalRegraded = 0, totalRed = 0, totalDupes = 0, totalInserted = 0, totalFailed = 0
 
   for (const filePath of queue) {
     const raw = fs.readFileSync(filePath, 'utf-8')
@@ -144,7 +145,7 @@ async function main() {
     console.log(`📦 ${sourceTest}`)
     console.log(`   ${questions.length} questions — green: ${questions.filter(q => q.tier === 'green').length}, yellow: ${questions.filter(q => q.tier === 'yellow').length}, red: ${questions.filter(q => q.tier === 'red').length}`)
 
-    let fileInserted = 0, fileDupes = 0, fileSkippedRed = 0
+    let fileInserted = 0, fileDupes = 0, fileSkippedRed = 0, fileRegraded = 0
 
     for (const q of questions) {
       if (q.tier === 'red') {
@@ -168,8 +169,11 @@ async function main() {
         ? (passages[q.reading_passage_index]?.text ?? null)
         : null
 
+      // For regraded questions, use the correct grade instead of the source test's grade
+      const importGrade = q.tier === 'regraded' && q.correct_grade ? q.correct_grade : grade
+
       const row = {
-        grade,
+        grade: importGrade,
         subject,
         topic: q.matched_topic,
         sol_standard: q.matched_standard,
@@ -196,7 +200,8 @@ async function main() {
         totalInserted++
         existingFingerprints.add(fingerprint)
         if (q.tier === 'green') totalGreen++
-        else totalYellow++
+        else if (q.tier === 'yellow') totalYellow++
+        else { totalRegraded++; fileRegraded++ }
         continue
       }
 
@@ -209,16 +214,17 @@ async function main() {
         totalInserted++
         existingFingerprints.add(fingerprint)  // prevent duplicates within this run
         if (q.tier === 'green') totalGreen++
-        else totalYellow++
+        else if (q.tier === 'yellow') totalYellow++
+        else { totalRegraded++; fileRegraded++ }
       }
     }
 
-    console.log(`   ✅ ${fileInserted} inserted  ⏭️  ${fileDupes} dupes  ❌ ${fileSkippedRed} red\n`)
+    console.log(`   ✅ ${fileInserted} inserted  ⏭️  ${fileDupes} dupes  ❌ ${fileSkippedRed} red  🔄 ${fileRegraded} regraded\n`)
   }
 
   console.log('─'.repeat(50))
-  console.log(`Total inserted:  ${totalInserted}  (🟢 ${totalGreen} green, 🟡 ${totalYellow} yellow — flagged for review)`)
-  console.log(`Total skipped:   ${totalRed} red (out of scope) + ${totalDupes} duplicates`)
+  console.log(`Total inserted:  ${totalInserted}  (🟢 ${totalGreen} green, 🟡 ${totalYellow} yellow — flagged for review, 🔄 ${totalRegraded} regraded to correct grade)`)
+  console.log(`Total skipped:   ${totalRed} red (removed from SOL) + ${totalDupes} duplicates`)
   if (totalFailed > 0) console.log(`Total failed:    ${totalFailed} (check errors above)`)
   console.log('\nReview pending questions at /admin/questions')
 }
