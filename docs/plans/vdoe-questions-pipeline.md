@@ -10,7 +10,7 @@ The database already has `source = 'doe_released' | 'ai_generated'` in both `que
 - PDFs are **mixed** — some are text-selectable, others are scanned images
 - **Reading tests have passages** — 2–4 passages per test, each with 8–12 questions (schema has no concept of a passage yet)
 - **Math has diagrams** — graphs, number lines, geometric figures (need image handling)
-- Older tests reference **prior SOL standards** — some questions won't align to current 2023 standards
+- **Standards drift** — VA SOL Math was significantly revised in 2023; Reading in 2017. Older tests may reference retired standards, moved topics, or outdated framing. These must be aligned before import.
 - Answer keys are sometimes **embedded**, sometimes a **separate PDF**
 
 ---
@@ -18,7 +18,7 @@ The database already has `source = 'doe_released' | 'ai_generated'` in both `que
 ## Phase 1 — Discovery & Download Script
 *New script: `scripts/download-sol-tests.ts`*
 
-Crawl the VDOE released tests index, find all PDFs for grades 3–8, Math and Reading, for all available years. Download and organize locally:
+Crawl the VDOE released tests index and SOLPass, find all PDFs for grades 3–8, Math and Reading, for all available years. Download and organize locally:
 
 ```
 data/sol-pdfs/
@@ -30,6 +30,8 @@ data/sol-pdfs/
 
 Also download any separate answer key PDFs. Idempotent — skip already-downloaded files.
 
+**Prioritization:** Start with 2019–2024 tests — these are fully digital (text-selectable) and use standards closest to current. Pre-2016 tests are lower priority due to scanned images and greater standards drift.
+
 **Output:** ~60–100 PDFs covering grades 3–8, both subjects, multiple years.
 
 ---
@@ -40,14 +42,14 @@ Also download any separate answer key PDFs. Idempotent — skip already-download
 Two-pass strategy:
 
 **Pass A — Text extraction** (`pdf-parse` npm package)
-For text-selectable PDFs: parse question number, question text, A/B/C/D choices, and match against the answer key. Fast and cheap.
+For text-selectable PDFs: parse question number, question text, A/B/C/D choices, match against the answer key. Fast and cheap.
 
 **Pass B — AI vision fallback** (Claude API with `image` content blocks)
 For scanned/image PDFs or questions with diagrams: send page images to Claude and prompt it to return structured JSON:
 ```json
 {
   "question_text": "...",
-  "choices": [{"id":"A","text":"...","is_correct":false}, ...],
+  "choices": [{"id": "A", "text": "...", "is_correct": false}, ...],
   "has_diagram": true,
   "diagram_description": "...",
   "sol_standard": "3.2a",
@@ -55,13 +57,73 @@ For scanned/image PDFs or questions with diagrams: send page images to Claude an
 }
 ```
 
-**Reading passages** — extracted as a block, stored in a new `passage` field (see Phase 3 schema change), then linked to all questions that reference it.
+**Reading passages** — extracted as a block, stored in a new `reading_passage` field (Phase 3), then associated with all questions that reference it.
 
-**Output:** Structured JSON per grade/subject/year, ready for import.
+**Output:** Structured JSON per grade/subject/year, ready for the standards alignment phase.
 
 ---
 
-## Phase 3 — Schema Changes
+## Phase 3 — Standards Alignment & Remediation ⬅️ NEW
+*New script: `scripts/align-sol-standards.ts`*
+
+This is the most critical phase. The source of truth for current standards is **`lib/curriculum/sol-curriculum.ts`** — it defines the exact topics, SOL standard codes, and descriptions for every grade/subject combination we support.
+
+### The problem
+
+VA SOL standards have been revised multiple times:
+- **Math 2023 revision** — major restructuring; many standard numbers changed and some topics moved between grade levels (e.g., what was "5.14" probability is now different)
+- **Reading 2017 revision** — moderate changes; some topic framing updated
+
+A question from a 2013 Grade 5 Math test referencing standard `5.14` (probability) may now be misaligned with current Grade 5 expectations. A question on a topic that moved to Grade 6 must either be re-graded or skipped.
+
+### Three-tier classification
+
+Every extracted question is classified by Claude against the current topics in `sol-curriculum.ts` for its grade and subject:
+
+| Tier | Criteria | Action |
+|------|----------|--------|
+| 🟢 **Aligned** | Topic exists in current curriculum; content, framing, and vocabulary match current standards | Import as-is |
+| 🟡 **Remediable** | Topic exists but standard code changed, or question uses outdated terminology / framing that can be updated without changing the mathematical/literacy concept being tested | AI-rewrite question text to match current standards language, then import |
+| 🔴 **Skip** | Topic no longer exists at this grade level (moved to a different grade or removed from the SOL entirely); or question tests a concept outside our supported curriculum | Log to rejection report, do not import |
+
+### How classification works
+
+For each question, the script sends a prompt to Claude with:
+1. The extracted question text and answer choices
+2. The full list of current topics from `sol-curriculum.ts` for that grade + subject (names, standard codes, descriptions)
+3. The question's source year and original SOL standard code
+
+Claude returns:
+```json
+{
+  "tier": "green" | "yellow" | "red",
+  "matched_topic": "fractions",           // topic name from sol-curriculum.ts, or null if red
+  "matched_standard": "5.4",              // current standard code, or null if red
+  "reason": "Standard 5.3 renamed to 5.4 in 2023 revision; content is identical",
+  "rewritten_question": "..."             // only present for yellow tier
+}
+```
+
+### Remediation for yellow-tier questions
+
+When Claude rewrites a yellow question it must:
+- **Preserve** the core concept being tested (the math skill or reading strategy)
+- **Update** terminology to match current SOL language (e.g., "identify" → "determine", updated vocab expectations)
+- **Not change** the correct answer or difficulty level
+- **Flag** the rewrite for admin review before approval (status = `pending`, not auto-approved)
+
+### Rejection report
+
+Red-tier questions are written to `data/sol-pdfs/rejected/GRADE-SUBJECT-YEAR.json` with:
+- Original question text
+- Reason for rejection
+- The closest current topic (if any) for context
+
+This report is reviewed manually — occasionally a question that appears out of scope can be salvaged with more significant reworking.
+
+---
+
+## Phase 4 — Schema Changes
 *New migration: `0015_sol_source_enhancements.sql`*
 
 ```sql
@@ -69,18 +131,20 @@ For scanned/image PDFs or questions with diagrams: send page images to Claude an
 ALTER TABLE questions ADD COLUMN source_year int;        -- e.g. 2022
 ALTER TABLE questions ADD COLUMN source_test text;       -- e.g. "Spring 2022 Grade 4 Math"
 
--- Reading passage support
-ALTER TABLE questions ADD COLUMN reading_passage text;   -- full passage text, nullable
-                                                         -- same passage repeated across
-                                                         -- all questions that reference it
+-- Reading passage support (same passage text on all questions that share it)
+ALTER TABLE questions ADD COLUMN reading_passage text;
+
+-- Whether the question was AI-rewritten for standards alignment
+ALTER TABLE questions ADD COLUMN standards_rewritten boolean NOT NULL DEFAULT false;
 
 -- Same additions to questions_pending
 ALTER TABLE questions_pending ADD COLUMN source_year int;
 ALTER TABLE questions_pending ADD COLUMN source_test text;
 ALTER TABLE questions_pending ADD COLUMN reading_passage text;
+ALTER TABLE questions_pending ADD COLUMN standards_rewritten boolean NOT NULL DEFAULT false;
 ```
 
-Also add `source` to the TypeScript `Question` interface in `lib/practice/question-types.ts`:
+Also add `source` and `source_year` to the TypeScript `Question` interface in `lib/practice/question-types.ts`:
 ```ts
 source: 'doe_released' | 'ai_generated'
 source_year?: number
@@ -88,31 +152,39 @@ source_year?: number
 
 ---
 
-## Phase 4 — Import & Review Script
+## Phase 5 — Import & Review Script
 *New script: `scripts/import-sol-questions.ts`*
 
-1. Deduplicate against existing questions (fuzzy match on `question_text`)
-2. Map extracted data to schema fields (`grade`, `subject`, `topic`, `difficulty`, `sol_standard`)
-3. Set `source = 'doe_released'`, `source_year`, `source_test`
-4. Insert into `questions_pending` with `status = 'pending'` for admin review
-5. Log summary: `X new, Y duplicates skipped, Z flagged for manual review`
+Takes aligned + remediated JSON from Phase 3 and:
+1. Deduplicates against existing questions (fuzzy match on `question_text`)
+2. Maps to schema fields (`grade`, `subject`, `topic`, `difficulty`, `sol_standard`)
+3. Sets `source = 'doe_released'`, `source_year`, `source_test`, `standards_rewritten`
+4. Inserts into `questions_pending` with `status = 'pending'` for admin review
+5. Logs a summary:
+   ```
+   Grade 4 Math - Spring 2022:
+     ✅ 32 aligned (green)
+     🔄 8 rewritten (yellow) — flagged for admin review
+     ❌ 5 skipped (red) — see rejected/4-math-2022.json
+     ⏭️  2 duplicates skipped
+   ```
 
-The existing admin approve workflow handles the rest — no new review UI needed.
+The existing admin approve workflow handles the rest.
 
 ---
 
-## Phase 5 — Session Source Preference
+## Phase 6 — Session Source Preference
 
-Add a collapsible "Advanced" option in `SubjectModePicker` — defaults to "All questions":
+Add a collapsible "Question type" option in `SubjectModePicker` — defaults to "All":
 - **All** (default)
-- **VA SOL Released Years** — only `doe_released`
+- **VA SOL Released** — only `doe_released`
 - **AI Generated** — only `ai_generated`
 
-Preference passed to `/api/questions` as a new `source` query param and applied in `getQuestionsForSession()`. Stored as a session-level choice (not saved to child profile).
+Preference passed to `/api/questions` as a new `source` query param. Stored as a session-level choice only.
 
 ---
 
-## Phase 6 — Subtle Question Label
+## Phase 7 — Subtle Question Label
 
 In `QuestionCard`, add a small source badge in the top-right corner:
 
@@ -121,11 +193,11 @@ In `QuestionCard`, add a small source badge in the top-right corner:
 | `doe_released` | `SOL Released · 2022` (muted blue pill) |
 | `ai_generated` | `AI Generated` (muted gray pill) |
 
-Parents can toggle badge visibility in settings if distracting during a session.
+If `standards_rewritten = true`, no additional label needed — the question content is current-standards-aligned and that detail is only relevant for admin review.
 
 ---
 
-## Phase 7 — Reading Passage Display
+## Phase 8 — Reading Passage Display
 
 When `reading_passage` is present, `QuestionCard` shows the passage in a scrollable panel above the question — matching real SOL test layout. Passage text respects simplified/bionic reading accommodations.
 
@@ -137,22 +209,39 @@ When `reading_passage` is present, `QuestionCard` shows the passage in a scrolla
 |------|--------|---------|
 | 1. Download script | Small | Real PDFs to work with |
 | 2. PDF extractor (text pass) | Medium | Bulk of text-based questions |
-| 3. Schema migration | Small | Source year, passage field |
-| 4. AI vision pass | Medium | Image-heavy PDFs, diagrams |
-| 5. Import + dedup script | Medium | Questions into pending queue |
-| 6. Source filter in API + picker | Small | Parent can choose source |
-| 7. Question badge in card | Small | Visible labeling |
-| 8. Reading passage display | Medium | Full reading test support |
+| 3. Schema migration | Small | Source year, passage, rewritten flag |
+| 4. Standards alignment script | Medium | Safe, current-standards questions only |
+| 5. AI vision pass | Medium | Image-heavy PDFs, diagrams |
+| 6. Import + dedup script | Medium | Questions into pending queue |
+| 7. Source filter in API + picker | Small | Parent can choose source |
+| 8. Question badge in card | Small | Visible labeling |
+| 9. Reading passage display | Medium | Full reading test support |
 
-## Biggest Risk
+**Steps 4 and 5 can run in parallel once step 2 is complete.**
 
-PDF quality from older tests (pre-2015 may be scanned images). **Mitigation:** prioritize 2019–2024 tests first — these are fully digital and text-selectable.
+---
+
+## Risks & Mitigations
+
+| Risk | Mitigation |
+|------|------------|
+| PDF quality (pre-2015 scanned) | Prioritize 2019–2024 first; use AI vision as fallback |
+| Standards misclassification | All yellow + edge cases go to admin review queue before approval |
+| Reading passage copyright | VDOE selects public domain / licensed passages; safe to reproduce |
+| High AI cost for alignment | Batch questions per PDF page; cache results to avoid re-processing |
+| Standards drift not caught | Admin review is the safety net; `standards_rewritten` flag makes rewrites visible |
+
+---
 
 ## Legal Note
 
-VA DOE released tests are published for public use — no copyright concerns for educational use.
+VA DOE released tests are published for public educational use — no copyright concerns. Reading passages are public domain or licensed by VDOE for educational reproduction.
+
+---
 
 ## References
 - [Released Tests & Item Sets — VDOE](https://www.doe.virginia.gov/teaching-learning-assessment/student-assessment/sol-practice-items-all-subjects/released-tests-item-sets-all-subjects)
 - [SOLPass Released Tests](https://www.solpass.org/released.php)
 - [VDOE Scorecard Released Tests Index](https://www.scorecard.doe.virginia.gov/testing/sol/released_tests/index.shtml)
+- [2023 Math SOL — VDOE](https://www.doe.virginia.gov/teaching-learning-assessment/instruction/mathematics/mathematics-standards-of-learning)
+- Current standards source of truth: `lib/curriculum/sol-curriculum.ts`
