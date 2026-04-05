@@ -243,12 +243,22 @@ export default async function HomePage() {
           <p className="text-primary-foreground/80 mb-8 text-sm leading-relaxed">
             Free to use. No ads. No data sold. Built by parents, for parents.
           </p>
-          <Link
-            href="/signup"
-            className="inline-block font-semibold bg-background text-foreground px-8 py-3 rounded-lg hover:bg-background/90 transition-colors text-base"
-          >
-            Create a free account
-          </Link>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link
+              href="/signup"
+              className="inline-block font-semibold bg-background text-foreground px-8 py-3 rounded-lg hover:bg-background/90 transition-colors text-base"
+            >
+              Create a free account
+            </Link>
+            <a
+              href="https://buymeacoffee.com/varuk"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-[#FFDD00] text-[#000000] font-semibold px-6 py-3 rounded-lg hover:bg-[#FFDD00]/90 transition-colors text-base"
+            >
+              ☕ Buy me a coffee
+            </a>
+          </div>
         </div>
       </section>
 
