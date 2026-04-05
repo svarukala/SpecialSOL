@@ -5,6 +5,8 @@ const BASE_FOOTER_LINKS = [
   { href: '/#features', label: 'Features' },
   { href: '/#accommodations', label: 'Accommodations' },
   { href: '/our-story', label: 'Our Story' },
+  { href: '/privacy', label: 'Privacy' },
+  { href: '/terms', label: 'Terms' },
 ]
 
 interface Props {
