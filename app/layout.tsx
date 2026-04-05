@@ -92,6 +92,9 @@ export const metadata: Metadata = {
   alternates: {
     canonical: SITE_URL,
   },
+  other: {
+    'msvalidate.01': '26CCFAFD462B115782D9F2BF67A9257E',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
