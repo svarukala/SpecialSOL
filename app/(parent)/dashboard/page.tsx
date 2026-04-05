@@ -10,12 +10,14 @@ import { MilestonesCard } from '@/components/dashboard/milestones-card'
 import { getAllChildTopicLevels, getRecentMilestones } from '@/lib/supabase/queries'
 import type { Milestone } from '@/lib/supabase/queries'
 import { PromotionBanner } from '@/components/dashboard/promotion-banner'
+import { WelcomeToast } from '@/components/dashboard/welcome-toast'
 
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ childId?: string }>
+  searchParams: Promise<{ childId?: string; welcome?: string }>
 }) {
+  const { welcome } = await searchParams
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -35,6 +37,7 @@ export default async function DashboardPage({
   if (!children || children.length === 0) {
     return (
       <main className="max-w-lg mx-auto p-8 text-center space-y-4">
+        <WelcomeToast isNew={welcome === '1'} />
         <h1 className="text-2xl font-bold">Welcome! 👋</h1>
         <p className="text-muted-foreground">Add your first child to get started.</p>
         <Link href="/children/new" className="inline-flex items-center justify-center rounded-lg bg-primary text-primary-foreground px-4 h-8 text-sm font-medium transition-colors hover:bg-primary/80">Add a Child</Link>
@@ -106,6 +109,7 @@ export default async function DashboardPage({
 
   return (
     <main className="max-w-3xl mx-auto p-6 space-y-6">
+      <WelcomeToast isNew={welcome === '1'} />
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Dashboard</h1>
         <Link href="/children/new" className="inline-flex items-center justify-center rounded-lg border border-border bg-background px-2.5 h-7 text-sm font-medium transition-colors hover:bg-muted">+ Add Child</Link>

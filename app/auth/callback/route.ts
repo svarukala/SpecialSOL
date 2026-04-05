@@ -10,9 +10,12 @@ export async function GET(req: NextRequest) {
 
   if (code) {
     const supabase = await createClient()
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`)
+      const isNewUser = data.user?.created_at === data.user?.updated_at ||
+        (data.user?.created_at && Date.now() - new Date(data.user.created_at).getTime() < 10_000)
+      const dest = next === '/dashboard' && isNewUser ? '/dashboard?welcome=1' : `${origin}${next}`
+      return NextResponse.redirect(dest.startsWith('http') ? dest : `${origin}${dest}`)
     }
   }
 
