@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/server'
 import { LandingNav } from '@/components/marketing/landing-nav'
 import { LandingFooter } from '@/components/marketing/landing-footer'
 
@@ -20,10 +21,13 @@ export const metadata: Metadata = {
   alternates: { canonical: 'https://solprep.app/our-story' },
 }
 
-export default function OurStoryPage() {
+export default async function OurStoryPage() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  const isLoggedIn = !!user
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <LandingNav activePage="our-story" />
+      <LandingNav activePage="our-story" isLoggedIn={isLoggedIn} />
 
       <main className="max-w-2xl mx-auto px-4 py-16 sm:py-24">
 
@@ -121,7 +125,7 @@ export default function OurStoryPage() {
 
       </main>
 
-      <LandingFooter />
+      <LandingFooter isLoggedIn={isLoggedIn} />
     </div>
   )
 }
