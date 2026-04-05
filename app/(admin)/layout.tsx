@@ -25,6 +25,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <span className="text-muted-foreground">|</span>
             <Link href="/admin/questions" className="hover:underline">Published Questions</Link>
             <span className="text-muted-foreground">|</span>
+            <Link href="/admin/users" className="hover:underline">Users</Link>
+            <span className="text-muted-foreground">|</span>
             <Link href="/dashboard" className="text-muted-foreground hover:underline">← Dashboard</Link>
           </div>
         </nav>
