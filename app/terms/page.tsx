@@ -129,7 +129,14 @@ export default async function TermsPage() {
           </section>
 
           <section className="space-y-3">
-            <h2 className="text-base font-semibold text-foreground">11. Contact</h2>
+            <h2 className="text-base font-semibold text-foreground">11. No affiliation with SOLPrep.com</h2>
+            <p>
+              SolPrep (solprep.app) is an independent service and is not affiliated with, endorsed by, or connected to SOLPrep.com or any other website, product, or organization using a similar name. Any resemblance in name is coincidental. We make no claim to the SOLPrep.com domain, brand, or any content found there.
+            </p>
+          </section>
+
+          <section className="space-y-3">
+            <h2 className="text-base font-semibold text-foreground">12. Contact</h2>
             <p>
               Questions about these Terms? Email us at{' '}
               <a href="mailto:admin@t20squares.com" className="text-primary underline">admin@t20squares.com</a>.
