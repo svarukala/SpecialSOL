@@ -132,7 +132,7 @@ export default async function TermsPage() {
             <h2 className="text-base font-semibold text-foreground">11. Contact</h2>
             <p>
               Questions about these Terms? Email us at{' '}
-              <a href="mailto:legal@solprep.app" className="text-primary underline">legal@solprep.app</a>.
+              <a href="mailto:admin@t20squares.com" className="text-primary underline">admin@t20squares.com</a>.
             </p>
           </section>
 

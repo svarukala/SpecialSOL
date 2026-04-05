@@ -140,7 +140,7 @@ export default async function PrivacyPage() {
             <h2 className="text-base font-semibold text-foreground">10. Contact us</h2>
             <p>
               If you have questions about this Privacy Policy or want to request data deletion, please email us at{' '}
-              <a href="mailto:privacy@solprep.app" className="text-primary underline">privacy@solprep.app</a>.
+              <a href="mailto:admin@t20squares.com" className="text-primary underline">admin@t20squares.com</a>.
             </p>
           </section>
 
