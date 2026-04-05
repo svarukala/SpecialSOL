@@ -65,8 +65,8 @@ export function ParentFeedbackForm({ parentId, onSubmitted }: Props) {
           <div className="space-y-1">
             <Label>Category</Label>
             <Select value={category} onValueChange={(v) => v && setCategory(v)} required>
-              <SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger>
-              <SelectContent>
+              <SelectTrigger className="w-full"><SelectValue placeholder="Select a category" /></SelectTrigger>
+              <SelectContent className="w-full">
                 {CATEGORIES.map((c) => (
                   <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
                 ))}
