@@ -27,8 +27,8 @@ export default async function ParentLayout({ children }: { children: React.React
     <div className="min-h-screen bg-background">
       <header className="border-b">
         <nav className="max-w-5xl mx-auto px-3 sm:px-4 h-14 flex items-center justify-between gap-2">
-          <Link href="/dashboard" className="font-bold text-base sm:text-lg tracking-tight shrink-0">
-            <span className="hidden sm:inline">SOL Practice </span>
+          <Link href="/" className="font-bold text-base sm:text-lg tracking-tight shrink-0">
+            <span className="hidden sm:inline">SolPrep </span>
             <span className="sm:hidden">SOL </span>
             ⭐
           </Link>

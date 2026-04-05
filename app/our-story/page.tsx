@@ -4,9 +4,19 @@ import { LandingNav } from '@/components/marketing/landing-nav'
 import { LandingFooter } from '@/components/marketing/landing-footer'
 
 export const metadata: Metadata = {
-  title: 'Our Story',
+  title: 'Our Story — Why We Built Free SOL Prep for Kids with Special Needs',
   description:
-    'Why we built SolPrep — a parent\'s journey finding SOL test prep for a child with special needs, and the decision to build a better resource for every family in Virginia.',
+    'A Virginia parent built SolPrep after finding no SOL test prep that worked for a child with special needs. Now it\'s free for every family — with IEP/504 accommodations, adaptive tiers, and real VDOE practice questions.',
+  keywords: [
+    'SOL prep for kids with special needs',
+    'Virginia SOL IEP accommodations',
+    'SOL practice for learning disabilities',
+    'free SOL prep special education',
+    'Virginia SOL 504 plan',
+    'SOL prep dyslexia',
+    'SOL prep ADHD',
+    'Virginia parent SOL resources',
+  ],
   alternates: { canonical: 'https://solprep.app/our-story' },
 }
 

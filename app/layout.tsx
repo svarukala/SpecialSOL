@@ -18,31 +18,56 @@ const geistMono = Geist_Mono({
 const SITE_URL = 'https://solprep.app'
 const SITE_NAME = 'SolPrep'
 const DESCRIPTION =
-  'Free Virginia SOL test prep for grades 3–8. Adaptive practice with built-in accommodations — text-to-speech, dyslexia font, extended time, and more. Math & Reading.'
+  'Free Virginia SOL practice using real VDOE released test questions, grades 3–8. Adaptive Math & Reading with IEP/504 accommodations built in — text-to-speech, dyslexia font, extended time, and more.'
+
+const TITLE_DEFAULT = `${SITE_NAME} — Free Virginia SOL Practice with Real VDOE Questions`
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: `${SITE_NAME} — Virginia SOL Test Prep for Every Learner`,
+    default: TITLE_DEFAULT,
     template: `%s · ${SITE_NAME}`,
   },
   description: DESCRIPTION,
   keywords: [
+    // High-intent searches
+    'Virginia SOL practice test',
+    'free SOL practice test',
+    'Virginia SOL practice questions',
+    'VDOE released test questions',
+    'free Virginia SOL prep',
+    'SOL test prep online',
+    // VDOE / standards
+    'Virginia Standards of Learning',
+    'VDOE released tests',
+    'Virginia SOL released questions',
+    // Subjects
+    'Virginia math SOL practice',
+    'Virginia reading SOL practice',
+    'SOL math practice',
+    'SOL reading practice',
+    // Grade-specific
+    'grade 3 SOL practice',
+    'grade 4 SOL practice',
+    'grade 5 SOL practice',
+    'grade 6 SOL practice',
+    'grade 7 SOL practice',
+    'grade 8 SOL practice',
+    // IEP / special needs / accommodations
+    'SOL prep for kids with IEP',
+    'SOL prep for kids with 504 plan',
+    'special needs SOL practice',
+    'dyslexia SOL practice',
+    'SOL accommodations',
+    'text-to-speech SOL practice',
+    // Adaptive / differentiated
+    'adaptive SOL practice',
+    'differentiated SOL practice',
+    'below grade level SOL prep',
+    // Brand & general
+    'SolPrep',
     'Virginia SOL test prep',
     'SOL practice',
-    'Virginia Standards of Learning',
-    'SOL accommodations',
-    'special needs SOL',
-    'dyslexia SOL practice',
-    'foundational SOL',
-    'grade 3 SOL',
-    'grade 4 SOL',
-    'grade 5 SOL',
-    'grade 6 SOL',
-    'grade 7 SOL',
-    'grade 8 SOL',
-    'Virginia math SOL',
-    'Virginia reading SOL',
   ],
   authors: [{ name: SITE_NAME, url: SITE_URL }],
   creator: SITE_NAME,
@@ -51,12 +76,12 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: SITE_URL,
     siteName: SITE_NAME,
-    title: `${SITE_NAME} — Virginia SOL Test Prep for Every Learner`,
+    title: TITLE_DEFAULT,
     description: DESCRIPTION,
   },
   twitter: {
     card: 'summary_large_image',
-    title: `${SITE_NAME} — Virginia SOL Test Prep for Every Learner`,
+    title: TITLE_DEFAULT,
     description: DESCRIPTION,
   },
   robots: {

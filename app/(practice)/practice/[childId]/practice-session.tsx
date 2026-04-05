@@ -30,6 +30,7 @@ import {
 } from '@/components/ui/alert-dialog'
 
 type Mode = 'practice' | 'test'
+type Source = 'all' | 'doe_released' | 'ai_generated'
 type Phase = 'picking' | 'session' | 'complete'
 
 /** Seconds allocated per question in test mode by difficulty level. */
@@ -89,14 +90,16 @@ export function PracticeSession({ child, availableSubjects, parentSettings, dash
   const handleStart = useCallback(async ({
     subject,
     mode: m,
+    source,
   }: {
     subject: 'math' | 'reading'
     mode: Mode
+    source: Source
   }) => {
     setIsStarting(true)
     setMode(m)
     const res = await fetch(
-      `/api/questions?grade=${child.grade}&subject=${subject}&mode=${m}&childId=${child.id}`
+      `/api/questions?grade=${child.grade}&subject=${subject}&mode=${m}&childId=${child.id}&source=${source}`
     )
     const { questions: qs, languageLevel: ll }: { questions: Question[]; languageLevel: 'foundational' | 'simplified' | 'standard' } = await res.json()
     setLanguageLevel(ll)

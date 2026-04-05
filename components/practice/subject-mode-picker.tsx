@@ -11,11 +11,18 @@ const SUBJECT_CONFIG = {
 
 type Subject = keyof typeof SUBJECT_CONFIG
 type Mode = 'practice' | 'test'
+type Source = 'all' | 'doe_released' | 'ai_generated'
+
+const SOURCE_OPTIONS: { value: Source; label: string; description: string }[] = [
+  { value: 'all',          label: 'All Questions',   description: 'Mix of released tests & AI' },
+  { value: 'doe_released', label: 'VA SOL Released', description: 'From official VDOE tests' },
+  { value: 'ai_generated', label: 'AI Generated',    description: 'AI-created practice questions' },
+]
 
 interface Props {
   childName: string
   availableSubjects: Subject[]
-  onStart: (choice: { subject: Subject; mode: Mode }) => void
+  onStart: (choice: { subject: Subject; mode: Mode; source: Source }) => void
   loading?: boolean
   dashboardHref: string
 }
@@ -23,6 +30,7 @@ interface Props {
 export function SubjectModePicker({ childName, availableSubjects, onStart, loading, dashboardHref }: Props) {
   const [subject, setSubject] = useState<Subject | null>(null)
   const [mode, setMode] = useState<Mode | null>(null)
+  const [source, setSource] = useState<Source>('all')
 
   return (
     <div className="space-y-8 max-w-md mx-auto p-6">
@@ -78,7 +86,25 @@ export function SubjectModePicker({ childName, availableSubjects, onStart, loadi
         </div>
       )}
       {subject && mode && (
-        <Button size="lg" className="w-full" onClick={() => onStart({ subject, mode })} disabled={loading}>
+        <div className="space-y-3">
+          <p className="text-center font-medium text-muted-foreground">Which questions?</p>
+          <div className="grid grid-cols-3 gap-2">
+            {SOURCE_OPTIONS.map((opt) => (
+              <Button
+                key={opt.value}
+                variant={source === opt.value ? 'default' : 'outline'}
+                onClick={() => setSource(opt.value)}
+                className="h-auto py-3 flex-col items-center overflow-hidden"
+              >
+                <span className="font-bold text-xs">{opt.label}</span>
+                <span className="text-xs opacity-70 whitespace-normal text-center leading-tight mt-1">{opt.description}</span>
+              </Button>
+            ))}
+          </div>
+        </div>
+      )}
+      {subject && mode && (
+        <Button size="lg" className="w-full" onClick={() => onStart({ subject, mode, source })} disabled={loading}>
           {loading ? 'Loading…' : "Let's Go! 🚀"}
         </Button>
       )}

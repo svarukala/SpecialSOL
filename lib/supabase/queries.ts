@@ -16,7 +16,8 @@ export async function getQuestionsForSession(
   subject: string,
   count: number,
   excludeQuestionIds: string[] = [],
-  languageLevel: 'foundational' | 'simplified' | 'standard' = 'simplified'
+  languageLevel: 'foundational' | 'simplified' | 'standard' = 'simplified',
+  source: 'all' | 'doe_released' | 'ai_generated' = 'all'
 ) {
   const easyTarget   = Math.round(count * 0.4)
   const mediumTarget = Math.round(count * 0.4)
@@ -32,6 +33,9 @@ export async function getQuestionsForSession(
         .eq('subject', subject)
         .eq('difficulty', difficulty)
         .eq('tier', tierFilter)
+      if (source !== 'all') {
+        q = q.eq('source', source)
+      }
       if (excludeQuestionIds.length > 0) {
         q = q.not('id', 'in', `(${excludeQuestionIds.join(',')})`)
       }
@@ -70,12 +74,15 @@ export async function getQuestionsForSession(
 
   // Final safety: if completely empty, fall back to unrestricted (but still tier-filtered)
   if (combined.length === 0) {
-    const { data, error } = await supabase
+    let fallback = supabase
       .from('questions').select('*')
       .eq('grade', grade)
       .eq('subject', subject)
       .eq('tier', tierFilter)
-      .limit(count * 3)
+    if (source !== 'all') {
+      fallback = fallback.eq('source', source)
+    }
+    const { data, error } = await fallback.limit(count * 3)
     if (error) throw error
     return (data ?? []).sort(() => Math.random() - 0.5).slice(0, count)
   }

@@ -8,6 +8,7 @@ export async function GET(req: NextRequest) {
   const subject = searchParams.get('subject') ?? 'math'
   const childId = searchParams.get('childId') ?? ''
   const mode = searchParams.get('mode') ?? 'practice'
+  const source = (searchParams.get('source') ?? 'all') as 'all' | 'doe_released' | 'ai_generated'
   const count = mode === 'test' ? 20 : 10
 
   const supabase = await createClient()
@@ -28,7 +29,7 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  const questions = await getQuestionsForSession(supabase, grade, subject, count, recentIds, languageLevel)
+  const questions = await getQuestionsForSession(supabase, grade, subject, count, recentIds, languageLevel, source)
 
   return NextResponse.json({ questions, languageLevel })
 }

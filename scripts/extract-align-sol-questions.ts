@@ -111,7 +111,7 @@ These are the ONLY valid topics for this grade. Use the exact topic name when ma
 ${topicList}
 
 ## Extraction Rules
-- Extract ALL multiple-choice questions (they have 4 labeled choices: A, B, C, D or F, G, H, J).
+- Extract ALL multiple-choice questions (they have 4 labeled choices: A, B, C, D or F, G, H, J). Normalize all choice IDs to A, B, C, D (map F→A, G→B, H→C, J→D).
 - Identify the correct answer from the answer key (usually at the end or embedded).
 - If there is no answer key, mark is_correct: false for all choices and note it.
 ${isReading ? '- Identify reading passages: extract the full passage text and associate questions with their passage by index (0-based).' : ''}

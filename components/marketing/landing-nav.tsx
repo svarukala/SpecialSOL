@@ -2,6 +2,7 @@ import Link from 'next/link'
 
 interface Props {
   activePage?: 'home' | 'our-story'
+  isLoggedIn?: boolean
 }
 
 const NAV_LINKS = [
@@ -10,7 +11,7 @@ const NAV_LINKS = [
   { href: '/our-story', label: 'Our Story' },
 ]
 
-export function LandingNav({ activePage }: Props) {
+export function LandingNav({ activePage, isLoggedIn }: Props) {
   return (
     <header className="border-b sticky top-0 z-10 bg-background/95 backdrop-blur">
       <nav className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
@@ -38,18 +39,29 @@ export function LandingNav({ activePage }: Props) {
         </div>
 
         <div className="flex items-center gap-3">
-          <Link
-            href="/login"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Sign in
-          </Link>
-          <Link
-            href="/signup"
-            className="text-sm font-medium bg-primary text-primary-foreground px-4 py-1.5 rounded-lg hover:bg-primary/90 transition-colors"
-          >
-            Get started free
-          </Link>
+          {isLoggedIn ? (
+            <Link
+              href="/dashboard"
+              className="text-sm font-medium bg-primary text-primary-foreground px-4 py-1.5 rounded-lg hover:bg-primary/90 transition-colors"
+            >
+              Dashboard
+            </Link>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Sign in
+              </Link>
+              <Link
+                href="/signup"
+                className="text-sm font-medium bg-primary text-primary-foreground px-4 py-1.5 rounded-lg hover:bg-primary/90 transition-colors"
+              >
+                Get started free
+              </Link>
+            </>
+          )}
         </div>
       </nav>
 

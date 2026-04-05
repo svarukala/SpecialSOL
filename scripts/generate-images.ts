@@ -188,6 +188,7 @@ async function main() {
   const subjectArg = getArg(args, 'subject')
   const topicArg = getArg(args, 'topic')
   const tierArg = getArg(args, 'tier')
+  const sourceArg = getArg(args, 'source')
 
   console.log(`Provider: ${providerArg}`)
   if (dryRun) console.log('[dry-run] No changes will be written to the database.')
@@ -209,6 +210,7 @@ async function main() {
     if (subjectArg) query = query.eq('subject', subjectArg)
     if (topicArg) query = query.eq('topic', topicArg)
     if (tierArg) query = query.eq('tier', tierArg)
+    if (sourceArg) query = query.eq('source', sourceArg)
 
     const { data, error } = await query
 

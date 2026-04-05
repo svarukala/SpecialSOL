@@ -1,4 +1,3 @@
-import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
@@ -7,17 +6,18 @@ import { LandingFooter } from '@/components/marketing/landing-footer'
 import { AccommodationTiles } from '@/components/marketing/accommodation-tiles'
 
 export const metadata: Metadata = {
+  title: 'Free Virginia SOL Practice Test — Real VDOE Questions, Grades 3–8',
+  description:
+    'Practice Virginia SOL with 3,700+ real VDOE released test questions for grades 3–8. Free Math & Reading practice with IEP/504 accommodations — text-to-speech, dyslexia font, adaptive tiers, and test-mode simulation.',
   alternates: { canonical: 'https://solprep.app' },
 }
 
-const STATS = [
-  { value: '300+', label: 'Practice questions' },
-  { value: 'Grades 3–8', label: 'Covered' },
-  { value: '2 subjects', label: 'Math & Reading' },
-  { value: '8', label: 'Accessibility options' },
-]
-
 const STRENGTHS = [
+  {
+    icon: '📋',
+    title: 'Real VDOE Released Tests',
+    body: 'Over 3,000 questions pulled directly from official Virginia DOE released SOL tests — the same questions that have appeared on real exams, now available for unlimited practice.',
+  },
   {
     icon: '🧱',
     title: 'Start Where They Are',
@@ -31,7 +31,7 @@ const STRENGTHS = [
   {
     icon: '📊',
     title: 'Practice & Test Modes',
-    body: 'Low-stakes practice builds confidence; timed test mode prepares kids for the real thing. Streak tracking and positive reinforcement keep them motivated.',
+    body: 'Low-stakes practice builds confidence; timed test mode simulates the real SOL experience — timed, one try per question. Streak tracking keeps them motivated.',
   },
 ]
 
@@ -39,7 +39,7 @@ const STRENGTHS = [
 const STEPS = [
   { n: '1', title: 'Create a free account', body: 'Sign up in seconds — no credit card required.' },
   { n: '2', title: 'Set up your child\'s profile', body: 'Choose grade, starting level, and accommodations that match their needs.' },
-  { n: '3', title: 'Start practicing', body: 'Pick Math or Reading, choose Practice or Test mode, and go.' },
+  { n: '3', title: 'Start practicing', body: 'Pick Math or Reading, choose Practice or Test mode, and select real VDOE questions or AI-generated practice. Go.' },
 ]
 
 const jsonLd = {
@@ -51,7 +51,7 @@ const jsonLd = {
       name: 'SolPrep',
       url: 'https://solprep.app',
       description:
-        'Free Virginia SOL test prep for grades 3–8 with adaptive learning tiers and built-in accessibility accommodations for math and reading.',
+        'Free Virginia SOL practice with 3,700+ real VDOE released test questions for grades 3–8. Math and Reading with adaptive tiers and built-in IEP/504 accommodations.',
       applicationCategory: 'EducationalApplication',
       operatingSystem: 'Web',
       offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
@@ -60,13 +60,51 @@ const jsonLd = {
         educationalRole: 'student',
         audienceType: 'Grades 3–8 Virginia students',
       },
+      featureList: [
+        'Real VDOE released test questions',
+        'Adaptive learning tiers (Foundational, Simplified, Standard)',
+        'Text-to-speech',
+        'Dyslexia-friendly font',
+        'Bionic reading',
+        'High contrast mode',
+        'Extended time',
+        'Built-in hints',
+        'Practice and test modes',
+        'Math and Reading for grades 3–8',
+      ],
     },
     {
       '@type': 'Organization',
       '@id': 'https://solprep.app/#org',
       name: 'SolPrep',
       url: 'https://solprep.app',
-      description: 'Virginia SOL test preparation platform with accessibility accommodations.',
+      description:
+        'Virginia SOL test preparation platform with real VDOE released questions and accessibility accommodations for students with IEPs, 504 plans, and learning differences.',
+    },
+    {
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'Is SolPrep free?',
+          acceptedAnswer: { '@type': 'Answer', text: 'Yes. SolPrep is completely free to use. No ads, no premium tier, no data sold.' },
+        },
+        {
+          '@type': 'Question',
+          name: 'Where do the practice questions come from?',
+          acceptedAnswer: { '@type': 'Answer', text: 'Over 3,000 questions come directly from official Virginia DOE released SOL tests. Additional questions are AI-generated and aligned to current VA SOL standards.' },
+        },
+        {
+          '@type': 'Question',
+          name: 'Does SolPrep support students with IEPs or 504 plans?',
+          acceptedAnswer: { '@type': 'Answer', text: 'Yes. SolPrep has built-in accommodations including text-to-speech, dyslexia-friendly font, bionic reading, high contrast, extended time, and hints — all configurable per child.' },
+        },
+        {
+          '@type': 'Question',
+          name: 'Which grades does SolPrep cover?',
+          acceptedAnswer: { '@type': 'Answer', text: 'SolPrep covers grades 3 through 8 for both Math and Reading Virginia SOL standards.' },
+        },
+      ],
     },
   ],
 }
@@ -74,7 +112,21 @@ const jsonLd = {
 export default async function HomePage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (user) redirect('/dashboard')
+  const isLoggedIn = !!user
+
+  // Live question counts
+  const { count: totalCount } = await supabase.from('questions').select('*', { count: 'exact', head: true })
+  const { count: doeCount } = await supabase.from('questions').select('*', { count: 'exact', head: true }).eq('source', 'doe_released')
+  const { count: aiCount } = await supabase.from('questions').select('*', { count: 'exact', head: true }).eq('source', 'ai_generated')
+
+  function roundDown(n: number, to: number) { return Math.floor(n / to) * to }
+
+  const STATS = [
+    { value: `${roundDown(totalCount ?? 0, 100).toLocaleString()}+`, label: 'Practice questions' },
+    { value: `${roundDown(doeCount ?? 0, 100).toLocaleString()}+`, label: 'From real VDOE tests' },
+    { value: `${roundDown(aiCount ?? 0, 50).toLocaleString()}+`, label: 'AI-generated questions' },
+    { value: '8', label: 'Accessibility options' },
+  ]
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -83,7 +135,7 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <LandingNav activePage="home" />
+      <LandingNav activePage="home" isLoggedIn={isLoggedIn} />
 
       {/* ── Hero ───────────────────────────────────────────────── */}
       <section className="max-w-3xl mx-auto px-4 pt-20 pb-16 text-center">
@@ -95,22 +147,33 @@ export default async function HomePage() {
           <span className="text-primary">every learner</span>
         </h1>
         <p className="text-lg text-muted-foreground max-w-xl mx-auto mb-8 leading-relaxed">
-          Adaptive practice for Virginia SOL — from foundational support to
-          grade-level mastery, with built-in accommodations for kids who learn differently.
+          Practice with real VDOE released test questions or AI-generated problems —
+          adaptive tiers, built-in accommodations, and test-mode simulation for grades 3–8.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Link
-            href="/signup"
-            className="font-semibold bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors text-base"
-          >
-            Start for free
-          </Link>
-          <Link
-            href="/login"
-            className="font-medium border border-border px-6 py-3 rounded-lg hover:bg-muted transition-colors text-base"
-          >
-            Sign in
-          </Link>
+          {isLoggedIn ? (
+            <Link
+              href="/dashboard"
+              className="font-semibold bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors text-base"
+            >
+              Go to Dashboard
+            </Link>
+          ) : (
+            <>
+              <Link
+                href="/signup"
+                className="font-semibold bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors text-base"
+              >
+                Start for free
+              </Link>
+              <Link
+                href="/login"
+                className="font-medium border border-border px-6 py-3 rounded-lg hover:bg-muted transition-colors text-base"
+              >
+                Sign in
+              </Link>
+            </>
+          )}
         </div>
       </section>
 
@@ -189,7 +252,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <LandingFooter />
+      <LandingFooter isLoggedIn={isLoggedIn} />
 
     </div>
   )
