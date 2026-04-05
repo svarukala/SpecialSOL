@@ -2,7 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 
 interface Props {
-  activePage?: 'home' | 'our-story'
+  activePage?: 'home' | 'our-story' | 'blog'
   isLoggedIn?: boolean
 }
 
@@ -10,6 +10,7 @@ const NAV_LINKS = [
   { href: '/#features', label: 'Features' },
   { href: '/#accommodations', label: 'Accommodations' },
   { href: '/our-story', label: 'Our Story' },
+  { href: '/blog', label: 'Blog' },
 ]
 
 export function LandingNav({ activePage, isLoggedIn }: Props) {
@@ -23,7 +24,7 @@ export function LandingNav({ activePage, isLoggedIn }: Props) {
 
         <div className="hidden sm:flex items-center gap-1">
           {NAV_LINKS.map(({ href, label }) => {
-            const isActive = activePage === 'our-story' && href === '/our-story'
+            const isActive = (activePage === 'our-story' && href === '/our-story') || (activePage === 'blog' && href === '/blog')
             return (
               <Link
                 key={href}
@@ -70,7 +71,7 @@ export function LandingNav({ activePage, isLoggedIn }: Props) {
       {/* Mobile nav links */}
       <div className="sm:hidden border-t flex overflow-x-auto">
         {NAV_LINKS.map(({ href, label }) => {
-          const isActive = activePage === 'our-story' && href === '/our-story'
+          const isActive = (activePage === 'our-story' && href === '/our-story') || (activePage === 'blog' && href === '/blog')
           return (
             <Link
               key={href}

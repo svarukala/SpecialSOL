@@ -5,6 +5,7 @@ const BASE_FOOTER_LINKS = [
   { href: '/#features', label: 'Features' },
   { href: '/#accommodations', label: 'Accommodations' },
   { href: '/our-story', label: 'Our Story' },
+  { href: '/blog', label: 'Blog' },
   { href: '/privacy', label: 'Privacy' },
   { href: '/terms', label: 'Terms' },
 ]
