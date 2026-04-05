@@ -2,7 +2,6 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import Image from 'next/image'
-import { SignOutButton } from '@/components/auth/sign-out-button'
 import { UserAvatar } from '@/components/auth/user-avatar'
 
 const NAV_LINKS = [
@@ -49,7 +48,6 @@ export default async function ParentLayout({ children }: { children: React.React
               </Link>
             )}
             <UserAvatar email={user.email!} name={userName} />
-            <SignOutButton />
           </div>
         </nav>
       </header>
