@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 
 interface Props {
   activePage?: 'home' | 'our-story'
@@ -15,8 +16,9 @@ export function LandingNav({ activePage, isLoggedIn }: Props) {
   return (
     <header className="border-b sticky top-0 z-10 bg-background/95 backdrop-blur">
       <nav className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
-        <Link href="/" className="font-bold text-lg tracking-tight shrink-0">
-          SolPrep ⭐
+        <Link href="/" className="flex items-center gap-2 shrink-0">
+          <Image src="/logo.png" alt="SolPrep logo" width={32} height={32} className="rounded-lg" />
+          <span className="font-bold text-lg tracking-tight">SolPrep</span>
         </Link>
 
         <div className="hidden sm:flex items-center gap-1">

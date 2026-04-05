@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 
 const BASE_FOOTER_LINKS = [
   { href: '/#features', label: 'Features' },
@@ -18,7 +19,10 @@ export function LandingFooter({ isLoggedIn }: Props) {
   return (
     <footer className="border-t">
       <div className="max-w-5xl mx-auto px-4 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-        <Link href="/" className="font-semibold text-foreground">SolPrep ⭐</Link>
+        <Link href="/" className="flex items-center gap-2">
+          <Image src="/logo.png" alt="SolPrep logo" width={24} height={24} className="rounded-md" />
+          <span className="font-semibold text-foreground">SolPrep</span>
+        </Link>
         <span className="hidden sm:block">Virginia SOL practice for every learner · Grades 3–8</span>
         <div className="flex flex-wrap items-center justify-center gap-4">
           {[...BASE_FOOTER_LINKS, ...authLinks].map(({ href, label }) => (

@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
+import Image from 'next/image'
 import { SignOutButton } from '@/components/auth/sign-out-button'
 
 const NAV_LINKS = [
@@ -27,10 +28,9 @@ export default async function ParentLayout({ children }: { children: React.React
     <div className="min-h-screen bg-background">
       <header className="border-b">
         <nav className="max-w-5xl mx-auto px-3 sm:px-4 h-14 flex items-center justify-between gap-2">
-          <Link href="/" className="font-bold text-base sm:text-lg tracking-tight shrink-0">
-            <span className="hidden sm:inline">SolPrep </span>
-            <span className="sm:hidden">SOL </span>
-            ⭐
+          <Link href="/" className="flex items-center gap-2 shrink-0">
+            <Image src="/logo.png" alt="SolPrep logo" width={28} height={28} className="rounded-md" />
+            <span className="font-bold text-base sm:text-lg tracking-tight">SolPrep</span>
           </Link>
           <div className="flex items-center gap-0.5 sm:gap-1">
             {NAV_LINKS.map(({ href, emoji, label }) => (
