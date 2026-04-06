@@ -6,7 +6,9 @@ import { createClient } from '@/lib/supabase/server'
 export async function GET(req: NextRequest) {
   const { searchParams, origin } = new URL(req.url)
   const code = searchParams.get('code')
-  const next = searchParams.get('next') ?? '/dashboard'
+  // Only allow relative paths to prevent open redirect attacks
+  const rawNext = searchParams.get('next') ?? '/dashboard'
+  const next = rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : '/dashboard'
 
   if (code) {
     const supabase = await createClient()
@@ -14,8 +16,8 @@ export async function GET(req: NextRequest) {
     if (!error) {
       const isNewUser = data.user?.created_at === data.user?.updated_at ||
         (data.user?.created_at && Date.now() - new Date(data.user.created_at).getTime() < 10_000)
-      const dest = next === '/dashboard' && isNewUser ? '/dashboard?welcome=1' : `${origin}${next}`
-      return NextResponse.redirect(dest.startsWith('http') ? dest : `${origin}${dest}`)
+      const dest = next === '/dashboard' && isNewUser ? '/dashboard?welcome=1' : next
+      return NextResponse.redirect(`${origin}${dest}`)
     }
   }
 
