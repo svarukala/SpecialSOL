@@ -21,18 +21,25 @@ export function LandingFooter({ isLoggedIn }: Props) {
 
   return (
     <footer className="border-t">
-      <div className="max-w-5xl mx-auto px-4 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-        <Link href="/" className="flex items-center gap-2">
-          <Image src="/logo.png" alt="SolPrep logo" width={24} height={24} className="rounded-md" />
-          <span className="font-semibold text-foreground">SolPrep</span>
-        </Link>
-        <span className="hidden sm:block">Virginia SOL practice for every learner · Grades 3–8</span>
-        <div className="flex flex-wrap items-center justify-center gap-4">
-          {[...BASE_FOOTER_LINKS, ...authLinks].map(({ href, label }) => (
-            <Link key={href} href={href} className="hover:text-foreground transition-colors">
-              {label}
-            </Link>
-          ))}
+      <div className="max-w-5xl mx-auto px-4 py-8 flex flex-col sm:flex-row items-start justify-between gap-6 text-sm text-muted-foreground">
+        {/* Left: logo + tagline */}
+        <div className="flex flex-col gap-1">
+          <Link href="/" className="flex items-center gap-2">
+            <Image src="/logo.png" alt="SolPrep logo" width={24} height={24} className="rounded-md" />
+            <span className="font-semibold text-foreground">SolPrep</span>
+          </Link>
+          <span className="text-xs">Virginia SOL practice for every learner · Grades 3–8</span>
+        </div>
+
+        {/* Right: links row + coffee button below */}
+        <div className="flex flex-col items-end gap-3">
+          <div className="flex flex-wrap justify-end gap-x-4 gap-y-2">
+            {[...BASE_FOOTER_LINKS, ...authLinks].map(({ href, label }) => (
+              <Link key={href} href={href} className="hover:text-foreground transition-colors">
+                {label}
+              </Link>
+            ))}
+          </div>
           <a
             href="https://buymeacoffee.com/varuk"
             target="_blank"
