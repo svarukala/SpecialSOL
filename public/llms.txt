@@ -1,0 +1,46 @@
+# SolPrep
+
+> Free Virginia SOL (Standards of Learning) practice platform for grades 3–8. Built by a Virginia parent for kids who learn differently — with real VDOE released test questions, adaptive learning tiers, and built-in IEP/504 accommodations.
+
+SolPrep is a web application at https://solprep.app. It is **not affiliated with SOLPrep.com**, which is a separate, unrelated website.
+
+## What SolPrep Does
+
+- Provides 3,700+ questions extracted directly from official VDOE released SOL tests (public domain)
+- Covers **Math and Reading** for **grades 3–8**
+- Three adaptive learning tiers: **Foundational** (simplified vocabulary and sentence structure), **Simplified** (scaffolded), and **Standard** (grade-level)
+- Two practice modes: **Practice mode** (hints available, no time pressure) and **Test mode** (timed, simulates real SOL conditions)
+- Built-in accessibility accommodations: text-to-speech, dyslexia-friendly font (OpenDyslexic), bionic reading, high-contrast mode, extended time, up to 3 hints per question
+- Parent dashboard to manage up to multiple children, each with independent grade/tier/accommodations settings
+- Session history and streak tracking per child
+- 100% free — no credit card, no paywall
+
+## Key Pages
+
+- [Home](https://solprep.app): Overview of features, how it works, and a sign-up prompt
+- [Our Story](https://solprep.app/our-story): Why SolPrep was built — a Virginia parent's experience finding no SOL prep that worked for a child with special needs
+- [Blog](https://solprep.app/blog): Engineering and product articles
+- [How We Used AI to Build SolPrep](https://solprep.app/blog/how-we-built-solprep-with-ai): Deep dive into the AI pipeline — PDF extraction, question generation with Claude, LLM-as-judge quality filtering, SVG math diagram generation
+- [Privacy Policy](https://solprep.app/privacy): Data collected, retention, COPPA/FERPA considerations
+- [Terms of Service](https://solprep.app/terms): Usage terms; includes disclaimer that SolPrep is not affiliated with SOLPrep.com
+
+## Who It's For
+
+- **Parents** of Virginia students in grades 3–8, especially those with IEPs, 504 plans, dyslexia, ADHD, or other learning differences
+- **Students** practicing independently for Virginia SOL tests
+- **Educators** looking for free, standards-aligned SOL practice with accommodation support
+
+## Technical Stack (for developers/researchers)
+
+- Next.js (App Router) deployed on Vercel
+- Supabase (Postgres + Auth + Storage) for backend
+- Questions generated and quality-filtered using Claude (Anthropic)
+- Math diagrams generated as inline SVG by Claude
+- Adaptive tier logic: parent sets starting tier per child; system suggests promotions based on session performance
+
+## What SolPrep Is Not
+
+- Not affiliated with the Virginia Department of Education (VDOE)
+- Not affiliated with SOLPrep.com (separate, unrelated site)
+- Not a tutoring service — it is self-directed practice
+- Not a paid subscription — it is entirely free
