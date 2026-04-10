@@ -194,7 +194,7 @@ export default async function HomePage() {
         <h2 className="text-2xl sm:text-3xl font-bold text-center mb-12">
           Why SolPrep is different
         </h2>
-        <div className="grid sm:grid-cols-3 gap-8">
+        <div className="grid sm:grid-cols-2 gap-8">
           {STRENGTHS.map(({ icon, title, body }) => (
             <div key={title} className="rounded-xl border bg-card p-6 space-y-3">
               <div className="text-3xl">{icon}</div>
