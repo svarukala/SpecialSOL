@@ -33,6 +33,7 @@ export async function getQuestionsForSession(
         .eq('subject', subject)
         .eq('difficulty', difficulty)
         .eq('tier', tierFilter)
+        .eq('needs_image', false)
       if (source !== 'all') {
         q = q.eq('source', source)
       }
@@ -79,6 +80,7 @@ export async function getQuestionsForSession(
       .eq('grade', grade)
       .eq('subject', subject)
       .eq('tier', tierFilter)
+      .eq('needs_image', false)
     if (source !== 'all') {
       fallback = fallback.eq('source', source)
     }
