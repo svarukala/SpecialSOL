@@ -102,12 +102,22 @@ export function FeedbackTable({ rows: initial }: { rows: Row[] }) {
                   </span>
                 </td>
                 <td className="px-4 py-3 text-right">
-                  <button
-                    onClick={() => updateStatus(row.id, NEXT_STATUS[row.status])}
-                    className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2 whitespace-nowrap"
-                  >
-                    {NEXT_LABEL[row.status]}
-                  </button>
+                  <div className="flex flex-col items-end gap-1.5">
+                    {row.question_id && (
+                      <a
+                        href={`/admin/questions?id=${row.question_id}`}
+                        className="text-xs text-primary hover:underline underline-offset-2 whitespace-nowrap font-medium"
+                      >
+                        View question →
+                      </a>
+                    )}
+                    <button
+                      onClick={() => updateStatus(row.id, NEXT_STATUS[row.status])}
+                      className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2 whitespace-nowrap"
+                    >
+                      {NEXT_LABEL[row.status]}
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

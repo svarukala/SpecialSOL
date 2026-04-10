@@ -8,6 +8,17 @@ export async function GET(req: NextRequest) {
   if (userIdOrErr instanceof Response) return userIdOrErr
 
   const { searchParams } = req.nextUrl
+  const id = searchParams.get('id')
+
+  const adminDb = createAdminClient()
+
+  // Single-question lookup for deep links from feedback page
+  if (id) {
+    const { data, error } = await adminDb.from('questions').select('*').eq('id', id).single()
+    if (error) return NextResponse.json({ error: error.message }, { status: 404 })
+    return NextResponse.json({ questions: [data], total: 1 })
+  }
+
   const grade = searchParams.get('grade')
   const subject = searchParams.get('subject')
   const topic = searchParams.get('topic')
@@ -16,7 +27,6 @@ export async function GET(req: NextRequest) {
   const offset = parseInt(searchParams.get('offset') ?? '0', 10)
   const limit = parseInt(searchParams.get('limit') ?? '20', 10)
 
-  const adminDb = createAdminClient()
   let query = adminDb.from('questions').select('*', { count: 'exact' })
   if (grade) query = query.eq('grade', parseInt(grade, 10))
   if (subject) query = query.eq('subject', subject)

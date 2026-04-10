@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { SOL_CURRICULUM, SUPPORTED_GRADES } from '@/lib/curriculum/sol-curriculum'
 import { sanitizeSvg } from '@/lib/svg/sanitize'
 
@@ -41,6 +42,37 @@ export function PublishedQuestionsClient({
   const [editingId, setEditingId] = useState<string | null>(null)
   const [drafts, setDrafts] = useState<Record<string, Record<string, unknown>>>({})
   const [saving, setSaving] = useState(false)
+  const [pinnedId, setPinnedId] = useState<string | null>(null)
+  const pinnedRef = useRef<HTMLDivElement>(null)
+  const searchParams = useSearchParams()
+
+  // Deep-link support: ?id=<question_id> fetches and pins that question at the top
+  useEffect(() => {
+    const id = searchParams.get('id')
+    if (!id) return
+    fetch(`/api/admin/questions?id=${id}`)
+      .then(r => r.json())
+      .then(body => {
+        if (body.questions?.length) {
+          const q = body.questions[0]
+          setQuestions(prev => {
+            // Avoid duplicating if already in the list
+            if (prev.some(p => p.id === q.id)) return prev
+            return [q, ...prev]
+          })
+          setPinnedId(q.id)
+          setEditingId(q.id)
+        }
+      })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Scroll pinned question into view once it renders
+  useEffect(() => {
+    if (pinnedId && pinnedRef.current) {
+      pinnedRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }, [pinnedId])
 
   const topicsForFilter = filters.subject && filters.grade
     ? SOL_CURRICULUM[parseInt(filters.grade)]?.[filters.subject as 'math' | 'reading'] ?? []
@@ -151,9 +183,20 @@ export function PublishedQuestionsClient({
         const isEditing = editingId === q.id
         const draft = drafts[q.id] ?? {}
         const isDirty = Object.keys(draft).length > 0
+        const isPinned = pinnedId === q.id
 
         return (
-          <div key={q.id} className="border rounded-lg mb-3 bg-white overflow-hidden">
+          <div
+            key={q.id}
+            ref={isPinned ? pinnedRef : undefined}
+            className={`border rounded-lg mb-3 bg-white overflow-hidden transition-all ${isPinned ? 'ring-2 ring-amber-400 shadow-md' : ''}`}
+          >
+            {isPinned && (
+              <div className="bg-amber-50 border-b border-amber-200 px-4 py-1.5 text-xs text-amber-700 font-medium flex items-center justify-between">
+                <span>Linked from feedback — review and edit as needed</span>
+                <button onClick={() => setPinnedId(null)} className="hover:text-amber-900">✕</button>
+              </div>
+            )}
             {isEditing ? (
               <div className="p-4">
                 <div className="flex gap-1.5 flex-wrap mb-3">
