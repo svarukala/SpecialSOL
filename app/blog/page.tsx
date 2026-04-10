@@ -12,6 +12,14 @@ export const metadata: Metadata = {
 
 const POSTS = [
   {
+    slug: 'accommodations-for-special-needs-students',
+    category: 'Education',
+    title: 'Accommodations for Special Needs Students — What the Research Says, and What We Built',
+    excerpt: 'What IEP and 504 accommodations look like in practice, the science behind dyslexia fonts, bionic reading, high contrast, and text-to-speech — and how SolPrep implements each one for Virginia SOL prep.',
+    date: 'April 10, 2026',
+    readTime: '10 min read',
+  },
+  {
     slug: 'how-we-built-solprep-with-ai',
     category: 'Engineering',
     title: 'How We Used AI to Build SolPrep — From PDF to Practice Questions',

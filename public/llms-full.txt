@@ -65,9 +65,13 @@ If this helps even one family feel a little less alone during SOL season, it was
 
 ## Page: Blog (https://solprep.app/blog)
 
-SolPrep's blog covers product and engineering topics — how the platform was built, the AI pipeline behind question generation, and lessons learned.
+SolPrep's blog covers product, education, and engineering topics — how the platform was built, the AI pipeline behind question generation, the research behind accessibility features, and lessons learned.
 
 ### Articles
+
+- **Accommodations for Special Needs Students — What the Research Says, and What We Built** (Education, April 10, 2026)
+  What IEP and 504 accommodations look like in practice, the science behind dyslexia fonts, bionic reading, high contrast, and text-to-speech — and how SolPrep implements each one for Virginia SOL prep.
+  URL: https://solprep.app/blog/accommodations-for-special-needs-students
 
 - **How We Used AI to Build SolPrep — From PDF to Practice Questions** (Engineering, April 5, 2026)
   A deep dive into how SolPrep uses Claude AI to extract Virginia SOL questions from VDOE PDFs, generate adaptive practice questions, and use LLM-as-judge to filter quality — including math diagram generation in SVG.
@@ -169,6 +173,78 @@ Images that fail the judge are discarded and the question runs without an image 
 We're working on per-student adaptive question selection — using session history to surface questions in weak areas rather than random selection within a topic. We're also exploring reading passage generation for reading comprehension questions, which are significantly harder to generate well than math.
 
 SolPrep is free at solprep.app. Contact: admin@t20squares.com
+
+---
+
+## Page: Blog Article — Accommodations for Special Needs Students (https://solprep.app/blog/accommodations-for-special-needs-students)
+
+*Education · April 10, 2026 · 10 min read*
+
+When a child has an IEP or 504 plan, they're entitled to accommodations that level the playing field — not to make tests easier, but to remove barriers that have nothing to do with what they actually know. A student who understands a math concept shouldn't fail because the question was printed in a font that makes letters flip, or because a 30-minute time limit triggers anxiety before they've read the first problem.
+
+These accommodations are well-established in public school law. What's less common is seeing them implemented in the test prep tools students use at home. SolPrep was built specifically to bring classroom accommodations into SOL practice.
+
+### What IEP and 504 accommodations actually are
+
+The Individuals with Disabilities Education Act (IDEA) guarantees students with qualifying disabilities a free, appropriate public education — including accommodations documented in an Individualized Education Program (IEP). Section 504 of the Rehabilitation Act covers students who don't qualify for special education services but still need support, typically through a 504 plan.
+
+Accommodations are not modifications. A modification changes what is being assessed — fewer questions, different content. An accommodation changes how a student demonstrates knowledge — more time, different format, assistive technology — while keeping the content the same.
+
+Common SOL-approved accommodations in Virginia include: extended time, read-aloud (text-to-speech), breaks as needed, enlarged print, reduced-distraction testing environment, use of a calculator, and directions read aloud.
+
+### Text-to-speech (read aloud)
+
+Read-aloud is one of the most commonly granted SOL accommodations for students with dyslexia, visual impairments, and language processing disorders. A 2014 meta-analysis by Buzick and Stone across 15 studies found that read-aloud accommodations significantly improved scores for students with reading disabilities — an average effect size of 0.62.
+
+The mechanism: reading requires two separate cognitive operations — decoding (turning symbols into words) and comprehension (understanding meaning). For students with dyslexia, decoding consumes so much working memory that comprehension suffers, even when the student understands the underlying concept. Read-aloud removes the decoding bottleneck.
+
+In SolPrep, TTS reads the full question text and each answer choice aloud. Parents can set the speech rate. The feature uses the Web Speech API built into all modern browsers.
+
+### Dyslexia-friendly font (OpenDyslexic)
+
+Dyslexia affects approximately 15–20% of the population. One hallmark is letter reversal — the brain perceives similar-shaped letters like b/d, p/q, or n/u as interchangeable. OpenDyslexic addresses this by giving each letter a weighted bottom — a heavier baseline that provides an orientation anchor so the brain can't easily flip the letter.
+
+The research is nuanced. A 2013 study by Rello and Baeza-Yates found OpenDyslexic improved reading speed for participants with dyslexia. A 2016 study by Wery and Diliberto found no significant improvement. A 2019 meta-analysis concluded that fonts with clear letterform differentiation perform better for a meaningful subset of readers. SolPrep makes it optional — parents enable it if their child responds positively.
+
+### Bionic reading
+
+Bionic Reading was introduced by Swiss typographic designer Renato Capocci in 2022. The concept: skilled readers use fixation points and the brain predicts the rest of the word from partial information. Bionic Reading makes those fixation points explicit by bolding the first few letters of each word.
+
+SolPrep's algorithm: for each word of length n, bold the first min(ceil(n / 2), 4) characters. So "reading" (7 letters) gets its first 4 bolded — "READing". "cat" (3 letters) gets the first 2 — "CAt".
+
+Scientific evidence: a 2023 study at the University of Würzburg found Bionic Reading did not significantly improve reading speed for typical readers, but self-reported comfort was higher for readers with ADHD. The bolded anchors may help maintain focus and reduce re-reading of lines — not by changing comprehension, but by giving the eye a path to follow.
+
+### High contrast mode
+
+WCAG 2.1 requires a contrast ratio of at least 4.5:1 between text and background for normal text. Irlen Syndrome (visual stress) affects an estimated 12–14% of the general population and up to 46% of individuals with dyslexia — causing visual distortions when reading on bright white backgrounds. SolPrep's high contrast mode switches to true black-on-white rendering across all question content.
+
+### Extended time
+
+Extended time is the most commonly granted testing accommodation in U.S. public schools. The VDOE allows 1.5× and 2× time extensions on SOL assessments for qualifying students. Research shows extended time improves scores for students with learning disabilities more than for non-disabled students — demonstrating it accommodates a real barrier.
+
+In SolPrep's test mode, extended time removes the countdown timer entirely (rather than multiplying it), because a visible countdown activates time-monitoring anxiety even when generous. Removing the timer eliminates the stressor completely.
+
+### Font size
+
+SolPrep offers three font size levels: default (18px), medium (24px), and large (30px). The default is already above the web average of 16px, reflecting the younger audience. Line height is 1.6× throughout, following British Dyslexia Association recommendations for spacing that reduces letter crowding.
+
+### Reduced distractions
+
+When enabled, SolPrep suppresses animations, simplifies celebration effects, and hides decorative elements. The question card becomes minimal — text, choices, submit. This mirrors the "separate room" or "privacy carrel" accommodation in school settings. Based on American Academy of Pediatrics recommendations that interface elements drawing attention away from the primary task increase error rates for children with ADHD.
+
+### Step-by-step hints
+
+SolPrep's three-hint system follows Vygotsky's Zone of Proximal Development — students can do more with guided support than alone, and that supported practice builds toward independent performance. Hint 1 restates the question; Hint 2 narrows the strategy; Hint 3 nearly gives the answer. Hint usage is tracked in session data as a signal for tier readiness.
+
+### Adaptive learning tiers
+
+SolPrep's three-tier system mirrors "differentiated instruction." The Foundational tier presents grade-level SOL standards at an entry point, not mastery level — for a student who hasn't yet mastered the underlying concept. This is the gap conventional test prep tools don't address: when a student can't answer a grade-level question, most tools mark it wrong and move on. SolPrep finds where the student actually is and builds from there.
+
+### What SolPrep doesn't (yet) implement
+
+- Color overlays (Irlen Syndrome): evidence for specific color preferences is highly individual; we may add a color picker in future
+- AAC/word prediction support: requires specialized hardware integration beyond a web app
+- Sign language video: not currently feasible at our question volume
 
 ---
 

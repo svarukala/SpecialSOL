@@ -19,7 +19,8 @@ SolPrep is a web application at https://solprep.app. It is **not affiliated with
 
 - [Home](https://solprep.app): Overview of features, how it works, and a sign-up prompt
 - [Our Story](https://solprep.app/our-story): Why SolPrep was built — a Virginia parent's experience finding no SOL prep that worked for a child with special needs
-- [Blog](https://solprep.app/blog): Engineering and product articles
+- [Blog](https://solprep.app/blog): Education, product, and engineering articles
+- [Accommodations for Special Needs Students](https://solprep.app/blog/accommodations-for-special-needs-students): The research behind dyslexia fonts, bionic reading, high contrast, TTS, and extended time — and how SolPrep implements each IEP/504 accommodation
 - [How We Used AI to Build SolPrep](https://solprep.app/blog/how-we-built-solprep-with-ai): Deep dive into the AI pipeline — PDF extraction, question generation with Claude, LLM-as-judge quality filtering, SVG math diagram generation
 - [Privacy Policy](https://solprep.app/privacy): Data collected, retention, COPPA/FERPA considerations
 - [Terms of Service](https://solprep.app/terms): Usage terms; includes disclaimer that SolPrep is not affiliated with SOLPrep.com
