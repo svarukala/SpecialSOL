@@ -1,0 +1,181 @@
+# SolPrep — Full Site Content
+
+> Free Virginia SOL (Standards of Learning) practice platform for grades 3–8. Built by a Virginia parent for kids who learn differently — with real VDOE released test questions, adaptive learning tiers, and built-in IEP/504 accommodations.
+
+Source: https://solprep.app
+Last updated: April 2026
+
+---
+
+## Page: Home (https://solprep.app)
+
+### Free Virginia SOL Practice Test — Real VDOE Questions, Grades 3–8
+
+Practice Virginia SOL with 3,700+ real VDOE released test questions for grades 3–8. Free Math & Reading practice with IEP/504 accommodations — text-to-speech, dyslexia font, adaptive tiers, and test-mode simulation.
+
+### Why SolPrep
+
+**Real VDOE Released Tests**
+Over 3,000 questions pulled directly from official Virginia DOE released SOL tests — the same questions that have appeared on real exams, now available for unlimited practice.
+
+**Start Where They Are**
+Three learning tiers — Foundational, Simplified, and Standard — let every child begin at the right level, not just the expected one. Parents control when to move up.
+
+**Built for All Learners**
+Text-to-speech, dyslexia-friendly font, bionic reading, high contrast, extended time, hints, and more. Accommodations that mirror what kids get in the classroom.
+
+**Practice & Test Modes**
+Low-stakes practice builds confidence; timed test mode simulates the real SOL experience — timed, one try per question. Streak tracking keeps them motivated.
+
+### How It Works
+
+1. Create a free account — sign up in seconds, no credit card required.
+2. Set up your child's profile — choose grade, starting level, and accommodations that match their needs.
+3. Start practicing — pick Math or Reading, choose Practice or Test mode, and select real VDOE questions or AI-generated practice.
+
+---
+
+## Page: Our Story (https://solprep.app/our-story)
+
+### Built by a parent, for every parent
+
+My son is in elementary school. He has special needs, and like many kids like him, he learns differently — not slower, not less capable, just differently.
+
+When Virginia SOL season approached, I went looking for resources online to help him prepare. What I found were sites built for the average student: grade-level questions, no accommodations, no way to start below grade level and work up. Nothing that matched how he actually learns.
+
+The tools that did exist for kids with special needs weren't connected to SOL standards at all. And the SOL-focused tools didn't consider kids like my son. There was a gap, and it felt like every family dealing with the same situation was on their own.
+
+So I built SolPrep.
+
+### What makes it different
+
+SolPrep starts where your child actually is — not where the curriculum says they should be. The Foundational tier gives kids below grade level a real entry point into SOL content: simpler language, visual support, step-by-step hints, and a path forward at their own pace.
+
+Every accommodation you'd request in a school IEP is available here as a simple toggle: text-to-speech, dyslexia-friendly fonts, bionic reading, extended time, high contrast, reduced distractions. Set it once per child, and it applies to every session automatically.
+
+Parents stay in control. You choose the starting level, you approve when your child is ready to move up, and you can see their progress over time.
+
+### Built for the greater good
+
+SolPrep is free. There are no ads, no premium tiers, and no data sold. Every family in Virginia should have access to quality SOL preparation — especially families who are already navigating the extra challenges that come with raising a child with special needs.
+
+If this helps even one family feel a little less alone during SOL season, it was worth building.
+
+---
+
+## Page: Blog (https://solprep.app/blog)
+
+SolPrep's blog covers product and engineering topics — how the platform was built, the AI pipeline behind question generation, and lessons learned.
+
+### Articles
+
+- **How We Used AI to Build SolPrep — From PDF to Practice Questions** (Engineering, April 5, 2026)
+  A deep dive into how SolPrep uses Claude AI to extract Virginia SOL questions from VDOE PDFs, generate adaptive practice questions, and use LLM-as-judge to filter quality — including math diagram generation in SVG.
+  URL: https://solprep.app/blog/how-we-built-solprep-with-ai
+
+---
+
+## Page: Blog Article — How We Used AI to Build SolPrep (https://solprep.app/blog/how-we-built-solprep-with-ai)
+
+*Engineering · April 5, 2026 · 8 min read*
+
+SolPrep started as a weekend project to help one kid prepare for Virginia SOL tests. It grew into a platform with over 3,300 practice questions, adaptive learning tiers, accessibility accommodations, and AI-generated math diagrams. Almost every step of building it involved AI — not just as a feature, but as the primary build tool.
+
+This post covers the AI pipeline in detail: how we extract real VDOE questions from PDFs, generate new ones, use LLMs as judges to filter quality, and generate SVG diagrams for math problems.
+
+### 1. Starting with real questions: parsing VDOE released tests
+
+The Virginia Department of Education publishes released SOL tests as public domain PDFs — one of the most underused education resources on the internet. These are real questions from real past tests, but they sit in PDFs that are hard to use programmatically.
+
+Our first pipeline step extracts raw text from each PDF, then passes it to Claude with a structured prompt asking it to parse every question into JSON with fields for grade, subject, SOL standard, question text, four answer choices, the correct answer, difficulty estimate, topic, and subtopic.
+
+The tricky part: VDOE alternates answer choice labels between question sets. Some questions use A/B/C/D, others use F/G/H/J (a pattern they use on the actual test). Our first extraction pass missed this, and users were seeing "F", "G", "H", "J" as answer labels instead of A/B/C/D. The fix was adding an explicit normalization rule to the extraction prompt: "Normalize all choice IDs to A, B, C, D — map F→A, G→B, H→C, J→D."
+
+We ran the extraction across 3,104 released questions and ended up with 2,322 unique questions after deduplication (a (sol_standard, question_text) unique constraint on the database catches near-duplicates from running the pipeline multiple times).
+
+### 2. Generating AI questions to fill curriculum gaps
+
+Released VDOE tests cover some topics well and others sparsely. To fill gaps, we built a question generation pipeline that produces 6 questions per curriculum topic per grade.
+
+Each call passes Claude the SOL standard, topic name, grade level, and detailed formatting rules: exactly 4 choices with IDs a/b/c/d, exactly one correct answer, three progressive hints (the third nearly gives the answer away), difficulty distribution (2–3 easy, 2 medium, 1–2 hard), and two text versions of every question — a standard academic phrasing and a simplified version using concrete nouns and shorter sentences.
+
+The output is validated against a Zod schema before insertion. Any batch that fails schema validation is logged but not inserted — rather than silently store malformed questions.
+
+Across 90 topics × 6 grades, this produced ~540 questions per generation run. Total AI-generated content: 452 standard questions + 576 foundational questions.
+
+### 3. Adaptive tiers: what "foundational" actually means
+
+A key insight from talking to parents of kids with IEPs: the problem isn't just difficulty — it's cognitive load. A grade 5 child with a reading disability might understand the math concept but fail the question because the sentence is too long, the vocabulary too abstract, or the context too unfamiliar.
+
+We built a "foundational" tier with explicit generation rules:
+
+- Maximum sentence length: one short sentence
+- No words above 3rd-grade reading level
+- Concrete nouns only — "apples" not "items", "boxes" not "containers"
+- Questions test the same SOL standard but at the most basic recognition level
+- Multi-digit addition becomes single-digit; fractions become "which shape shows one half"
+
+The generation prompt treats foundational as its own mode, not just "easier standard." The resulting questions look and feel completely different — short, visual, concrete — while still mapping to the same curriculum standards.
+
+### 4. LLM-as-judge: quality filtering before publishing
+
+Raw generation output isn't production-ready. Some questions have ambiguous correct answers, distractors that are obviously wrong, or hints that give away the answer immediately. We built a review pipeline using Claude as a judge before any question reaches users.
+
+The judge prompt evaluates each question on:
+
+- **Answer validity** — is exactly one choice unambiguously correct?
+- **Distractor quality** — do the wrong answers represent plausible mistakes, or are they obviously wrong?
+- **Hint progression** — does hint 3 nearly give it away without stating the answer directly?
+- **SOL alignment** — does the question actually test the stated standard?
+- **Age appropriateness** — is the context and vocabulary right for the grade?
+
+Questions that fail review go into a questions_pending staging table with a rejected status. The admin panel shows rejected questions with the judge's reasoning, and we can either fix and re-approve them or discard them. In practice, about 85% of generated questions pass on the first attempt.
+
+### 5. Generating math diagrams as SVG
+
+Many VDOE math questions reference diagrams — number lines, bar models, geometric figures, data tables. When we extracted the text from PDFs, the images didn't come with them. Rather than skip these questions, we built an image generation pipeline.
+
+We use Gemini's multimodal output (via the Vercel AI Gateway) to generate SVG code directly from the question text. The prompt asks for a clean, minimal SVG that a student would see alongside the question — no unnecessary decoration, high contrast, labeled axes where relevant.
+
+SVG was the right format choice for several reasons: it scales perfectly on any screen size, it's a text format so it stores cheaply in the database alongside the question, and it renders crisply on both high-DPI displays and printed pages.
+
+### 6. LLM-as-judge for images
+
+Image generation output is even less consistent than text. A model might respond with markdown-wrapped code blocks instead of raw SVG, produce SVG that doesn't render, or generate a diagram that contradicts the question (a number line showing the wrong range, a bar chart with incorrect values).
+
+We added a judge step after every image generation call. The judge receives the original question text and the generated SVG and evaluates:
+
+- Does the SVG render (basic structural validity)?
+- Does the diagram match the question content — correct values, labels, scale?
+- Is it clean enough for a student to read quickly?
+- Does it avoid depicting the answer (a critical rule — the diagram must show the setup, not the solution)?
+
+Images that fail the judge are discarded and the question runs without an image rather than showing a misleading one. Of 3,104 DOE questions processed, 565 ended up with validated SVG diagrams (~18%). The others either didn't need an image or generated ones the judge rejected.
+
+### 7. What we learned
+
+**Structured output + schema validation is non-negotiable.** Without a Zod schema enforced at the boundary, you get subtly broken questions in production. Schema validation caught ~15% of raw generations before they ever touched the database.
+
+**Prompts are code.** The F/G/H/J normalization bug, the simplified_text null constraint, the "don't depict the answer in the diagram" rule — all were prompt changes that fixed real user-facing bugs. Treat prompt iteration like code review.
+
+**The judge pattern scales.** Using the same model to generate and evaluate creates a useful feedback loop. The generator doesn't know it's being judged; the judge doesn't need to be a different model. For our scale, one judge call per question added ~30% cost and cut bad output by ~85%.
+
+**Real content beats synthetic for trust.** "Real VDOE released questions" resonates with parents immediately in a way that "AI-generated questions aligned to SOL standards" doesn't. Lead with authenticity; use AI to fill gaps, not replace the real thing.
+
+**Database constraints as a quality layer.** A unique constraint on (sol_standard, question_text) silently deduplicated 963 questions when we transferred data to production. Constraints aren't just data integrity — they're a quality filter that works even when pipelines run multiple times.
+
+### What's next
+
+We're working on per-student adaptive question selection — using session history to surface questions in weak areas rather than random selection within a topic. We're also exploring reading passage generation for reading comprehension questions, which are significantly harder to generate well than math.
+
+SolPrep is free at solprep.app. Contact: admin@t20squares.com
+
+---
+
+## Important Clarifications
+
+- SolPrep (solprep.app) is **not affiliated with the Virginia Department of Education (VDOE)**. It uses VDOE's publicly released, public domain test questions.
+- SolPrep (solprep.app) is **not affiliated with SOLPrep.com**, which is a completely separate, unrelated website.
+- SolPrep is **entirely free**. No subscription, no credit card, no ads, no data sold.
+- SolPrep is built and maintained by a Virginia parent, not a company or institution.
+- Contact: admin@t20squares.com
