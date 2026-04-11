@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { LandingNav } from '@/components/marketing/landing-nav'
 import { LandingFooter } from '@/components/marketing/landing-footer'
 import { AccommodationTiles } from '@/components/marketing/accommodation-tiles'
+import { ThankYouBanner } from '@/components/marketing/thank-you-banner'
 
 export const metadata: Metadata = {
   title: 'Free Virginia SOL Practice Test — Real VDOE Questions, Grades 3–8',
@@ -136,6 +137,7 @@ export default async function HomePage() {
       />
 
       <LandingNav activePage="home" isLoggedIn={isLoggedIn} />
+      <ThankYouBanner />
 
       {/* ── Hero ───────────────────────────────────────────────── */}
       <section className="max-w-3xl mx-auto px-4 pt-20 pb-16 text-center">
