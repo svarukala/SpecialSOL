@@ -214,15 +214,15 @@ async function main() {
           role: 'user',
           content: [
             {
-              type: 'document',
+              type: 'document' as const,
               source: {
-                type: 'base64',
-                media_type: 'application/pdf',
+                type: 'base64' as const,
+                media_type: 'application/pdf' as const,
                 data: pdfBase64,
               },
-            } as Parameters<typeof anthropic.messages.create>[0]['messages'][0]['content'][0],
+            },
             {
-              type: 'text',
+              type: 'text' as const,
               text: extractPrompt,
             },
           ],
