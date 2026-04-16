@@ -64,7 +64,7 @@ export async function getQuestionsForSession(
   let   medium = await fetchTier(2, mediumTarget)
   const hard   = await fetchTier(3, hardTarget)
 
-  // Fill deficit from medium tier if hard tier is short
+  // Fill any deficit by pulling more medium questions
   const deficit = count - (easy.length + medium.length + hard.length)
   if (deficit > 0) {
     const extra = await fetchTier(2, mediumTarget + deficit)
@@ -73,8 +73,10 @@ export async function getQuestionsForSession(
 
   const combined = [...easy, ...medium, ...hard].sort(() => Math.random() - 0.5)
 
-  // Final safety: if completely empty, fall back to unrestricted (but still tier-filtered)
-  if (combined.length === 0) {
+  // If we still have fewer questions than needed (pool exhausted by recency exclusions
+  // or thin grade/subject), retry without exclusions so the session is always full.
+  if (combined.length < count) {
+    const seenIds = new Set(combined.map((q) => (q as { id: string }).id))
     let fallback = supabase
       .from('questions').select('*')
       .eq('grade', grade)
@@ -84,9 +86,14 @@ export async function getQuestionsForSession(
     if (source !== 'all') {
       fallback = fallback.eq('source', source)
     }
-    const { data, error } = await fallback.limit(count * 3)
+    const { data, error } = await fallback.limit((count - combined.length) * 4)
     if (error) throw error
-    return (data ?? []).sort(() => Math.random() - 0.5).slice(0, count)
+    // Append from fallback, skipping any already in combined
+    const extras = (data ?? [])
+      .filter((q: Record<string, unknown>) => !seenIds.has(q.id as string))
+      .sort(() => Math.random() - 0.5)
+      .slice(0, count - combined.length)
+    return [...combined, ...extras].slice(0, count)
   }
 
   return combined.slice(0, count)
