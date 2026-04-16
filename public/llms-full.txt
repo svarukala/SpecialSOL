@@ -69,6 +69,10 @@ SolPrep's blog covers product, education, and engineering topics — how the pla
 
 ### Articles
 
+- **What Is the Virginia SOL Test? A Parent's Complete Guide (Grades 3–8)** (Education, April 11, 2026)
+  Everything Virginia parents need to know about SOL tests — which grades take them, what subjects are covered, how scoring works, what a passing score means, and what happens if your child doesn't pass.
+  URL: https://solprep.app/blog/virginia-sol-test-parent-guide
+
 - **Accommodations for Special Needs Students — What the Research Says, and What We Built** (Education, April 10, 2026)
   What IEP and 504 accommodations look like in practice, the science behind dyslexia fonts, bionic reading, high contrast, and text-to-speech — and how SolPrep implements each one for Virginia SOL prep.
   URL: https://solprep.app/blog/accommodations-for-special-needs-students
@@ -245,6 +249,60 @@ SolPrep's three-tier system mirrors "differentiated instruction." The Foundation
 - Color overlays (Irlen Syndrome): evidence for specific color preferences is highly individual; we may add a color picker in future
 - AAC/word prediction support: requires specialized hardware integration beyond a web app
 - Sign language video: not currently feasible at our question volume
+
+---
+
+## Page: Blog Article — What Is the Virginia SOL Test? A Parent's Complete Guide (https://solprep.app/blog/virginia-sol-test-parent-guide)
+
+*Education · April 11, 2026 · 9 min read*
+
+SOL stands for Standards of Learning — Virginia's statewide academic standards that define what students are expected to know at each grade level. The SOL tests measure whether students have met those standards. Virginia has administered them since 1998.
+
+### Which grades take SOL tests, and in what subjects?
+
+Every grade from 3 to 8 takes Math and Reading SOL tests each spring. Additional subjects by grade:
+- Math: Grades 3–8
+- Reading: Grades 3–8
+- Science: Grades 3, 5, and 8
+- History & Social Science: Grades 3–8 (specific eras vary by grade)
+- Writing: Grades 5 and 8
+
+### What does the test look like?
+
+SOL tests are administered on computers and are almost entirely multiple-choice — four answer options. Most tests have 40–50 questions. Math tests split into calculator-inactive and calculator-active sections. Reading tests are passage-based — students read a passage and answer comprehension, vocabulary, and analysis questions.
+
+### When are SOL tests given?
+
+The primary testing window runs from late April through early June each school year.
+
+### How is the SOL test scored?
+
+Raw scores are converted to a scaled score on a 0–600 point scale. Performance levels:
+- **Did Not Pass** — scaled score below 400
+- **Pass/Proficient** — scaled score of 400–499 (the passing threshold)
+- **Pass/Advanced** — scaled score of 500 or above
+
+### What happens if a child doesn't pass?
+
+For grades 3–7, not passing does not automatically mean retention — schools use full-picture decisions. However, failing triggers required remediation. Grade 3 Reading is the most consequential: Virginia law requires reading proficiency by end of third grade, and students who don't pass may need an alternative demonstration or may be retained.
+
+### What's on the Math SOL by grade?
+
+- Grade 3: Place value, multiplication/division concepts, fractions, measurement, geometry, data/graphs
+- Grade 4: Multi-digit multiplication/division, fractions and decimals, measurement, geometry, probability
+- Grade 5: Decimal operations, fraction operations, order of operations, volume, coordinate plane
+- Grade 6: Ratios, integers, algebraic expressions, geometry, statistics
+- Grade 7: Proportions, percent, linear equations, transformations, probability
+- Grade 8: Linear functions, systems of equations, Pythagorean theorem, geometry, statistics
+
+### How to prepare — what actually works
+
+1. Use real VDOE released questions — generic test prep books don't match the specific wording, format, or difficulty of actual SOL tests.
+2. Practice frequently in short sessions — 15–20 minutes three or four times per week beats marathon cramming.
+3. Focus on weak topics using the reporting category breakdown from the score report.
+4. Don't neglect Reading — SOL reading comprehension affects performance on every other subject's test.
+
+SolPrep was built to solve the access problem: over 2,300 questions extracted from official VDOE released tests, organized for interactive practice with immediate feedback, adaptive learning tiers, and full IEP/504 accommodation support. Free, no account required to browse.
 
 ---
 

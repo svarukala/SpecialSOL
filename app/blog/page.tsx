@@ -12,6 +12,14 @@ export const metadata: Metadata = {
 
 const POSTS = [
   {
+    slug: 'virginia-sol-test-parent-guide',
+    category: 'Education',
+    title: 'What Is the Virginia SOL Test? A Parent\'s Complete Guide (Grades 3–8)',
+    excerpt: 'Everything Virginia parents need to know about SOL tests — which grades take them, what subjects are covered, how scoring works, what a passing score means, and what happens if your child doesn\'t pass.',
+    date: 'April 11, 2026',
+    readTime: '9 min read',
+  },
+  {
     slug: 'accommodations-for-special-needs-students',
     category: 'Education',
     title: 'Accommodations for Special Needs Students — What the Research Says, and What We Built',
