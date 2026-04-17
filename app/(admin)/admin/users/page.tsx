@@ -12,7 +12,7 @@ export default async function AdminUsersPage() {
   const [{ data: parents }, { data: children }, { data: sessions }] = await Promise.all([
     admin.from('parents').select('id, email, created_at, is_admin'),
     admin.from('children').select('id, parent_id, name, grade'),
-    admin.from('practice_sessions').select('child_id'),
+    admin.from('practice_sessions').select('child_id, started_at'),
   ])
 
   // Index for fast lookup
@@ -23,8 +23,11 @@ export default async function AdminUsersPage() {
     childrenByParent.get(child.parent_id)!.push(child)
   }
   const sessionsByChild = new Map<string, number>()
+  const lastSessionByChild = new Map<string, string>()
   for (const s of sessions ?? []) {
     sessionsByChild.set(s.child_id, (sessionsByChild.get(s.child_id) ?? 0) + 1)
+    const prev = lastSessionByChild.get(s.child_id)
+    if (!prev || s.started_at > prev) lastSessionByChild.set(s.child_id, s.started_at)
   }
 
   const rows = authUsers.map(u => ({
@@ -36,7 +39,14 @@ export default async function AdminUsersPage() {
     children: (childrenByParent.get(u.id) ?? []).map(c => ({
       ...c,
       sessions: sessionsByChild.get(c.id) ?? 0,
+      lastSession: lastSessionByChild.get(c.id) ?? null,
     })),
+  })).map(row => ({
+    ...row,
+    lastActive: row.children.reduce<string | null>((max, c) => {
+      if (!c.lastSession) return max
+      return !max || c.lastSession > max ? c.lastSession : max
+    }, null),
   }))
 
   rows.sort((a, b) => new Date(b.signedUpAt).getTime() - new Date(a.signedUpAt).getTime())
@@ -56,6 +66,7 @@ export default async function AdminUsersPage() {
               <th className="text-left px-4 py-2.5 font-medium text-muted-foreground">Joined</th>
               <th className="text-left px-4 py-2.5 font-medium text-muted-foreground">Children</th>
               <th className="text-left px-4 py-2.5 font-medium text-muted-foreground">Sessions</th>
+              <th className="text-left px-4 py-2.5 font-medium text-muted-foreground">Last Active</th>
             </tr>
           </thead>
           <tbody className="divide-y">
@@ -108,6 +119,12 @@ export default async function AdminUsersPage() {
                       ))}
                     </div>
                   )}
+                </td>
+                <td className="px-4 py-3 text-muted-foreground text-xs">
+                  {user.lastActive
+                    ? new Date(user.lastActive).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                    : <span className="text-muted-foreground">—</span>
+                  }
                 </td>
               </tr>
             ))}
