@@ -52,18 +52,36 @@ function FormattedText({
   highlight?: { start: number; length: number } | null
   bionic: boolean
 }) {
-  const paragraphs = text.split('\n\n')
+  // Precompute each line's start offset in the full string so we can map
+  // the global charIndex from Web Speech API onboundary to the correct line.
+  let offset = 0
+  const lineGroups = text.split('\n\n').map((para, pi) => {
+    if (pi > 0) offset += 2
+    return para.split('\n').map((line, li) => {
+      if (li > 0) offset += 1
+      const lineOffset = offset
+      offset += line.length
+      return { text: line, offset: lineOffset }
+    })
+  })
+
   return (
     <>
-      {paragraphs.map((para, pi) => (
+      {lineGroups.map((paraLines, pi) => (
         <span key={pi}>
           {pi > 0 && <br />}
-          {para.split('\n').map((line, li) => (
-            <span key={li}>
-              {li > 0 && <br />}
-              {bionic ? <BionicText text={line} /> : <HighlightedText text={line} highlight={highlight} />}
-            </span>
-          ))}
+          {paraLines.map(({ text: line, offset: lineOffset }, li) => {
+            const localHighlight =
+              highlight && highlight.start >= lineOffset && highlight.start < lineOffset + line.length
+                ? { start: highlight.start - lineOffset, length: highlight.length }
+                : null
+            return (
+              <span key={li}>
+                {li > 0 && <br />}
+                {bionic ? <BionicText text={line} /> : <HighlightedText text={line} highlight={localHighlight} />}
+              </span>
+            )
+          })}
         </span>
       ))}
     </>
