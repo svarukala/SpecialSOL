@@ -72,7 +72,7 @@ async function main() {
             sol_standard:       q.sol_standard,
             difficulty:         q.difficulty,
             question_text:      q.question_text,
-            simplified_text:    q.simplified_text,
+            simplified_text:    q.simplified_text ?? q.question_text,
             image_svg:          q.image_svg ?? null,
             answer_type:        q.answer_type,
             choices:            q.choices,
