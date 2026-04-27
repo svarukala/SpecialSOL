@@ -29,7 +29,7 @@ export function LandingFooter({ isLoggedIn }: Props) {
             <span className="font-semibold text-foreground">SolPrep</span>
           </Link>
           <span className="text-xs">Virginia SOL practice for every learner · Grades 3–8</span>
-          <span className="text-xs text-muted-foreground/40">v2026.04.27.3</span>
+          <span className="text-xs text-muted-foreground/40">v2026.04.27.4</span>
         </div>
 
         {/* Right: links row + coffee button below */}

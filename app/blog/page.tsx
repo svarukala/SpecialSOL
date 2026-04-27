@@ -12,6 +12,14 @@ export const metadata: Metadata = {
 
 const POSTS = [
   {
+    slug: 'your-childs-privacy-on-solprep',
+    category: 'Privacy & Trust',
+    title: "Your Child's Privacy on SolPrep — What We Collect, What We Don't, and Why",
+    excerpt: "A plain-language explanation of how SolPrep handles your family's data — no ads, no data selling, COPPA-compliant child profiles, bcrypt-hashed passwords, and self-service account deletion.",
+    date: 'April 27, 2026',
+    readTime: '6 min read',
+  },
+  {
     slug: 'virginia-sol-test-parent-guide',
     category: 'Education',
     title: 'What Is the Virginia SOL Test? A Parent\'s Complete Guide (Grades 3–8)',
