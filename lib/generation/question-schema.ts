@@ -25,6 +25,7 @@ export interface GeneratedQuestion {
   source: string
   tier?: 'foundational' | 'standard'
   image_svg?: string | null
+  reading_passage?: string | null
 }
 
 export function validateQuestion(q: Partial<GeneratedQuestion>): GeneratedQuestion {
@@ -54,13 +55,24 @@ export function validateQuestion(q: Partial<GeneratedQuestion>): GeneratedQuesti
     throw new ValidationError(`difficulty must be 1, 2, or 3 — got ${q.difficulty}`)
   }
 
-  if (!Array.isArray(q.choices) || q.choices.length !== 4) {
-    throw new ValidationError(`choices must be an array of exactly 4 items — got ${q.choices?.length}`)
+  if (!Array.isArray(q.choices) || q.choices.length < 4) {
+    throw new ValidationError(`choices must be an array of at least 4 items — got ${q.choices?.length}`)
   }
 
   const correctCount = q.choices.filter((c) => c.is_correct).length
-  if (correctCount !== 1) {
-    throw new ValidationError(`exactly 1 choice must have is_correct: true — got ${correctCount}`)
+  if (q.answer_type === 'multiple_select') {
+    if (correctCount < 2) {
+      throw new ValidationError(`multiple_select must have at least 2 correct choices — got ${correctCount}`)
+    }
+  } else {
+    if (correctCount !== 1) {
+      throw new ValidationError(`exactly 1 choice must have is_correct: true — got ${correctCount}`)
+    }
+  }
+
+  // normalize missing reading_passage to null
+  if (q.reading_passage === undefined) {
+    (q as Record<string, unknown>).reading_passage = null
   }
 
   return q as GeneratedQuestion

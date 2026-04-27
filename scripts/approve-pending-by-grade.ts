@@ -79,6 +79,7 @@ async function main() {
       image_svg:          q.image_svg ?? null,
       answer_type:        q.answer_type,
       choices:            q.choices,
+      reading_passage:    q.reading_passage ?? null,
       hint_1:             q.hint_1,
       hint_2:             q.hint_2,
       hint_3:             q.hint_3,

@@ -27,6 +27,8 @@ function getArg(flag: string): string | undefined {
 
 async function main() {
   const dryRun = process.argv.includes('--dry-run')
+  // --preview: calls Claude and logs question types/passages, but does NOT insert
+  const preview = process.argv.includes('--preview')
   const gradesArg = getArg('grades')
   if (!gradesArg) { console.error('Usage: --grades=6,7,8'); process.exit(1) }
   const grades = gradesArg.split(',').map(Number)
@@ -35,6 +37,7 @@ async function main() {
   const tier = (getArg('tier') ?? 'standard') as 'foundational' | 'standard'
 
   if (dryRun) console.log('[dry-run] No questions will be inserted.\n')
+  if (preview) console.log('[preview] Generating questions but NOT inserting — logging type/passage summary.\n')
   console.log(`Generating ${tier} questions for grade(s): ${grades.join(', ')}${subjectFilter ? ` (${subjectFilter} only)` : ''}\n`)
 
   let totalGenerated = 0, totalFailed = 0
@@ -64,6 +67,15 @@ async function main() {
         try {
           const questions = await generateTopic(grade, subject, topic, tier)
 
+          if (preview) {
+            const typeSummary = questions.reduce((m: Record<string,number>, q) => { m[q.answer_type] = (m[q.answer_type] || 0) + 1; return m }, {})
+            const withPassage = questions.filter(q => q.reading_passage).length
+            console.log(`✓ ${questions.length}q — types: ${JSON.stringify(typeSummary)}${withPassage ? `, passages: ${withPassage}` : ''}`)
+            questions.forEach((q, i) => console.log(`    ${i+1}. [${q.answer_type}] ${q.question_text.slice(0, 70)}`))
+            totalGenerated += questions.length
+            continue
+          }
+
           const rows = questions.map(q => ({
             grade:              q.grade,
             subject:            q.subject,
@@ -76,6 +88,7 @@ async function main() {
             image_svg:          q.image_svg ?? null,
             answer_type:        q.answer_type,
             choices:            q.choices,
+            reading_passage:    q.reading_passage ?? null,
             hint_1:             q.hint_1,
             hint_2:             q.hint_2,
             hint_3:             q.hint_3,

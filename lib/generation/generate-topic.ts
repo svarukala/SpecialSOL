@@ -81,21 +81,31 @@ Topic: ${topic.name}
 SOL Standard: ${topic.solStandard}
 Standard Description: ${topic.description}
 ${gradeBandInstructions(grade, subject)}
-${tier === 'foundational' ? 'Generate exactly 6 multiple-choice questions for this topic, ALL at difficulty 1 (see rules above).' : `Generate exactly 6 multiple-choice questions for this topic:
-- 2–3 at difficulty 1 (easy): single step, familiar context, straightforward distractors
-- 2 at difficulty 2 (medium): two steps or less familiar context, one plausible distractor
-- 1–2 at difficulty 3 (hard): multi-step, abstract phrasing, strong distractors`}
+${tier === 'foundational'
+  ? 'Generate exactly 6 multiple-choice questions for this topic, ALL at difficulty 1 (see rules above).'
+  : `Generate exactly 6 questions for this topic — a mix of question types:
+- 4 multiple-choice questions (answer_type: "multiple_choice") — each with exactly 4 choices and exactly 1 is_correct: true
+- 2 multiple-select questions (answer_type: "multiple_select") — each with exactly 4 choices and exactly 2 or 3 is_correct: true; the question stem MUST include "Select ALL that apply." at the start or end
+Difficulty spread across all 6: 2–3 easy (difficulty 1), 2 medium (difficulty 2), 1–2 hard (difficulty 3).${subject === 'reading' ? `
+
+READING PASSAGES:
+For 2 of the 4 multiple-choice questions, include a short reading passage:
+- Set "reading_passage" to a 3–5 sentence excerpt or mini-passage (fiction snippet, informational paragraph, poem stanza, or persuasive sentence)
+- The passage must be at Grade ${grade} reading complexity
+- The question must ask about something IN the passage (inference, main idea, vocabulary in context, author's purpose, etc.)
+- Do NOT repeat the passage text inside question_text — instead write the question as if the passage is visible above (e.g. "According to the passage, why did..." or "What does the word 'luminous' mean as used in the passage?")
+- For the remaining 4 questions, set "reading_passage": null` : ''}`}
 
 For EVERY question, provide TWO text versions:
 - "question_text": standard SOL test-style phrasing, grade-appropriate vocabulary
 ${simplifiedTextRule(grade)}
 
 Rules:
-- Each question has exactly 4 choices (ids: "a","b","c","d"), exactly 1 with is_correct: true
 - Distractors must be plausible (common mistakes, not obviously wrong)
 - 3 hints per question, each revealing a bit more (hint_1 hints at concept, hint_2 narrows approach, hint_3 nearly gives answer)
 ${calculatorRule(grade)}
 - source: always "ai_generated"
+- For all questions, set "reading_passage": null unless specified above
 
 ${tier === 'foundational' ? `For each question, include an "image_svg" field:
 - Set to a compact inline SVG string when a visual genuinely helps (fraction diagrams,
@@ -129,10 +139,35 @@ Return a JSON array only (no markdown, no explanation):
     "question_text": "<standard SOL phrasing>",
     "simplified_text": "<plain language version>",
     "image_svg": null,
+    "reading_passage": null,
     "answer_type": "multiple_choice",
     "choices": [
       {"id": "a", "text": "<correct answer>", "is_correct": true},
       {"id": "b", "text": "<distractor>", "is_correct": false},
+      {"id": "c", "text": "<distractor>", "is_correct": false},
+      {"id": "d", "text": "<distractor>", "is_correct": false}
+    ],
+    "hint_1": "<concept pointer>",
+    "hint_2": "<approach narrower>",
+    "hint_3": "<near answer>",
+    "calculator_allowed": false,
+    "source": "ai_generated"
+  },
+  {
+    "grade": ${grade},
+    "subject": "${subject}",
+    "topic": "${topic.name}",
+    "subtopic": "<specific concept within topic>",
+    "sol_standard": "${topic.solStandard}",
+    "difficulty": 2,
+    "question_text": "Select ALL that apply. <question stem>",
+    "simplified_text": "<plain language version>",
+    "image_svg": null,
+    "reading_passage": null,
+    "answer_type": "multiple_select",
+    "choices": [
+      {"id": "a", "text": "<correct>", "is_correct": true},
+      {"id": "b", "text": "<correct>", "is_correct": true},
       {"id": "c", "text": "<distractor>", "is_correct": false},
       {"id": "d", "text": "<distractor>", "is_correct": false}
     ],
