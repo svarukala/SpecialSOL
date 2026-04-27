@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { SOL_CURRICULUM, SUPPORTED_GRADES } from '@/lib/curriculum/sol-curriculum'
 
 type Choice = { id: string; text: string; is_correct: boolean }
+type FibChoices = { template: string; blanks: { id: string; accepted: string[] }[] }
 
 type PendingQuestion = {
   id: string
@@ -11,9 +12,11 @@ type PendingQuestion = {
   subject: string
   topic: string
   difficulty: number
+  answer_type: 'multiple_choice' | 'multiple_select' | 'fill_in_blank'
   question_text: string
-  simplified_text: string
-  choices: Choice[]
+  simplified_text: string | null
+  choices: Choice[] | FibChoices
+  reading_passage: string | null
   hint_1: string
   hint_2: string
   hint_3: string
@@ -186,6 +189,7 @@ export function GenerateReviewClient() {
               <span className={`text-xs px-2 py-0.5 rounded ${q.difficulty === 1 ? 'bg-yellow-100 text-yellow-800' : q.difficulty === 2 ? 'bg-orange-100 text-orange-800' : 'bg-red-100 text-red-800'}`}>
                 Difficulty {q.difficulty}
               </span>
+              <span className="bg-purple-100 text-purple-700 text-xs px-2 py-0.5 rounded">{q.answer_type}</span>
               {isRejected && <span className="bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded">Rejected</span>}
             </div>
 
@@ -203,19 +207,49 @@ export function GenerateReviewClient() {
                 </div>
                 <div className="mb-3">
                   <label className="text-xs font-medium block mb-1">Simplified</label>
-                  <textarea defaultValue={q.simplified_text} onBlur={e => saveField(q.id, { simplified_text: e.target.value })}
+                  <textarea defaultValue={q.simplified_text ?? ''} onBlur={e => saveField(q.id, { simplified_text: e.target.value })}
                     className="w-full border rounded px-2 py-1 text-sm text-muted-foreground bg-background resize-y" rows={2} />
                 </div>
-                <div className="grid grid-cols-2 gap-2 mb-3">
-                  {q.choices.map((c, i) => (
-                    <div key={c.id} className={`border rounded px-3 py-1.5 text-sm flex items-center gap-2 ${c.is_correct ? 'border-green-400 bg-green-50' : ''}`}>
-                      <input type="radio" name={`correct-${q.id}`} checked={c.is_correct} onChange={() => {
-                        const updated = q.choices.map((ch, j) => ({ ...ch, is_correct: j === i }))
-                        saveField(q.id, { choices: updated })
-                      }} />
-                      <span>{c.id}) {c.text}</span>
+                {q.reading_passage && (
+                  <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded text-sm text-blue-900">
+                    <p className="text-xs font-medium text-blue-600 mb-1">Reading Passage</p>
+                    {q.reading_passage}
+                  </div>
+                )}
+                <div className="mb-3">
+                  <label className="text-xs font-medium block mb-1">
+                    Choices
+                    <span className="ml-2 text-muted-foreground font-normal">({q.answer_type})</span>
+                  </label>
+                  {q.answer_type === 'fill_in_blank' ? (
+                    <div className="border rounded px-3 py-2 text-sm bg-muted/30 space-y-1">
+                      <p className="font-mono">{(q.choices as FibChoices).template}</p>
+                      {(q.choices as FibChoices).blanks.map(b => (
+                        <p key={b.id} className="text-xs text-muted-foreground">
+                          Blank {b.id}: <span className="font-medium text-foreground">{b.accepted.join(' / ')}</span>
+                        </p>
+                      ))}
                     </div>
-                  ))}
+                  ) : (
+                    <div className="grid grid-cols-2 gap-2">
+                      {(q.choices as Choice[]).map((c, i) => (
+                        <div key={c.id} className={`border rounded px-3 py-1.5 text-sm flex items-center gap-2 ${c.is_correct ? 'border-green-400 bg-green-50' : ''}`}>
+                          {q.answer_type === 'multiple_select' ? (
+                            <input type="checkbox" checked={c.is_correct} onChange={() => {
+                              const updated = (q.choices as Choice[]).map((ch, j) => j === i ? { ...ch, is_correct: !ch.is_correct } : ch)
+                              saveField(q.id, { choices: updated })
+                            }} />
+                          ) : (
+                            <input type="radio" name={`correct-${q.id}`} checked={c.is_correct} onChange={() => {
+                              const updated = (q.choices as Choice[]).map((ch, j) => ({ ...ch, is_correct: j === i }))
+                              saveField(q.id, { choices: updated })
+                            }} />
+                          )}
+                          <span>{c.id}) {c.text}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <details className="text-xs text-muted-foreground mb-3 cursor-pointer">
                   <summary>Hints</summary>
