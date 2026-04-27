@@ -91,7 +91,8 @@ export default async function PrivacyPage() {
               Your data is stored securely using <strong className="text-foreground">Supabase</strong>, a managed database platform. Data is encrypted at rest and in transit. We use industry-standard security practices, but no method of transmission over the internet is 100% secure.
             </p>
             <p>
-              We retain your data for as long as your account is active. You may request deletion of your account and all associated data at any time by emailing us (see contact section below).
+              We retain your data for as long as your account is active. You may delete your account and all associated data at any time from{' '}
+              <a href="/settings/delete-account" className="text-primary underline">Settings → Delete Account</a>, or by emailing us (see contact section below).
             </p>
           </section>
 
