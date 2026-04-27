@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Lexend, Geist_Mono } from 'next/font/google'
+import { headers } from 'next/headers'
 import Script from 'next/script'
 import './globals.css'
 
@@ -97,13 +98,14 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const nonce = (await headers()).get('x-nonce') ?? ''
   return (
     <html lang="en" className={`${lexend.variable} ${geistMono.variable} antialiased`}>
       <body className="min-h-screen bg-background font-sans antialiased">
         {children}
-        <Script src="https://www.googletagmanager.com/gtag/js?id=G-LTDBK0L31S" strategy="afterInteractive" />
-        <Script id="gtag-init" strategy="afterInteractive">{`
+        <Script nonce={nonce} src="https://www.googletagmanager.com/gtag/js?id=G-LTDBK0L31S" strategy="afterInteractive" />
+        <Script nonce={nonce} id="gtag-init" strategy="afterInteractive">{`
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
