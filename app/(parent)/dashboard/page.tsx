@@ -80,13 +80,12 @@ export default async function DashboardPage({
     ? Math.round(last10.reduce((sum, s) => sum + (s.score_percent ?? 0), 0) / last10.length)
     : 0
 
-  const sessionDays = new Set((sessions ?? []).map((s) => new Date(s.started_at).toDateString()))
-  let streak = 0
-  for (let i = 0; ; i++) {
-    const d = new Date(); d.setDate(d.getDate() - i)
-    if (sessionDays.has(d.toDateString())) streak++
-    else break
-  }
+  const currentStreak = activeChild.current_streak ?? 0
+  const bestStreak = activeChild.best_streak ?? 0
+  const todayDate = new Date().toISOString().split('T')[0]
+  const streakMilestone = activeChild.last_practice_date === todayDate
+    ? ([100, 30, 7] as const).find((m) => currentStreak === m) ?? null
+    : null
 
   const topicAccuracy: Record<string, { correct: number; total: number }> = {}
   for (const row of answersWithTopics ?? []) {
@@ -120,6 +119,11 @@ export default async function DashboardPage({
           promotionReady={promotionReadyRows}
         />
       )}
+      {streakMilestone && (
+        <div className="rounded-lg bg-orange-50 border border-orange-200 px-4 py-3 text-orange-800 font-medium text-sm">
+          🔥 {activeChild.name} just hit a <span className="font-bold">{streakMilestone}-day streak</span> milestone — amazing consistency!
+        </div>
+      )}
       <div className="flex gap-3 overflow-x-auto pb-2">
         {children.map((child) => (
           <ChildCard key={child.id} child={child} active={child.id === activeChild.id} />
@@ -134,7 +138,8 @@ export default async function DashboardPage({
       <div className="grid grid-cols-3 gap-4">
         <StatCard label="Sessions This Week" value={sessionsThisWeek} icon="📅" />
         <StatCard label="Avg Score" value={`${avgScore}%`} icon="⭐" />
-        <StatCard label="Current Streak" value={`${streak} days`} icon="🔥" />
+        <StatCard label="Current Streak" value={`${currentStreak} days`} icon="🔥"
+          sub={bestStreak > currentStreak ? `Best: ${bestStreak} days` : undefined} />
       </div>
       <MilestonesCard milestones={milestones} />
       <WeakAreasCallout topics={weakTopics} childName={activeChild.name} />
