@@ -36,6 +36,24 @@ async function main() {
   const subjectFilter = getArg('subject') as 'math' | 'reading' | undefined
   const tier = (getArg('tier') ?? 'standard') as 'foundational' | 'standard'
 
+  // Verify Supabase connectivity before burning any Claude API budget
+  if (!dryRun && !preview) {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
+    if (url.includes('127.0.0.1') || url.includes('localhost')) {
+      console.error(`\n⛔  NEXT_PUBLIC_SUPABASE_URL points to ${url}`)
+      console.error('    This is a local Supabase instance. Run with ENV_FILE=.env.prod to target production.')
+      console.error('    Example: ENV_FILE=.env.prod npx tsx scripts/generate-all-questions-by-grade.ts ...\n')
+      process.exit(1)
+    }
+    const { error: pingErr } = await supabase.from('questions_pending').select('id').limit(1)
+    if (pingErr) {
+      console.error(`\n⛔  Supabase connectivity check failed: ${pingErr.message}`)
+      console.error('    Aborting — no Claude API calls will be made.\n')
+      process.exit(1)
+    }
+    console.log(`✓ Supabase connected (${url})\n`)
+  }
+
   if (dryRun) console.log('[dry-run] No questions will be inserted.\n')
   if (preview) console.log('[preview] Generating questions but NOT inserting — logging type/passage summary.\n')
   console.log(`Generating ${tier} questions for grade(s): ${grades.join(', ')}${subjectFilter ? ` (${subjectFilter} only)` : ''}\n`)
