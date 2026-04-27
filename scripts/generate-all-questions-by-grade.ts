@@ -13,6 +13,8 @@ import { generateTopic } from '../lib/generation/generate-topic'
 import { SOL_CURRICULUM } from '../lib/curriculum/sol-curriculum'
 
 config({ path: process.env.ENV_FILE ?? '.env.local', override: true })
+// Optional second file to layer additional vars (e.g. ANTHROPIC_API_KEY from .env.local on top of .env.prod)
+if (process.env.EXTRA_ENV_FILE) config({ path: process.env.EXTRA_ENV_FILE })
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
