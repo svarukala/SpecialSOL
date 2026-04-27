@@ -84,8 +84,9 @@ ${gradeBandInstructions(grade, subject)}
 ${tier === 'foundational'
   ? 'Generate exactly 6 multiple-choice questions for this topic, ALL at difficulty 1 (see rules above).'
   : `Generate exactly 6 questions for this topic — a mix of question types:
-- 4 multiple-choice questions (answer_type: "multiple_choice") — each with exactly 4 choices and exactly 1 is_correct: true
+- 3 multiple-choice questions (answer_type: "multiple_choice") — each with exactly 4 choices and exactly 1 is_correct: true
 - 2 multiple-select questions (answer_type: "multiple_select") — each with exactly 4 choices and exactly 2 or 3 is_correct: true; the question stem MUST include "Select ALL that apply." at the start or end
+- 1 fill-in-the-blank question (answer_type: "fill_in_blank") — see format below
 Difficulty spread across all 6: 2–3 easy (difficulty 1), 2 medium (difficulty 2), 1–2 hard (difficulty 3).${subject === 'reading' ? `
 
 READING PASSAGES:
@@ -106,6 +107,21 @@ Rules:
 ${calculatorRule(grade)}
 - source: always "ai_generated"
 - For all questions, set "reading_passage": null unless specified above
+
+FILL-IN-THE-BLANK FORMAT:
+- question_text: a brief instruction only — e.g. "Fill in the blank." or "Complete the sentence." or "Complete the equation."
+- simplified_text: same brief instruction, slightly shorter phrasing if needed
+- choices: an OBJECT (not an array) with this shape:
+  { "template": "The sentence with ___ for each blank.", "blanks": [{"id": "b1", "accepted": ["correct answer", "alternate spelling or phrasing"]}] }
+- Use exactly three underscores ___ as the blank marker (one ___ per blank)
+- Keep to 1 blank for grades 3–5; 1–2 blanks for grades 6–8
+- accepted array: include common capitalization variants and 1-2 alternate phrasings if applicable
+- The template must be a complete, standalone sentence — do NOT repeat it in question_text
+- Good examples by subject:
+  Math: "If 4 × ___ = 28, then the missing number is ___." (2 blanks for grade 5+)
+  Math: "A triangle with three equal sides is called a/an ___ triangle." (1 blank)
+  Reading: "The main idea of a paragraph tells the ___ point the author wants to make." (1 blank)
+  Reading: "Words that mean the same thing are called ___." (1 blank)
 
 ${tier === 'foundational' ? `For each question, include an "image_svg" field:
 - Set to a compact inline SVG string when a visual genuinely helps (fraction diagrams,
@@ -171,6 +187,28 @@ Return a JSON array only (no markdown, no explanation):
       {"id": "c", "text": "<distractor>", "is_correct": false},
       {"id": "d", "text": "<distractor>", "is_correct": false}
     ],
+    "hint_1": "<concept pointer>",
+    "hint_2": "<approach narrower>",
+    "hint_3": "<near answer>",
+    "calculator_allowed": false,
+    "source": "ai_generated"
+  },
+  {
+    "grade": ${grade},
+    "subject": "${subject}",
+    "topic": "${topic.name}",
+    "subtopic": "<specific concept within topic>",
+    "sol_standard": "${topic.solStandard}",
+    "difficulty": 1,
+    "question_text": "Fill in the blank.",
+    "simplified_text": "Fill in the blank.",
+    "image_svg": null,
+    "reading_passage": null,
+    "answer_type": "fill_in_blank",
+    "choices": {
+      "template": "<complete sentence with ___ for the blank>",
+      "blanks": [{"id": "b1", "accepted": ["<correct answer>", "<alternate spelling if any>"]}]
+    },
     "hint_1": "<concept pointer>",
     "hint_2": "<approach narrower>",
     "hint_3": "<near answer>",

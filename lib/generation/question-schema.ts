@@ -17,7 +17,8 @@ export interface GeneratedQuestion {
   question_text: string
   simplified_text: string | null
   answer_type: string
-  choices: { id: string; text: string; is_correct: boolean }[]
+  // Shape varies by type: ChoiceOption[] for MC/MS/TF; FillInBlankChoices object for fill_in_blank
+  choices: unknown
   hint_1: string
   hint_2: string
   hint_3: string
@@ -55,18 +56,31 @@ export function validateQuestion(q: Partial<GeneratedQuestion>): GeneratedQuesti
     throw new ValidationError(`difficulty must be 1, 2, or 3 — got ${q.difficulty}`)
   }
 
-  if (!Array.isArray(q.choices) || q.choices.length < 4) {
-    throw new ValidationError(`choices must be an array of at least 4 items — got ${q.choices?.length}`)
-  }
-
-  const correctCount = q.choices.filter((c) => c.is_correct).length
-  if (q.answer_type === 'multiple_select') {
-    if (correctCount < 2) {
-      throw new ValidationError(`multiple_select must have at least 2 correct choices — got ${correctCount}`)
+  if (q.answer_type === 'fill_in_blank') {
+    const fib = q.choices as { template?: string; blanks?: unknown[] } | null
+    if (!fib || typeof fib !== 'object' || Array.isArray(fib)) {
+      throw new ValidationError(`fill_in_blank choices must be an object {template, blanks}`)
+    }
+    if (typeof fib.template !== 'string' || !fib.template.includes('___')) {
+      throw new ValidationError(`fill_in_blank choices.template must be a string containing ___`)
+    }
+    if (!Array.isArray(fib.blanks) || fib.blanks.length === 0) {
+      throw new ValidationError(`fill_in_blank choices.blanks must be a non-empty array`)
     }
   } else {
-    if (correctCount !== 1) {
-      throw new ValidationError(`exactly 1 choice must have is_correct: true — got ${correctCount}`)
+    const choices = q.choices as { id: string; text: string; is_correct: boolean }[] | null
+    if (!Array.isArray(choices) || choices.length < 4) {
+      throw new ValidationError(`choices must be an array of at least 4 items — got ${(choices as unknown[])?.length}`)
+    }
+    const correctCount = choices.filter((c) => c.is_correct).length
+    if (q.answer_type === 'multiple_select') {
+      if (correctCount < 2) {
+        throw new ValidationError(`multiple_select must have at least 2 correct choices — got ${correctCount}`)
+      }
+    } else {
+      if (correctCount !== 1) {
+        throw new ValidationError(`exactly 1 choice must have is_correct: true — got ${correctCount}`)
+      }
     }
   }
 
