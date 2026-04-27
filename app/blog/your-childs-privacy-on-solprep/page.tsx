@@ -164,6 +164,31 @@ export default async function ArticlePage() {
           </section>
 
           <section className="space-y-3">
+            <h2 className="text-base font-semibold text-foreground">Independent verification: A+ security rating</h2>
+            <p>
+              We ran SolPrep through{' '}
+              <strong className="text-foreground">Mozilla Observatory</strong>, an independent security scanner
+              used by security professionals to audit website HTTP headers, content policies, and transport
+              security. SolPrep scored <strong className="text-foreground">A+</strong> — the highest possible
+              grade. The scan checks for things like whether the site can be embedded in a phishing frame
+              (it can&apos;t), whether scripts can be injected by attackers (blocked by a strict Content Security
+              Policy), and whether the connection is always encrypted (yes, enforced with a 2-year HSTS header).
+            </p>
+            <p>
+              You can run the scan yourself at{' '}
+              <a
+                href="https://observatory.mozilla.org/analyze/solprep.app"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary underline"
+              >
+                observatory.mozilla.org/analyze/solprep.app
+              </a>
+              .
+            </p>
+          </section>
+
+          <section className="space-y-3">
             <h2 className="text-base font-semibold text-foreground">The honest summary</h2>
             <div className="border rounded-lg p-4 space-y-2 text-foreground bg-muted/30 text-sm">
               <p>✅ Children never create accounts — only parents do</p>
@@ -173,6 +198,7 @@ export default async function ArticlePage() {
               <p>✅ Data hosted on SOC 2 Type II certified infrastructure</p>
               <p>✅ Full self-service deletion, no hoops to jump through</p>
               <p>✅ COPPA principles followed for all children on the platform</p>
+              <p>✅ A+ rating on Mozilla Observatory independent security scan</p>
             </div>
           </section>
 
