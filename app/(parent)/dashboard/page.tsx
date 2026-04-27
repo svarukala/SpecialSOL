@@ -7,7 +7,7 @@ import { ChildCard } from '@/components/dashboard/child-card'
 import { SessionHistoryTable } from '@/components/dashboard/session-history-table'
 import Link from 'next/link'
 import { MilestonesCard } from '@/components/dashboard/milestones-card'
-import { getAllChildTopicLevels, getRecentMilestones } from '@/lib/supabase/queries'
+import { getAllChildTopicLevels, getRecentMilestones, getMasteredTopics } from '@/lib/supabase/queries'
 import type { Milestone } from '@/lib/supabase/queries'
 import { PromotionBanner } from '@/components/dashboard/promotion-banner'
 import { WelcomeToast } from '@/components/dashboard/welcome-toast'
@@ -101,9 +101,10 @@ export default async function DashboardPage({
     .sort((a, b) => a.accuracy - b.accuracy)
   const weakTopics = topicList.filter((t) => t.accuracy < 0.65).slice(0, 2)
 
-  const [milestones, topicLevels] = await Promise.all([
+  const [milestones, topicLevels, masteredTopics] = await Promise.all([
     getRecentMilestones(supabase, activeChild.id).catch(() => [] as Milestone[]),
     getAllChildTopicLevels(supabase, activeChild.id).catch(() => ({} as Record<string, 'simplified' | 'standard'>)),
+    getMasteredTopics(supabase, activeChild.id).catch(() => new Set<string>()),
   ])
 
   return (
@@ -135,17 +136,18 @@ export default async function DashboardPage({
       >
         🚀 Start Practice for {activeChild.name}
       </Link>
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <StatCard label="Sessions This Week" value={sessionsThisWeek} icon="📅" />
         <StatCard label="Avg Score" value={`${avgScore}%`} icon="⭐" />
         <StatCard label="Current Streak" value={`${currentStreak} days`} icon="🔥"
           sub={bestStreak > currentStreak ? `Best: ${bestStreak} days` : undefined} />
+        <StatCard label="Topics Mastered" value={masteredTopics.size} icon="🏆" />
       </div>
       <MilestonesCard milestones={milestones} />
       <WeakAreasCallout topics={weakTopics} childName={activeChild.name} />
       <div>
         <h2 className="font-semibold mb-3">Progress by Topic</h2>
-        <ProgressChart topics={topicList} topicLevels={topicLevels} />
+        <ProgressChart topics={topicList} topicLevels={topicLevels} masteredTopics={masteredTopics} />
       </div>
       <div>
         <h2 className="font-semibold mb-3">Recent Sessions</h2>

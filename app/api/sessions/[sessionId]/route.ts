@@ -39,6 +39,8 @@ export async function PATCH(
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
+  const newlyMastered: string[] = []
+
   // Bump topic levels if session metadata is available
   if (session && answersArr.length > 0) {
     const questionIds = [...new Set(answersArr.map((a) => a.question_id).filter(Boolean))]
@@ -60,7 +62,8 @@ export async function PATCH(
           topicAccuracy[topic].total++
           if (a.is_correct) topicAccuracy[topic].correct++
         }
-        await bumpTopicLevelIfEarned(supabase, session.child_id, session.subject, topicAccuracy)
+        const bumpResult = await bumpTopicLevelIfEarned(supabase, session.child_id, session.subject, topicAccuracy)
+        newlyMastered.push(...bumpResult.newlyMastered)
       }
     }
   }
@@ -74,5 +77,6 @@ export async function PATCH(
     newStreak: streakResult.newStreak,
     bestStreak: streakResult.bestStreak,
     streakMilestone: streakResult.milestone,
+    newlyMastered,
   })
 }

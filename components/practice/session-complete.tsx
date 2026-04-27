@@ -13,6 +13,7 @@ interface Props {
   positiveReinforcement: boolean
   newStreak?: number
   streakMilestone?: StreakMilestone | null
+  newlyMastered?: string[]
 }
 
 type Tier = 'perfect' | 'high' | 'good' | 'ok' | 'low'
@@ -74,6 +75,7 @@ export function SessionComplete({
   positiveReinforcement,
   newStreak,
   streakMilestone,
+  newlyMastered = [],
 }: Props) {
   const tier = getTier(scorePercent)
   const config = TIER_CONFIG[tier]
@@ -112,6 +114,14 @@ export function SessionComplete({
 
       {!streakMilestone && newStreak && newStreak > 1 && (
         <p className="text-sm text-muted-foreground">🔥 {newStreak}-day streak — keep it going!</p>
+      )}
+
+      {newlyMastered.length > 0 && (
+        <div className="rounded-lg bg-yellow-50 border border-yellow-200 px-4 py-3 text-yellow-800 text-sm font-medium space-y-0.5">
+          {newlyMastered.map((t) => (
+            <p key={t}>⭐ New mastery: <strong>{t}</strong>!</p>
+          ))}
+        </div>
       )}
 
       <div className="flex gap-3 justify-center">

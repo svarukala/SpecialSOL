@@ -72,6 +72,7 @@ export function PracticeSession({ child, availableSubjects, parentSettings, dash
   const [scorePercent, setScorePercent] = useState(0)
   const [newStreak, setNewStreak] = useState(0)
   const [streakMilestone, setStreakMilestone] = useState<import('@/lib/supabase/streak').StreakMilestone | null>(null)
+  const [newlyMastered, setNewlyMastered] = useState<string[]>([])
   const [ttsEngine, setTTSEngine] = useState<TTSEngine | null>(null)
   const [highlightRange, setHighlightRange] = useState<{ start: number; length: number } | null>(null)
   const [languageLevel, setLanguageLevel] = useState<'foundational' | 'simplified' | 'standard'>('simplified')
@@ -153,10 +154,11 @@ export function PracticeSession({ child, availableSubjects, parentSettings, dash
       if (sessionId) {
         fetch(`/api/sessions/${sessionId}`, { method: 'PATCH' })
           .then((r) => r.json())
-          .then(({ scorePercent: sp, newStreak: ns, streakMilestone: sm }) => {
+          .then(({ scorePercent: sp, newStreak: ns, streakMilestone: sm, newlyMastered: nm }) => {
             setScorePercent(sp ?? 0)
             setNewStreak(ns ?? 0)
             setStreakMilestone(sm ?? null)
+            setNewlyMastered(nm ?? [])
             setPhase('complete')
           })
       }
@@ -269,6 +271,7 @@ export function PracticeSession({ child, availableSubjects, parentSettings, dash
           positiveReinforcement={accommodations.positive_reinforcement}
           newStreak={newStreak}
           streakMilestone={streakMilestone}
+          newlyMastered={newlyMastered}
           onGoHome={() => router.push(dashboardHref)}
           onPracticeAgain={() => {
             setPhase('picking')
@@ -279,6 +282,7 @@ export function PracticeSession({ child, availableSubjects, parentSettings, dash
             setScorePercent(0)
             setNewStreak(0)
             setStreakMilestone(null)
+            setNewlyMastered([])
           }}
         />
       </AccommodationProvider>

@@ -194,36 +194,49 @@ export async function getRecentMilestones(
   })
 }
 
+export async function getMasteredTopics(supabase: SupabaseClient, childId: string): Promise<Set<string>> {
+  const { data } = await supabase
+    .from('child_topic_levels')
+    .select('topic')
+    .eq('child_id', childId)
+    .not('mastered_at', 'is', null)
+  if (!data) return new Set()
+  return new Set(data.map((r: { topic: string }) => r.topic))
+}
+
 export async function bumpTopicLevelIfEarned(
   supabase: SupabaseClient,
   childId: string,
   subject: string,
   topicAccuracy: Record<string, { correct: number; total: number }>
-): Promise<void> {
+): Promise<{ newlyMastered: string[] }> {
   const fetchChain = supabase
     .from('child_topic_levels')
-    .select('topic, language_level, sessions_at_level, promotion_ready')
+    .select('topic, language_level, sessions_at_level, promotion_ready, mastered_at')
     .eq('child_id', childId)
     .eq('subject', subject)
   const { data: existing } = await fetchChain
 
   type Level = 'foundational' | 'simplified' | 'standard'
-  const levelMap: Record<string, { language_level: Level; sessions_at_level: number; promotion_ready: boolean }> =
+  const levelMap: Record<string, { language_level: Level; sessions_at_level: number; promotion_ready: boolean; mastered_at: string | null }> =
     Object.fromEntries(
-      (existing ?? []).map((r: { topic: string; language_level: string; sessions_at_level: number; promotion_ready: boolean }) => [
+      (existing ?? []).map((r: { topic: string; language_level: string; sessions_at_level: number; promotion_ready: boolean; mastered_at: string | null }) => [
         r.topic,
         {
           language_level: r.language_level as Level,
           sessions_at_level: r.sessions_at_level,
           promotion_ready: r.promotion_ready ?? false,
+          mastered_at: r.mastered_at ?? null,
         },
       ])
     )
 
+  const newlyMastered: string[] = []
+
   for (const [topic, { correct, total }] of Object.entries(topicAccuracy)) {
     if (total === 0) continue
     const accuracy = correct / total
-    const current = levelMap[topic] ?? { language_level: 'simplified' as Level, sessions_at_level: 0, promotion_ready: false }
+    const current = levelMap[topic] ?? { language_level: 'simplified' as Level, sessions_at_level: 0, promotion_ready: false, mastered_at: null }
     const now = new Date().toISOString()
 
     // Foundational tier: parent-controlled entry and exit — never auto-promote or auto-demote
@@ -231,7 +244,6 @@ export async function bumpTopicLevelIfEarned(
       if (accuracy >= 0.8) {
         const newSessionsAtLevel = current.sessions_at_level + 1
         if (newSessionsAtLevel >= 3) {
-          // Signal to parent that child is ready — do NOT change language_level
           await supabase.from('child_topic_levels').upsert(
             { child_id: childId, subject, topic, language_level: 'foundational', sessions_at_level: newSessionsAtLevel, promotion_ready: true, updated_at: now },
             { onConflict: 'child_id,subject,topic' }
@@ -243,14 +255,13 @@ export async function bumpTopicLevelIfEarned(
           )
         }
       }
-      // 50–79%: no change; <50%: no demotion (parents chose foundational intentionally)
       continue
     }
 
-    // Existing simplified ↔ standard logic (unchanged)
     if (accuracy >= 0.8) {
       const newSessionsAtLevel = current.sessions_at_level + 1
       if (newSessionsAtLevel >= 2 && current.language_level === 'simplified') {
+        // Promote simplified → standard
         await supabase.from('child_topic_levels').upsert(
           { child_id: childId, subject, topic, language_level: 'standard', sessions_at_level: 0, updated_at: now, previous_level: 'simplified', changed_at: now },
           { onConflict: 'child_id,subject,topic' }
@@ -260,12 +271,23 @@ export async function bumpTopicLevelIfEarned(
           { child_id: childId, subject, topic, language_level: 'simplified', sessions_at_level: newSessionsAtLevel, updated_at: now },
           { onConflict: 'child_id,subject,topic' }
         )
+      } else if (current.language_level === 'standard') {
+        // Award mastery badge after 2+ strong sessions at standard level
+        const masteredNow = newSessionsAtLevel >= 2 && !current.mastered_at ? now : current.mastered_at
+        if (newSessionsAtLevel >= 2 && !current.mastered_at) newlyMastered.push(topic)
+        await supabase.from('child_topic_levels').upsert(
+          { child_id: childId, subject, topic, language_level: 'standard', sessions_at_level: newSessionsAtLevel, mastered_at: masteredNow, updated_at: now },
+          { onConflict: 'child_id,subject,topic' }
+        )
       }
     } else if (accuracy < 0.5 && current.language_level === 'standard') {
+      // Demote standard → simplified and reset mastery
       await supabase.from('child_topic_levels').upsert(
-        { child_id: childId, subject, topic, language_level: 'simplified', sessions_at_level: 0, updated_at: now, previous_level: 'standard', changed_at: now },
+        { child_id: childId, subject, topic, language_level: 'simplified', sessions_at_level: 0, mastered_at: null, updated_at: now, previous_level: 'standard', changed_at: now },
         { onConflict: 'child_id,subject,topic' }
       )
     }
   }
+
+  return { newlyMastered }
 }

@@ -1,0 +1,2 @@
+ALTER TABLE child_topic_levels
+  ADD COLUMN IF NOT EXISTS mastered_at TIMESTAMPTZ DEFAULT NULL;
