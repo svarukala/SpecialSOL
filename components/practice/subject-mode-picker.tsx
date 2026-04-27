@@ -25,9 +25,10 @@ interface Props {
   onStart: (choice: { subject: Subject; mode: Mode; source: Source }) => void
   loading?: boolean
   dashboardHref: string
+  currentStreak?: number
 }
 
-export function SubjectModePicker({ childName, availableSubjects, onStart, loading, dashboardHref }: Props) {
+export function SubjectModePicker({ childName, availableSubjects, onStart, loading, dashboardHref, currentStreak = 0 }: Props) {
   const [subject, setSubject] = useState<Subject | null>(null)
   const [mode, setMode] = useState<Mode | null>(null)
   const [source, setSource] = useState<Source>('all')
@@ -39,7 +40,14 @@ export function SubjectModePicker({ childName, availableSubjects, onStart, loadi
           ← Dashboard
         </Link>
       </div>
-      <h1 className="text-3xl font-bold text-center">Hi {childName}! 👋</h1>
+      <div className="text-center space-y-1">
+        <h1 className="text-3xl font-bold">Hi {childName}! 👋</h1>
+        {currentStreak > 0 && (
+          <p className="text-sm font-medium text-orange-600">
+            🔥 {currentStreak}-day streak{currentStreak >= 7 ? ' — you&apos;re on fire!' : ' — keep it up!'}
+          </p>
+        )}
+      </div>
       <div className="space-y-3">
         <p className="text-center font-medium text-muted-foreground">What do you want to practice?</p>
         <div className="grid grid-cols-2 gap-4">

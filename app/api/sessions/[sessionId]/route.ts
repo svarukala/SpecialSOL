@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { bumpTopicLevelIfEarned } from '@/lib/supabase/queries'
+import { updateStreak } from '@/lib/supabase/streak'
 
 export async function PATCH(
   req: NextRequest,
@@ -64,5 +65,14 @@ export async function PATCH(
     }
   }
 
-  return NextResponse.json({ scorePercent })
+  const streakResult = session
+    ? await updateStreak(supabase, session.child_id)
+    : { newStreak: 0, bestStreak: 0, milestone: null }
+
+  return NextResponse.json({
+    scorePercent,
+    newStreak: streakResult.newStreak,
+    bestStreak: streakResult.bestStreak,
+    streakMilestone: streakResult.milestone,
+  })
 }

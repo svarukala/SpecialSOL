@@ -46,6 +46,7 @@ interface Props {
     name: string
     grade: number
     accommodations: Record<string, unknown>
+    current_streak?: number
   }
   availableSubjects: string[]
   parentSettings: {
@@ -69,6 +70,8 @@ export function PracticeSession({ child, availableSubjects, parentSettings, dash
   const [hintsUsed, setHintsUsed] = useState(0)
   const [streak, setStreak] = useState(0)
   const [scorePercent, setScorePercent] = useState(0)
+  const [newStreak, setNewStreak] = useState(0)
+  const [streakMilestone, setStreakMilestone] = useState<import('@/lib/supabase/streak').StreakMilestone | null>(null)
   const [ttsEngine, setTTSEngine] = useState<TTSEngine | null>(null)
   const [highlightRange, setHighlightRange] = useState<{ start: number; length: number } | null>(null)
   const [languageLevel, setLanguageLevel] = useState<'foundational' | 'simplified' | 'standard'>('simplified')
@@ -150,8 +153,10 @@ export function PracticeSession({ child, availableSubjects, parentSettings, dash
       if (sessionId) {
         fetch(`/api/sessions/${sessionId}`, { method: 'PATCH' })
           .then((r) => r.json())
-          .then(({ scorePercent: sp }) => {
+          .then(({ scorePercent: sp, newStreak: ns, streakMilestone: sm }) => {
             setScorePercent(sp ?? 0)
+            setNewStreak(ns ?? 0)
+            setStreakMilestone(sm ?? null)
             setPhase('complete')
           })
       }
@@ -247,6 +252,7 @@ export function PracticeSession({ child, availableSubjects, parentSettings, dash
           onStart={handleStart}
           loading={isStarting}
           dashboardHref={dashboardHref}
+          currentStreak={child.current_streak ?? 0}
         />
       </AccommodationProvider>
     )
@@ -261,6 +267,8 @@ export function PracticeSession({ child, availableSubjects, parentSettings, dash
           correctCount={correctCount}
           questionsTotal={questions.length}
           positiveReinforcement={accommodations.positive_reinforcement}
+          newStreak={newStreak}
+          streakMilestone={streakMilestone}
           onGoHome={() => router.push(dashboardHref)}
           onPracticeAgain={() => {
             setPhase('picking')
@@ -269,6 +277,8 @@ export function PracticeSession({ child, availableSubjects, parentSettings, dash
             setSessionId(null)
             setStreak(0)
             setScorePercent(0)
+            setNewStreak(0)
+            setStreakMilestone(null)
           }}
         />
       </AccommodationProvider>
