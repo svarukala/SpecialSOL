@@ -157,9 +157,8 @@ export default async function ArticlePage() {
               seconds. No email required, no waiting period, no dark patterns.
             </p>
             <p>
-              If you prefer to email us instead:{' '}
-              <a href="mailto:admin@t20squares.com" className="text-primary underline">admin@t20squares.com</a>.
-              We will confirm deletion within 48 hours.
+              Prefer to request deletion by email? See our{' '}
+              <Link href="/privacy" className="text-primary underline">Privacy Policy</Link> for contact details.
             </p>
           </section>
 
@@ -204,9 +203,9 @@ export default async function ArticlePage() {
 
           <section className="space-y-3">
             <p>
-              If you have a question this post doesn&apos;t answer, email us at{' '}
-              <a href="mailto:admin@t20squares.com" className="text-primary underline">admin@t20squares.com</a>.
-              We&apos;re a small team and we respond personally.
+              If you have a question this post doesn&apos;t answer, visit our{' '}
+              <Link href="/privacy" className="text-primary underline">Privacy Policy</Link> for the full details
+              and contact information. We&apos;re a small team and we respond personally.
             </p>
           </section>
 
