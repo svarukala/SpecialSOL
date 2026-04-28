@@ -15,7 +15,11 @@ const NAV_LINKS = [
 
 export function LandingNav({ activePage, isLoggedIn }: Props) {
   return (
-    <header className="border-b sticky top-0 z-10 bg-background/95 backdrop-blur">
+    <header className="sticky top-0 z-10">
+      <div className="bg-amber-500 text-amber-950 text-xs font-medium text-center px-4 py-2">
+        ⚠️ Email delivery is currently catching up — if you signed up recently and haven&apos;t received a confirmation email, please check your spam folder or try again in a few hours.
+      </div>
+    <div className="border-b bg-background/95 backdrop-blur">
       <nav className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
         <Link href="/" className="flex items-center gap-2 shrink-0">
           <Image src="/logo.png" alt="SolPrep logo" width={32} height={32} className="rounded-lg" />
@@ -87,6 +91,7 @@ export function LandingNav({ activePage, isLoggedIn }: Props) {
           )
         })}
       </div>
+    </div>
     </header>
   )
 }
