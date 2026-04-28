@@ -17,7 +17,7 @@ export function LandingNav({ activePage, isLoggedIn }: Props) {
   return (
     <header className="sticky top-0 z-10">
       <div className="bg-amber-500 text-amber-950 text-xs font-medium text-center px-4 py-2">
-        ⚠️ Email delivery is currently catching up — if you signed up recently and haven&apos;t received a confirmation email, please check your spam folder or try again in a few hours.
+        📧 Confirmation emails may land in your spam folder — please check spam and mark as &quot;Not Spam&quot; to receive future emails in your inbox.
       </div>
     <div className="border-b bg-background/95 backdrop-blur">
       <nav className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
