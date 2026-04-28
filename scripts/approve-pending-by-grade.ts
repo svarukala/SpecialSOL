@@ -43,6 +43,10 @@ async function main() {
 
   console.log(`Found ${pending.length} pending questions.\n`)
 
+  // Need admin user ID to satisfy reviewed_by FK constraint
+  const { data: admin } = await supabase.from('parents').select('id').eq('is_admin', true).limit(1).single()
+  if (!admin) { console.error('No admin user found in parents table'); process.exit(1) }
+
   let approved = 0, skipped = 0, failed = 0
 
   for (const q of pending) {
@@ -58,7 +62,7 @@ async function main() {
       if (!dryRun) {
         await supabase
           .from('questions_pending')
-          .update({ status: 'approved', reviewed_at: new Date().toISOString() })
+          .update({ status: 'approved', reviewed_at: new Date().toISOString(), reviewed_by: admin.id })
           .eq('id', q.id)
       }
       console.log(`  skip (duplicate): ${q.id} — "${q.question_text.slice(0, 60)}..."`)
@@ -103,7 +107,7 @@ async function main() {
     // Mark as approved
     await supabase
       .from('questions_pending')
-      .update({ status: 'approved', reviewed_at: new Date().toISOString() })
+      .update({ status: 'approved', reviewed_at: new Date().toISOString(), reviewed_by: admin.id })
       .eq('id', q.id)
 
     console.log(`  ✓ Grade ${q.grade} ${q.subject} diff:${q.difficulty} — "${q.question_text.slice(0, 60)}..."`)
