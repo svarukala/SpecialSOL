@@ -55,6 +55,12 @@ async function main() {
       .maybeSingle()
 
     if (existing) {
+      if (!dryRun) {
+        await supabase
+          .from('questions_pending')
+          .update({ status: 'approved', reviewed_at: new Date().toISOString() })
+          .eq('id', q.id)
+      }
       console.log(`  skip (duplicate): ${q.id} — "${q.question_text.slice(0, 60)}..."`)
       skipped++
       continue
