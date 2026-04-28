@@ -1,31 +1,11 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import { unstable_cache } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
-import { createClient as createServiceClient } from '@supabase/supabase-js'
+import { createAdminClient } from '@/lib/supabase/server'
 import { LandingNav } from '@/components/marketing/landing-nav'
 import { LandingFooter } from '@/components/marketing/landing-footer'
 import { AccommodationTiles } from '@/components/marketing/accommodation-tiles'
 import { ThankYouBanner } from '@/components/marketing/thank-you-banner'
-
-// Question counts change only when new questions are imported (rare).
-// Cache for 1 hour so homepage stat queries don't hammer the DB on every visit.
-const getQuestionCounts = unstable_cache(
-  async () => {
-    const db = createServiceClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    )
-    const [{ count: total }, { count: doe }, { count: ai }] = await Promise.all([
-      db.from('questions').select('*', { count: 'exact', head: true }),
-      db.from('questions').select('*', { count: 'exact', head: true }).eq('source', 'doe_released'),
-      db.from('questions').select('*', { count: 'exact', head: true }).eq('source', 'ai_generated'),
-    ])
-    return { total: total ?? 0, doe: doe ?? 0, ai: ai ?? 0 }
-  },
-  ['question-counts'],
-  { revalidate: 3600, tags: ['question-counts'] },
-)
 
 export const metadata: Metadata = {
   title: 'Free Virginia SOL Practice Test — Real VDOE Questions, Grades 3–8',
@@ -136,8 +116,12 @@ export default async function HomePage() {
   const { data: { user } } = await supabase.auth.getUser()
   const isLoggedIn = !!user
 
-  // Question counts are cached for 1 hour — avoids 3 DB round-trips on every homepage visit
-  const { total: totalCount, doe: doeCount, ai: aiCount } = await getQuestionCounts()
+  const db = createAdminClient()
+  const [{ count: totalCount }, { count: doeCount }, { count: aiCount }] = await Promise.all([
+    db.from('questions').select('*', { count: 'exact', head: true }),
+    db.from('questions').select('*', { count: 'exact', head: true }).eq('source', 'doe_released'),
+    db.from('questions').select('*', { count: 'exact', head: true }).eq('source', 'ai_generated'),
+  ])
 
   function roundDown(n: number, to: number) { return Math.floor(n / to) * to }
 
