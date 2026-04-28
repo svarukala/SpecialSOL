@@ -6,6 +6,6 @@ export async function POST(req: NextRequest) {
   if (secret !== process.env.REVALIDATE_SECRET) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
-  revalidateTag('question-counts')
+  revalidateTag('question-counts', 'default')
   return NextResponse.json({ revalidated: true })
 }
