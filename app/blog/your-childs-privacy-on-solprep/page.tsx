@@ -83,8 +83,7 @@ export default async function ArticlePage() {
           <section className="space-y-3">
             <h2 className="text-base font-semibold text-foreground">What the parent account stores</h2>
             <p>
-              When you sign up, we store your email address and — if you use &quot;Sign in with Google&quot; — your
-              Google display name and profile picture. That&apos;s it. We don&apos;t ask for your name, address, phone
+              When you sign up, we store your email address. That&apos;s it. We don&apos;t ask for your name, address, phone
               number, or any payment information (SolPrep is free, forever).
             </p>
             <p>

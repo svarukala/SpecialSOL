@@ -54,7 +54,7 @@ export default async function PrivacyPage() {
             <h3 className="text-sm font-semibold text-foreground/80 mt-4">Account information</h3>
             <ul className="list-disc pl-5 space-y-1">
               <li>Email address (used to create and identify your account)</li>
-              <li>If you sign in with Google: your name and profile picture provided by Google</li>
+              <li>If you sign in with Google: your email address (we do not store your Google display name or profile picture)</li>
             </ul>
             <h3 className="text-sm font-semibold text-foreground/80 mt-4">Child profile information</h3>
             <ul className="list-disc pl-5 space-y-1">

@@ -24,7 +24,7 @@ const getQuestionCounts = unstable_cache(
     return { total: total ?? 0, doe: doe ?? 0, ai: ai ?? 0 }
   },
   ['question-counts'],
-  { revalidate: 3600 },
+  { revalidate: 3600, tags: ['question-counts'] },
 )
 
 export const metadata: Metadata = {
