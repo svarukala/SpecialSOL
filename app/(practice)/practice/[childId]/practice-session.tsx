@@ -258,11 +258,15 @@ export function PracticeSession({ child, availableSubjects, parentSettings, dash
   const handlePause = useCallback(async () => {
     ttsEngineRef.current?.stop()
     if (sessionId) {
-      await fetch(`/api/sessions/${sessionId}`, {
+      const res = await fetch(`/api/sessions/${sessionId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'pause', currentIndex }),
       })
+      if (!res.ok) {
+        const { error } = await res.json().catch(() => ({ error: 'Unknown error' }))
+        console.error('Pause failed:', error)
+      }
     }
     router.push(dashboardHref)
   }, [sessionId, currentIndex, dashboardHref, router])
