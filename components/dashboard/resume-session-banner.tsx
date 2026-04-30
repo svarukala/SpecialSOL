@@ -67,8 +67,8 @@ export function ResumeSessionBanner({ sessions }: { sessions: PausedSessionInfo[
                 <Link href={`/practice/${s.childId}?resume=${s.id}`}>Resume</Link>
               </Button>
               <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button size="sm" variant="ghost">Discard</Button>
+                <AlertDialogTrigger className="inline-flex items-center justify-center rounded-md text-sm font-medium h-8 px-3 hover:bg-muted transition-colors">
+                  Discard
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
