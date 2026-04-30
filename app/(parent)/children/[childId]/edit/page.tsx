@@ -269,7 +269,7 @@ export default function EditChildPage() {
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <Select value={keepRecent} onValueChange={setKeepRecent}>
+              <Select value={keepRecent} onValueChange={(v) => v && setKeepRecent(v)}>
                 <SelectTrigger className="w-48">
                   <SelectValue />
                 </SelectTrigger>
