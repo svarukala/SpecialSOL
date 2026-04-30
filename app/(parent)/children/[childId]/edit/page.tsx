@@ -23,6 +23,13 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 
+const KEEP_OPTIONS = [
+  { value: '0',  label: 'Clear all sessions' },
+  { value: '5',  label: 'Keep most recent 5' },
+  { value: '10', label: 'Keep most recent 10' },
+  { value: '20', label: 'Keep most recent 20' },
+]
+
 const AVATARS = ['🌟', '🦁', '🐬', '🦋', '🚀', '🌈', '🎨', '⚡', '🦊', '🐸']
 
 export default function EditChildPage() {
@@ -34,6 +41,8 @@ export default function EditChildPage() {
   const [accommodations, setAccommodations] = useState<AccommodationState>(DEFAULT_ACCOMMODATIONS)
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [clearingHistory, setClearingHistory] = useState(false)
+  const [keepRecent, setKeepRecent] = useState('5')
   const [loading, setLoading] = useState(true)
   const [topicLevels, setTopicLevels] = useState<Array<{
     subject: string
@@ -107,6 +116,16 @@ export default function EditChildPage() {
     })
     await refreshTopicLevels()
     setLevelLoading(false)
+  }
+
+  async function handleClearHistory() {
+    setClearingHistory(true)
+    await fetch(`/api/children/${childId}/sessions`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ keepRecent: parseInt(keepRecent) }),
+    })
+    setClearingHistory(false)
   }
 
   async function handleDelete() {
@@ -237,6 +256,66 @@ export default function EditChildPage() {
               {saving ? 'Saving...' : 'Save Changes'}
             </Button>
           </form>
+
+          {/* ── Clear session history ──────────────────────────── */}
+          <div className="mt-8 pt-6 border-t space-y-3">
+            <div>
+              <h3 className="text-sm font-semibold">Clear Session History</h3>
+              <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                Removes past practice sessions from the database.{' '}
+                <span className="font-medium text-foreground">This will blank out the progress chart, avg score, weak areas panel, and recent sessions list.</span>{' '}
+                Streaks and topic mastery levels are stored separately and will not be affected.
+                Recently-seen questions may repeat sooner after clearing.
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <Select value={keepRecent} onValueChange={setKeepRecent}>
+                <SelectTrigger className="w-48">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {KEEP_OPTIONS.map((o) => (
+                    <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button type="button" variant="outline" disabled={clearingHistory}>
+                    {clearingHistory ? 'Clearing...' : 'Clear History'}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Clear {name}&apos;s session history?</AlertDialogTitle>
+                    <AlertDialogDescription asChild>
+                      <div className="space-y-2 text-sm text-muted-foreground">
+                        <p>
+                          {keepRecent === '0'
+                            ? 'All practice sessions will be permanently deleted.'
+                            : `All sessions except the most recent ${keepRecent} will be permanently deleted.`}
+                        </p>
+                        <p>The following will go blank until new sessions are completed:</p>
+                        <ul className="list-disc pl-4 space-y-1">
+                          <li>Progress chart</li>
+                          <li>Average score</li>
+                          <li>Weak areas callout</li>
+                          <li>Recent sessions list</li>
+                        </ul>
+                        <p className="font-medium text-foreground">Streaks and topic mastery levels will not be affected.</p>
+                      </div>
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleClearHistory}>
+                      Yes, clear history
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          </div>
 
           <div className="mt-8 pt-6 border-t">
             <AlertDialog>

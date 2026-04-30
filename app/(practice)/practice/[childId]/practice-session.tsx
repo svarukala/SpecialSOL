@@ -40,6 +40,15 @@ function testTimerSeconds(difficulty: 1 | 2 | 3 | undefined): number {
   return 60 // difficulty 1 or unknown
 }
 
+interface ResumeSession {
+  sessionId: string
+  subject: string
+  mode: 'practice' | 'test'
+  currentIndex: number
+  questions: Question[]
+  languageLevel: 'foundational' | 'simplified' | 'standard'
+}
+
 interface Props {
   child: {
     id: string
@@ -54,17 +63,18 @@ interface Props {
     tts_voice?: string
   }
   dashboardHref: string
+  resumeSession?: ResumeSession
 }
 
-export function PracticeSession({ child, availableSubjects, parentSettings, dashboardHref }: Props) {
+export function PracticeSession({ child, availableSubjects, parentSettings, dashboardHref, resumeSession }: Props) {
   const accommodations: AccommodationState = { ...DEFAULT_ACCOMMODATIONS, ...child.accommodations }
   const router = useRouter()
 
-  const [phase, setPhase] = useState<Phase>('picking')
-  const [questions, setQuestions] = useState<Question[]>([])
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [sessionId, setSessionId] = useState<string | null>(null)
-  const [mode, setMode] = useState<Mode>('practice')
+  const [phase, setPhase] = useState<Phase>(resumeSession ? 'session' : 'picking')
+  const [questions, setQuestions] = useState<Question[]>(resumeSession?.questions ?? [])
+  const [currentIndex, setCurrentIndex] = useState(resumeSession?.currentIndex ?? 0)
+  const [sessionId, setSessionId] = useState<string | null>(resumeSession?.sessionId ?? null)
+  const [mode, setMode] = useState<Mode>(resumeSession?.mode ?? 'practice')
   const [selectedAnswer, setSelectedAnswer] = useState<AnswerValue | null>(null)
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null)
   const [hintsUsed, setHintsUsed] = useState(0)
@@ -75,7 +85,7 @@ export function PracticeSession({ child, availableSubjects, parentSettings, dash
   const [newlyMastered, setNewlyMastered] = useState<string[]>([])
   const [ttsEngine, setTTSEngine] = useState<TTSEngine | null>(null)
   const [highlightRange, setHighlightRange] = useState<{ start: number; length: number } | null>(null)
-  const [languageLevel, setLanguageLevel] = useState<'foundational' | 'simplified' | 'standard'>('simplified')
+  const [languageLevel, setLanguageLevel] = useState<'foundational' | 'simplified' | 'standard'>(resumeSession?.languageLevel ?? 'simplified')
   const [isStarting, setIsStarting] = useState(false)
   const [attemptNumber, setAttemptNumber] = useState(1)
   const ttsEngineRef = useRef<TTSEngine | null>(null)
@@ -245,6 +255,18 @@ export function PracticeSession({ child, availableSubjects, parentSettings, dash
     router.push(dashboardHref)
   }, [sessionId, dashboardHref, router])
 
+  const handlePause = useCallback(async () => {
+    ttsEngineRef.current?.stop()
+    if (sessionId) {
+      await fetch(`/api/sessions/${sessionId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'pause', currentIndex }),
+      })
+    }
+    router.push(dashboardHref)
+  }, [sessionId, currentIndex, dashboardHref, router])
+
   if (phase === 'picking') {
     return (
       <AccommodationProvider initial={accommodations}>
@@ -297,7 +319,36 @@ export function PracticeSession({ child, availableSubjects, parentSettings, dash
   return (
     <AccommodationProvider initial={accommodations}>
       <div className="max-w-2xl mx-auto p-4 space-y-4">
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-3">
+          {/* Pause */}
+          <AlertDialog>
+            <AlertDialogTrigger className="text-xs text-muted-foreground hover:text-foreground transition-colors bg-transparent border-0 cursor-pointer">
+              ⏸ Pause
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Pause this session?</AlertDialogTitle>
+                <AlertDialogDescription asChild>
+                  <div className="space-y-2 text-sm text-muted-foreground">
+                    {mode === 'test' && (
+                      <p className="font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded px-3 py-2">
+                        ⚠️ This is a test session. Pausing means you could reference materials before resuming — your score may not reflect true test conditions.
+                      </p>
+                    )}
+                    <p>Your progress is saved. You can resume from question {currentIndex + 1} at any time from the dashboard.</p>
+                  </div>
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Keep Going</AlertDialogCancel>
+                <AlertDialogAction onClick={handlePause}>
+                  {mode === 'test' ? 'Pause Anyway' : 'Pause Session'}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+
+          {/* End session */}
           <AlertDialog>
             <AlertDialogTrigger className="text-xs text-muted-foreground hover:text-foreground transition-colors bg-transparent border-0 cursor-pointer">
               ✕ End Session
@@ -306,7 +357,7 @@ export function PracticeSession({ child, availableSubjects, parentSettings, dash
               <AlertDialogHeader>
                 <AlertDialogTitle>End this session?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Your progress so far will be saved. You can start a new session anytime.
+                  Your progress so far will be saved and scored. You can start a new session anytime.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>

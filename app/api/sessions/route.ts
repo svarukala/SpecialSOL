@@ -33,6 +33,7 @@ export async function POST(req: NextRequest) {
       subject,
       mode,
       question_count: questionIds.length,
+      question_ids: questionIds,
       accommodations_used: child.accommodations,
     })
     .select('id')

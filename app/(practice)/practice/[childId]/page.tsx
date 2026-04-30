@@ -1,9 +1,20 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { PracticeSession } from './practice-session'
+import type { Question } from '@/lib/practice/question-types'
+import { isShuffleable } from '@/lib/practice/question-types'
+import { getChildTopicLevels } from '@/lib/supabase/queries'
 
-export default async function PracticePage({ params }: { params: Promise<{ childId: string }> }) {
+export default async function PracticePage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ childId: string }>
+  searchParams: Promise<{ resume?: string }>
+}) {
   const { childId } = await params
+  const { resume: resumeSessionId } = await searchParams
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -16,25 +27,86 @@ export default async function PracticePage({ params }: { params: Promise<{ child
     .single()
   if (!child) redirect('/dashboard')
 
-  // Get available subjects from questions table for this grade
   const { data: subjectRows } = await supabase
     .from('questions')
     .select('subject')
     .eq('grade', child.grade)
   const availableSubjects = [...new Set((subjectRows ?? []).map((q: { subject: string }) => q.subject))]
 
-  // Get parent TTS settings (server-side only, never expose encrypted keys to client)
   const { data: parent } = await supabase
     .from('parents')
     .select('settings')
     .eq('id', user.id)
     .single()
 
-  // Pass only non-sensitive settings to the client component
   const safeSettings = {
     tts_provider: parent?.settings?.tts_provider ?? 'web_speech',
     tts_voice: parent?.settings?.tts_voice,
-    // NOTE: API keys stay server-side; TTS engine for premium providers uses a server route (future enhancement)
+  }
+
+  // ── Resume flow ────────────────────────────────────────────────────────────
+  let resumeSession: {
+    sessionId: string
+    subject: string
+    mode: 'practice' | 'test'
+    currentIndex: number
+    questions: Question[]
+    languageLevel: 'foundational' | 'simplified' | 'standard'
+  } | undefined
+
+  if (resumeSessionId) {
+    const { data: session } = await supabase
+      .from('practice_sessions')
+      .select('id, child_id, subject, mode, question_ids, current_index')
+      .eq('id', resumeSessionId)
+      .eq('child_id', childId)
+      .eq('status', 'paused')
+      .single()
+
+    if (session && (session.question_ids ?? []).length > 0) {
+      const [{ data: questionRows }, topicLevels] = await Promise.all([
+        supabase.from('questions').select('*').in('id', session.question_ids),
+        getChildTopicLevels(supabase, childId, session.subject),
+      ])
+
+      if (questionRows && questionRows.length > 0) {
+        // Derive language level the same way the questions API does
+        type LL = 'foundational' | 'simplified' | 'standard'
+        let languageLevel: LL = 'simplified'
+        const levels = Object.values(topicLevels)
+        if (levels.length > 0) {
+          const foundationalCount = levels.filter((l) => l === 'foundational').length
+          const standardCount = levels.filter((l) => l === 'standard').length
+          if (foundationalCount > levels.length / 2) languageLevel = 'foundational'
+          else if (standardCount > levels.length / 2) languageLevel = 'standard'
+        }
+
+        // Restore original order then re-apply shuffle
+        const questionMap = new Map(questionRows.map((q) => [q.id, q as unknown as Question]))
+        const ordered = (session.question_ids as string[])
+          .map((id) => questionMap.get(id))
+          .filter((q): q is Question => !!q)
+          .map((q) => {
+            if (!isShuffleable(q.answer_type)) return q
+            return { ...q, choices: [...(q.choices as unknown[])].sort(() => Math.random() - 0.5) }
+          })
+
+        // Mark session in_progress so the 2-hour auto-abandon logic applies
+        await supabase
+          .from('practice_sessions')
+          .update({ status: 'in_progress', paused_at: null })
+          .eq('id', session.id)
+
+        resumeSession = {
+          sessionId: session.id,
+          subject: session.subject,
+          mode: session.mode as 'practice' | 'test',
+          currentIndex: Math.min(session.current_index ?? 0, ordered.length - 1),
+          questions: ordered,
+          languageLevel,
+        }
+      }
+    }
   }
 
   return (
@@ -43,6 +115,7 @@ export default async function PracticePage({ params }: { params: Promise<{ child
       availableSubjects={availableSubjects}
       parentSettings={safeSettings}
       dashboardHref={`/dashboard?childId=${childId}`}
+      resumeSession={resumeSession}
     />
   )
 }

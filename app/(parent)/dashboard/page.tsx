@@ -10,6 +10,7 @@ import { MilestonesCard } from '@/components/dashboard/milestones-card'
 import { getAllChildTopicLevels, getRecentMilestones, getMasteredTopics } from '@/lib/supabase/queries'
 import type { Milestone } from '@/lib/supabase/queries'
 import { PromotionBanner } from '@/components/dashboard/promotion-banner'
+import { ResumeSessionBanner, type PausedSessionInfo } from '@/components/dashboard/resume-session-banner'
 import { WelcomeToast } from '@/components/dashboard/welcome-toast'
 
 export default async function DashboardPage({
@@ -24,6 +25,31 @@ export default async function DashboardPage({
 
   const { data: children } = await supabase
     .from('children').select('*').eq('parent_id', user.id).order('created_at')
+
+  // Fetch paused sessions across all children
+  const { data: pausedSessionRows } = children && children.length > 0
+    ? await supabase
+        .from('practice_sessions')
+        .select('id, child_id, subject, mode, question_count, current_index, paused_at')
+        .in('child_id', children.map((c) => c.id))
+        .eq('status', 'paused')
+        .order('paused_at', { ascending: false })
+    : { data: [] }
+
+  const pausedSessions: PausedSessionInfo[] = (pausedSessionRows ?? []).map((s) => {
+    const child = children.find((c) => c.id === s.child_id)
+    return {
+      id: s.id,
+      childId: s.child_id,
+      childName: child?.name ?? 'Unknown',
+      childAvatar: child?.avatar ?? null,
+      subject: s.subject,
+      mode: s.mode,
+      questionCount: s.question_count ?? 0,
+      currentIndex: s.current_index ?? 0,
+      pausedAt: s.paused_at ?? '',
+    }
+  })
 
   // Fetch promotion-ready topics across all children
   const { data: promotionReadyRows } = children && children.length > 0
@@ -114,6 +140,9 @@ export default async function DashboardPage({
         <h1 className="text-2xl font-bold">Dashboard</h1>
         <Link href="/children/new" className="inline-flex items-center justify-center rounded-lg border border-border bg-background px-2.5 h-7 text-sm font-medium transition-colors hover:bg-muted">+ Add Child</Link>
       </div>
+      {pausedSessions.length > 0 && (
+        <ResumeSessionBanner sessions={pausedSessions} />
+      )}
       {promotionReadyRows && promotionReadyRows.length > 0 && (
         <PromotionBanner
           children={children}

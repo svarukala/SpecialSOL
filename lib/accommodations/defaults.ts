@@ -7,7 +7,7 @@ export const DEFAULT_ACCOMMODATIONS: AccommodationState = {
   large_text: 0,
   dyslexia_font: false,
   reduce_distractions: false,
-  extended_time: false,
+  extended_time: true,
   hints_enabled: true,
   positive_reinforcement: true,
   bionic_reading: false,

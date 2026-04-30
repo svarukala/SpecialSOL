@@ -6,7 +6,7 @@ interface Props { child: Child; active: boolean }
 
 export function ChildCard({ child, active }: Props) {
   return (
-    <div className="relative">
+    <div className="flex flex-col gap-1">
       <Link
         href={`/dashboard?childId=${child.id}`}
         className={cn(
@@ -20,10 +20,9 @@ export function ChildCard({ child, active }: Props) {
       </Link>
       <Link
         href={`/children/${child.id}/edit`}
-        className="absolute top-1 right-1 text-muted-foreground hover:text-foreground p-0.5 rounded"
-        title="Edit"
+        className="flex items-center justify-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors py-0.5"
       >
-        ✏️
+        ✏️ <span>Edit settings</span>
       </Link>
     </div>
   )

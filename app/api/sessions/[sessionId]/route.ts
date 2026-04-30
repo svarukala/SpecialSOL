@@ -3,6 +3,61 @@ import { createClient } from '@/lib/supabase/server'
 import { bumpTopicLevelIfEarned } from '@/lib/supabase/queries'
 import { updateStreak } from '@/lib/supabase/streak'
 
+export async function GET(
+  _req: NextRequest,
+  { params }: { params: Promise<{ sessionId: string }> }
+) {
+  const { sessionId } = await params
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const { data: session, error: sessionError } = await supabase
+    .from('practice_sessions')
+    .select('id, child_id, subject, mode, question_ids, current_index, question_count')
+    .eq('id', sessionId)
+    .eq('status', 'paused')
+    .single()
+
+  if (sessionError || !session) {
+    return NextResponse.json({ error: 'Paused session not found' }, { status: 404 })
+  }
+
+  // Verify the child belongs to this parent
+  const { data: child } = await supabase
+    .from('children')
+    .select('id')
+    .eq('id', session.child_id)
+    .eq('parent_id', user.id)
+    .single()
+
+  if (!child) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+
+  const questionIds: string[] = session.question_ids ?? []
+  if (questionIds.length === 0) {
+    return NextResponse.json({ error: 'No questions stored for this session' }, { status: 400 })
+  }
+
+  const { data: questions } = await supabase
+    .from('questions')
+    .select('*')
+    .in('id', questionIds)
+
+  if (!questions) return NextResponse.json({ error: 'Questions not found' }, { status: 500 })
+
+  // Restore original question order
+  const questionMap = new Map(questions.map((q) => [q.id, q]))
+  const orderedQuestions = questionIds.map((id) => questionMap.get(id)).filter(Boolean)
+
+  return NextResponse.json({
+    sessionId: session.id,
+    subject: session.subject,
+    mode: session.mode,
+    currentIndex: Math.min(session.current_index ?? 0, orderedQuestions.length - 1),
+    questions: orderedQuestions,
+  })
+}
+
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ sessionId: string }> }
@@ -12,14 +67,40 @@ export async function PATCH(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  // Fetch session metadata (child_id + subject needed for topic level update)
+  const body = await req.json().catch(() => ({}))
+  const { action = 'complete', currentIndex } = body
+
+  if (action === 'pause') {
+    const { error } = await supabase
+      .from('practice_sessions')
+      .update({
+        status: 'paused',
+        current_index: currentIndex ?? 0,
+        paused_at: new Date().toISOString(),
+      })
+      .eq('id', sessionId)
+
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ paused: true })
+  }
+
+  if (action === 'abandon') {
+    const { error } = await supabase
+      .from('practice_sessions')
+      .update({ status: 'abandoned', ended_at: new Date().toISOString() })
+      .eq('id', sessionId)
+
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ abandoned: true })
+  }
+
+  // action === 'complete' — score, bump topics, update streak
   const { data: session } = await supabase
     .from('practice_sessions')
     .select('child_id, subject')
     .eq('id', sessionId)
     .single()
 
-  // Fetch answers with question_id for scoring and topic accuracy
   const { data: answers } = await supabase
     .from('session_answers')
     .select('is_correct, attempt_number, question_id')
@@ -31,7 +112,6 @@ export async function PATCH(
     ? Math.round((correct / answersArr.length) * 100)
     : 0
 
-  // Update session status
   const { error } = await supabase
     .from('practice_sessions')
     .update({ status: 'completed', ended_at: new Date().toISOString(), score_percent: scorePercent })
@@ -41,7 +121,6 @@ export async function PATCH(
 
   const newlyMastered: string[] = []
 
-  // Bump topic levels if session metadata is available
   if (session && answersArr.length > 0) {
     const questionIds = [...new Set(answersArr.map((a) => a.question_id).filter(Boolean))]
     if (questionIds.length > 0) {
