@@ -70,7 +70,7 @@ export default async function DashboardPage({
       .select('id, child_id, subject, mode, question_count, current_index')
       .eq('child_id', activeChild.id)
       .eq('status', 'paused')
-      .order('paused_at', { ascending: false }),
+      .order('started_at', { ascending: false }),
   ])
 
   const sessionIds = (sessions ?? []).map((s) => s.id)
