@@ -152,7 +152,16 @@ export default function EditChildPage() {
   return (
     <main className="max-w-lg mx-auto p-6">
       <Card>
-        <CardHeader><CardTitle>Edit Child Profile</CardTitle></CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>Edit Child Profile</CardTitle>
+          <button
+            type="button"
+            onClick={() => router.push('/dashboard')}
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            ← Back
+          </button>
+        </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-1">
