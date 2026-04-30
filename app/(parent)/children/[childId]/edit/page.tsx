@@ -289,22 +289,11 @@ export default function EditChildPage() {
                 <AlertDialogContent>
                   <AlertDialogHeader>
                     <AlertDialogTitle>Clear {name}&apos;s session history?</AlertDialogTitle>
-                    <AlertDialogDescription asChild>
-                      <div className="space-y-2 text-sm text-muted-foreground">
-                        <p>
-                          {keepRecent === '0'
-                            ? 'All practice sessions will be permanently deleted.'
-                            : `All sessions except the most recent ${keepRecent} will be permanently deleted.`}
-                        </p>
-                        <p>The following will go blank until new sessions are completed:</p>
-                        <ul className="list-disc pl-4 space-y-1">
-                          <li>Progress chart</li>
-                          <li>Average score</li>
-                          <li>Weak areas callout</li>
-                          <li>Recent sessions list</li>
-                        </ul>
-                        <p className="font-medium text-foreground">Streaks and topic mastery levels will not be affected.</p>
-                      </div>
+                    <AlertDialogDescription>
+                      {keepRecent === '0'
+                        ? 'All practice sessions will be permanently deleted.'
+                        : `All sessions except the most recent ${keepRecent} will be permanently deleted.`}
+                      {' '}Progress chart, avg score, weak areas, and recent sessions list will go blank until new sessions are completed. Streaks and topic mastery levels will not be affected.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>

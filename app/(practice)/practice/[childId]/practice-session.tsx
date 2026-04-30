@@ -328,15 +328,10 @@ export function PracticeSession({ child, availableSubjects, parentSettings, dash
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>Pause this session?</AlertDialogTitle>
-                <AlertDialogDescription asChild>
-                  <div className="space-y-2 text-sm text-muted-foreground">
-                    {mode === 'test' && (
-                      <p className="font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded px-3 py-2">
-                        ⚠️ This is a test session. Pausing means you could reference materials before resuming — your score may not reflect true test conditions.
-                      </p>
-                    )}
-                    <p>Your progress is saved. You can resume from question {currentIndex + 1} at any time from the dashboard.</p>
-                  </div>
+                <AlertDialogDescription>
+                  {mode === 'test'
+                    ? `⚠️ This is a test session. Pausing means you could reference materials before resuming — your score may not reflect true test conditions. Your progress is saved and you can resume from question ${currentIndex + 1} from the dashboard.`
+                    : `Your progress is saved. You can resume from question ${currentIndex + 1} at any time from the dashboard.`}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
