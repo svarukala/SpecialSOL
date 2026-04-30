@@ -37,7 +37,7 @@ export default async function DashboardPage({
     : { data: [] }
 
   const pausedSessions: PausedSessionInfo[] = (pausedSessionRows ?? []).map((s) => {
-    const child = children.find((c) => c.id === s.child_id)
+    const child = (children ?? []).find((c) => c.id === s.child_id)
     return {
       id: s.id,
       childId: s.child_id,

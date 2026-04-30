@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import {
   AlertDialog,
@@ -63,9 +62,12 @@ export function ResumeSessionBanner({ sessions }: { sessions: PausedSessionInfo[
               </div>
             </div>
             <div className="flex gap-2 shrink-0">
-              <Button size="sm" asChild>
-                <Link href={`/practice/${s.childId}?resume=${s.id}`}>Resume</Link>
-              </Button>
+              <Link
+                href={`/practice/${s.childId}?resume=${s.id}`}
+                className="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground text-sm font-medium h-8 px-3 hover:bg-primary/90 transition-colors"
+              >
+                Resume
+              </Link>
               <AlertDialog>
                 <AlertDialogTrigger className="inline-flex items-center justify-center rounded-md text-sm font-medium h-8 px-3 hover:bg-muted transition-colors">
                   Discard
