@@ -22,7 +22,7 @@ export function ChildCard({ child, active }: Props) {
         href={`/children/${child.id}/edit`}
         className="flex items-center justify-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors py-0.5"
       >
-        ✏️ <span>Edit settings</span>
+        ✏️ <span>Edit</span>
       </Link>
     </div>
   )
