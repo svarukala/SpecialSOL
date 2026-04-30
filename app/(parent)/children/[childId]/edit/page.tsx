@@ -280,10 +280,11 @@ export default function EditChildPage() {
                 </SelectContent>
               </Select>
               <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button type="button" variant="outline" disabled={clearingHistory}>
-                    {clearingHistory ? 'Clearing...' : 'Clear History'}
-                  </Button>
+                <AlertDialogTrigger
+                  disabled={clearingHistory}
+                  className="inline-flex items-center justify-center rounded-md border border-input bg-background text-sm font-medium h-10 px-4 py-2 hover:bg-muted disabled:opacity-50 disabled:pointer-events-none transition-colors"
+                >
+                  {clearingHistory ? 'Clearing...' : 'Clear History'}
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
