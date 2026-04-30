@@ -179,7 +179,12 @@ export default async function DashboardPage({
         <ProgressChart topics={topicList} topicLevels={topicLevels} masteredTopics={masteredTopics} />
       </div>
       <div>
-        <h2 className="font-semibold mb-3">Recent Sessions</h2>
+        <div className="flex items-baseline justify-between mb-3">
+          <h2 className="font-semibold">Recent Sessions</h2>
+          <Link href={`/children/${activeChild.id}/edit`} className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+            Clear history in Edit settings
+          </Link>
+        </div>
         <SessionHistoryTable sessions={sessions ?? []} />
       </div>
     </main>
