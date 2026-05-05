@@ -12,6 +12,14 @@ export const metadata: Metadata = {
 
 const POSTS = [
   {
+    slug: 'how-to-read-sol-score-report',
+    category: 'Education',
+    title: "How to Read Your Child's SOL Score Report",
+    excerpt: "A plain-language guide to Virginia SOL score reports — what the scaled score means, why 400 is a policy line, the difference between Pass/Proficient and Pass/Advanced (and the 8th-grade EOC credit distinction), how to read the reporting category table, and how to use it to target practice.",
+    date: 'May 5, 2026',
+    readTime: '5 min read',
+  },
+  {
     slug: 'your-childs-privacy-on-solprep',
     category: 'Privacy & Trust',
     title: "Your Child's Privacy on SolPrep — What We Collect, What We Don't, and Why",

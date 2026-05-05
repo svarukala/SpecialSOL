@@ -41,6 +41,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.6,
     },
     {
+      url: `${SITE_URL}/blog/how-to-read-sol-score-report`,
+      lastModified: new Date(),
+      changeFrequency: 'yearly',
+      priority: 0.8,
+    },
+    {
       url: `${SITE_URL}/blog/virginia-sol-test-parent-guide`,
       lastModified: new Date(),
       changeFrequency: 'yearly',

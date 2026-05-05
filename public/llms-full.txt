@@ -69,6 +69,10 @@ SolPrep's blog covers product, education, and engineering topics — how the pla
 
 ### Articles
 
+- **How to Read Your Child's SOL Score Report** (Education, May 5, 2026)
+  Scaled scores 0–600, why 400 is a policy threshold not a measurement line, Pass/Proficient vs Pass/Advanced including the 8th-grade EOC credit distinction, how to read the reporting category table, using categories to target practice, the Grade 3 Reading retention gate.
+  URL: https://solprep.app/blog/how-to-read-sol-score-report
+
 - **What Is the Virginia SOL Test? A Parent's Complete Guide (Grades 3–8)** (Education, April 11, 2026)
   Everything Virginia parents need to know about SOL tests — which grades take them, what subjects are covered, how scoring works, what a passing score means, and what happens if your child doesn't pass.
   URL: https://solprep.app/blog/virginia-sol-test-parent-guide
@@ -80,6 +84,52 @@ SolPrep's blog covers product, education, and engineering topics — how the pla
 - **How We Used AI to Build SolPrep — From PDF to Practice Questions** (Engineering, April 5, 2026)
   A deep dive into how SolPrep uses Claude AI to extract Virginia SOL questions from VDOE PDFs, generate adaptive practice questions, and use LLM-as-judge to filter quality — including math diagram generation in SVG.
   URL: https://solprep.app/blog/how-we-built-solprep-with-ai
+
+---
+
+## Page: Blog Article — How to Read Your Child's SOL Score Report (https://solprep.app/blog/how-to-read-sol-score-report)
+
+*Education · May 5, 2026 · 5 min read*
+
+When your child brings home a Virginia SOL score report, the page looks dense — a scaled score, a performance level, a table of categories with numbers next to each one. This guide walks through every part of it.
+
+### The scaled score: 0 to 600
+
+Every Virginia SOL test is scored on a scale from 0 to 600. Raw correct answers are converted to a scaled score through equating — adjusting for slight difficulty differences between test versions year to year. A 430 on this year's test means the same thing as a 430 on last year's test.
+
+The scale is designed so that 400 is the passing threshold. Below 400: did not pass. 400–499: Pass/Proficient. 500 and above: Pass/Advanced. These cut points are set by the Virginia Board of Education — they are policy decisions, not measurement thresholds.
+
+### What 400 means — and what it doesn't
+
+A score of 400 means your child cleared the policy threshold. It is not a guarantee that every topic is mastered. A child can pass overall while having meaningful gaps in specific topic areas. The reporting category breakdown is where those gaps become visible.
+
+### Pass/Proficient vs. Pass/Advanced
+
+- **Did Not Pass** — below 400
+- **Pass/Proficient** — 400–499 (passing threshold for all purposes)
+- **Pass/Advanced** — 500 or above
+
+For 8th grade End-of-Course (EOC) tests (Algebra I, Biology, and others), Pass/Advanced earns a verified credit toward high school graduation one year early — one of five credits required for a Standard Diploma.
+
+### The reporting category table
+
+Below the overall score, every SOL report shows a table of topic areas with correct/total ratios. Categories vary by subject and grade. What matters is the ratio: 5/6 and 3/8 tell you very different things even if the raw numbers look close.
+
+This is the most diagnostic part of the report. A student who passed with a 420 but scored 3/8 in one category has a specific gap that targeted practice can close.
+
+### How to use the categories to target practice
+
+Map the category name to specific topics. If the score report shows a low score in "Measurement and Geometry" for Grade 4, focus on measurement units, elapsed time, perimeter, area, and basic geometry — not computation or fractions where they may already be strong.
+
+SolPrep organizes every practice question by topic. The parent dashboard shows accuracy by topic after every session, mirroring the score report breakdown.
+
+### The Grade 3 Reading gate
+
+Virginia law requires reading proficiency by end of third grade. A student who does not pass the Grade 3 Reading SOL must pass an alternative assessment, demonstrate proficiency through a reading portfolio, or may be retained. This is the most direct connection between an SOL result and grade retention in the elementary years.
+
+### What a retake looks like
+
+Students who don't pass in spring typically have retake opportunities in summer or fall. The first attempt's score report is the best guide for what to work on. Targeted practice — not general review — produces the most improvement per hour.
 
 ---
 
