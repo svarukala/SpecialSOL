@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { assertAdmin } from '@/lib/admin/assert-admin'
-import { getResend, FROM_ADDRESS } from '@/lib/email/resend'
+import { getResend, FROM_ADDRESS, REPLY_TO } from '@/lib/email/resend'
 import { buildEmail, type TemplateType } from '@/lib/email/templates'
 
 interface Recipient {
@@ -44,6 +44,7 @@ export async function POST(req: NextRequest) {
 
       const { error } = await getResend().emails.send({
         from: FROM_ADDRESS,
+        replyTo: REPLY_TO,
         to: r.parentEmail,
         subject,
         html,

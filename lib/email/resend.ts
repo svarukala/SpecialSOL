@@ -1,6 +1,7 @@
 import { Resend } from 'resend'
 
 export const FROM_ADDRESS = 'SolPrep <hello@solprep.app>'
+export const REPLY_TO = 'admin@t20squares.com'
 
 let _resend: Resend | null = null
 
