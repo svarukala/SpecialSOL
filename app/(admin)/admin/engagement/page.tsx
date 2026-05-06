@@ -1,5 +1,6 @@
 import { createAdminClient } from '@/lib/supabase/server'
 import { EngagementSegments } from '@/components/admin/engagement-segments'
+import { TestEmailButton } from '@/components/admin/test-email-button'
 
 export const metadata = { title: 'Admin — Engagement' }
 
@@ -141,11 +142,14 @@ export default async function EngagementPage() {
 
   return (
     <main className="max-w-5xl mx-auto px-4 py-8 space-y-6">
-      <div>
-        <h1 className="text-xl font-bold">Engagement</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Identify parents by activity state and send a helpful nudge email. Admins and users nudged in the last 7 days are excluded automatically.
-        </p>
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-xl font-bold">Engagement</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Identify parents by activity state and send a helpful nudge email. Admins and users nudged in the last 7 days are excluded automatically.
+          </p>
+        </div>
+        <TestEmailButton />
       </div>
       <EngagementSegments segments={segments} />
     </main>
