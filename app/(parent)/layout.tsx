@@ -6,6 +6,7 @@ import { UserAvatar } from '@/components/auth/user-avatar'
 
 const BASE_NAV_LINKS = [
   { href: '/dashboard', emoji: '📊', label: 'Dashboard' },
+  { href: '/question-quest', emoji: '🎯', label: 'Questions' },
   { href: '/children/new', emoji: '➕', label: 'Add Child' },
   { href: '/settings', emoji: '⚙️', label: 'Settings' },
   { href: '/feedback', emoji: '💬', label: 'Feedback' },

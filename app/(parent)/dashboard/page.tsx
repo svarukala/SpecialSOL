@@ -171,6 +171,18 @@ export default async function DashboardPage({
         <SessionHistoryTable sessions={sessions ?? []} pausedSessions={pausedForChild ?? []} childId={activeChild.id} />
       </div>
 
+      <Link
+        href={`/question-quest?childId=${activeChild.id}`}
+        className="flex items-center gap-4 rounded-xl border bg-card px-5 py-4 hover:border-primary/40 hover:bg-primary/5 transition-colors"
+      >
+        <div className="text-3xl">🎯</div>
+        <div className="flex-1 min-w-0">
+          <div className="font-semibold text-sm">Question Quest</div>
+          <p className="text-xs text-muted-foreground mt-0.5">Practice Wh-questions — What, Where, Who, When, Why, How — to build reading comprehension.</p>
+        </div>
+        <span className="text-muted-foreground text-sm shrink-0">→</span>
+      </Link>
+
       <EarlyAccessTeaser hasAccess={hasAccess} hasRequested={hasRequested} />
     </main>
   )
