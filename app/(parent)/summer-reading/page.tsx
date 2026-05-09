@@ -26,6 +26,9 @@ export default async function SummerReadingPage({
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
+  const { data: parentRow } = await supabase.from('parents').select('summer_learning_access').eq('id', user.id).single()
+  if (!parentRow?.summer_learning_access) redirect('/dashboard?summer=waitlist')
+
   const { childId: childIdParam, grade: gradeParam } = await searchParams
 
   const { data: children } = await supabase

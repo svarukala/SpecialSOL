@@ -14,6 +14,9 @@ export default async function TimesTablesPage({
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
+  const { data: parentRow } = await supabase.from('parents').select('summer_learning_access').eq('id', user.id).single()
+  if (!parentRow?.summer_learning_access) redirect('/dashboard?summer=waitlist')
+
   const { data: children } = await supabase
     .from('children')
     .select('id, name, grade, avatar')
