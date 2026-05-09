@@ -239,6 +239,35 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* ── Coming This Summer ─────────────────────────────────── */}
+      <section className="border-t bg-muted/30">
+        <div className="max-w-4xl mx-auto px-4 py-16 text-center">
+          <div className="inline-flex items-center gap-2 bg-primary/10 text-primary text-xs font-semibold px-3 py-1 rounded-full mb-4 tracking-wide uppercase">
+            ☀️ Coming This Summer
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-bold mb-3">Keep learning after SOL season</h2>
+          <p className="text-muted-foreground mb-10 max-w-lg mx-auto text-sm leading-relaxed">
+            Fun, pressure-free activities to keep skills sharp all summer long — no test prep required.
+          </p>
+          <div className="grid sm:grid-cols-3 gap-4 text-left">
+            {[
+              { icon: '🐝', title: 'Spelling Bee', desc: 'Hear a word spoken aloud, then spell it correctly. Builds vocabulary through sound — includes word origins and definitions.' },
+              { icon: '✖️', title: 'Times Tables Trainer', desc: 'Drill multiplication facts with instant feedback and personal bests. Speed mode challenges kids across all tables at once.' },
+              { icon: '📚', title: 'Summer Reading Library', desc: 'Age-appropriate stories by grade, with optional read-aloud. Kids can share what they learned after each story.' },
+            ].map(({ icon, title, desc }) => (
+              <div key={title} className="rounded-xl border bg-card p-5 space-y-2">
+                <div className="text-2xl">{icon}</div>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-semibold text-sm">{title}</h3>
+                  <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">Soon</span>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">{desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── CTA ────────────────────────────────────────────────── */}
       <section className="border-t bg-primary text-primary-foreground">
         <div className="max-w-2xl mx-auto px-4 py-16 text-center">
