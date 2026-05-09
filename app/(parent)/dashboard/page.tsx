@@ -11,6 +11,7 @@ import { getAllChildTopicLevels, getRecentMilestones, getMasteredTopics } from '
 import type { Milestone } from '@/lib/supabase/queries'
 import { PromotionBanner } from '@/components/dashboard/promotion-banner'
 import { WelcomeToast } from '@/components/dashboard/welcome-toast'
+import { EarlyAccessTeaser } from '@/components/summer-learning/early-access-teaser'
 
 export default async function DashboardPage({
   searchParams,
@@ -109,11 +110,14 @@ export default async function DashboardPage({
     .sort((a, b) => a.accuracy - b.accuracy)
   const weakTopics = topicList.filter((t) => t.accuracy < 0.65).slice(0, 2)
 
-  const [milestones, topicLevels, masteredTopics] = await Promise.all([
+  const [milestones, topicLevels, masteredTopics, parentRow] = await Promise.all([
     getRecentMilestones(supabase, activeChild.id).catch(() => [] as Milestone[]),
     getAllChildTopicLevels(supabase, activeChild.id).catch(() => ({} as Record<string, 'simplified' | 'standard'>)),
     getMasteredTopics(supabase, activeChild.id).catch(() => new Set<string>()),
+    supabase.from('parents').select('summer_learning_access, summer_learning_requested').eq('id', user.id).single(),
   ])
+  const hasAccess = parentRow.data?.summer_learning_access ?? false
+  const hasRequested = parentRow.data?.summer_learning_requested ?? false
 
   return (
     <main className="max-w-3xl mx-auto p-6 space-y-6">
@@ -167,29 +171,7 @@ export default async function DashboardPage({
         <SessionHistoryTable sessions={sessions ?? []} pausedSessions={pausedForChild ?? []} childId={activeChild.id} />
       </div>
 
-      <div className="rounded-xl border border-dashed border-primary/30 bg-primary/5 p-5 space-y-3">
-        <div className="flex items-center gap-2">
-          <span className="text-lg">☀️</span>
-          <h2 className="font-semibold text-primary">Coming This Summer</h2>
-        </div>
-        <p className="text-sm text-muted-foreground">Keep the learning going after SOL season with fun new activities — coming soon!</p>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          {[
-            { icon: '🐝', title: 'Spelling Bee', desc: 'Hear a word, spell it correctly — build vocabulary through sound.' },
-            { icon: '✖️', title: 'Times Tables', desc: 'Master multiplication facts with speed drills and personal bests.' },
-            { icon: '📚', title: 'Summer Reading', desc: 'Explore fun age-appropriate stories to keep reading skills sharp.' },
-          ].map(({ icon, title, desc }) => (
-            <div key={title} className="rounded-lg bg-background border border-border/60 px-4 py-3 opacity-80 space-y-1">
-              <div className="flex items-center gap-1.5">
-                <span>{icon}</span>
-                <span className="font-medium text-sm">{title}</span>
-                <span className="ml-auto text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">Soon</span>
-              </div>
-              <p className="text-xs text-muted-foreground">{desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
+      <EarlyAccessTeaser hasAccess={hasAccess} hasRequested={hasRequested} />
     </main>
   )
 }

@@ -4,11 +4,17 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { UserAvatar } from '@/components/auth/user-avatar'
 
-const NAV_LINKS = [
+const BASE_NAV_LINKS = [
   { href: '/dashboard', emoji: '📊', label: 'Dashboard' },
   { href: '/children/new', emoji: '➕', label: 'Add Child' },
   { href: '/settings', emoji: '⚙️', label: 'Settings' },
   { href: '/feedback', emoji: '💬', label: 'Feedback' },
+]
+
+const SUMMER_NAV_LINKS = [
+  { href: '/spelling-bee', emoji: '🐝', label: 'Spelling' },
+  { href: '/times-tables', emoji: '✖️', label: 'Math' },
+  { href: '/summer-reading', emoji: '📚', label: 'Reading' },
 ]
 
 const navLinkClass = 'inline-flex items-center justify-center gap-1 rounded-lg px-2 sm:px-2.5 h-8 text-sm font-medium transition-colors hover:bg-muted hover:text-foreground'
@@ -20,11 +26,14 @@ export default async function ParentLayout({ children }: { children: React.React
 
   const { data: parent } = await supabase
     .from('parents')
-    .select('is_admin')
+    .select('is_admin, summer_learning_access')
     .eq('id', user.id)
     .single()
 
   const userName = user.user_metadata?.full_name as string | undefined
+  const navLinks = parent?.summer_learning_access
+    ? [BASE_NAV_LINKS[0], ...SUMMER_NAV_LINKS, ...BASE_NAV_LINKS.slice(1)]
+    : BASE_NAV_LINKS
 
   return (
     <div className="min-h-screen bg-background">
@@ -35,7 +44,7 @@ export default async function ParentLayout({ children }: { children: React.React
             <span className="font-bold text-base sm:text-lg tracking-tight">SolPrep</span>
           </Link>
           <div className="flex items-center gap-0.5 sm:gap-1">
-            {NAV_LINKS.map(({ href, emoji, label }) => (
+            {navLinks.map(({ href, emoji, label }) => (
               <Link key={href} href={href} className={navLinkClass}>
                 <span>{emoji}</span>
                 <span className="hidden sm:inline">{label}</span>
