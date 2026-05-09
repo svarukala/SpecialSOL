@@ -6,6 +6,7 @@ import { LandingNav } from '@/components/marketing/landing-nav'
 import { LandingFooter } from '@/components/marketing/landing-footer'
 import { AccommodationTiles } from '@/components/marketing/accommodation-tiles'
 import { ThankYouBanner } from '@/components/marketing/thank-you-banner'
+import { EarlyAccessButton } from '@/components/marketing/early-access-button'
 
 export const metadata: Metadata = {
   title: 'Free Virginia SOL Practice Test — Real VDOE Questions, Grades 3–8',
@@ -115,6 +116,18 @@ export default async function HomePage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   const isLoggedIn = !!user
+
+  let earlyAccessState: 'anonymous' | 'none' | 'requested' | 'approved' = 'anonymous'
+  if (user) {
+    const { data: parentRow } = await supabase
+      .from('parents')
+      .select('summer_learning_access, summer_learning_requested')
+      .eq('id', user.id)
+      .single()
+    if (parentRow?.summer_learning_access) earlyAccessState = 'approved'
+    else if (parentRow?.summer_learning_requested) earlyAccessState = 'requested'
+    else earlyAccessState = 'none'
+  }
 
   const db = createAdminClient()
   const [{ count: totalCount }, { count: doeCount }, { count: aiCount }] = await Promise.all([
@@ -249,7 +262,7 @@ export default async function HomePage() {
           <p className="text-muted-foreground mb-10 max-w-lg mx-auto text-sm leading-relaxed">
             Fun, pressure-free activities to keep skills sharp all summer long — no test prep required.
           </p>
-          <div className="grid sm:grid-cols-3 gap-4 text-left">
+          <div className="grid sm:grid-cols-3 gap-4 text-left mb-10">
             {[
               { icon: '🐝', title: 'Spelling Bee', desc: 'Hear a word spoken aloud, then spell it correctly. Builds vocabulary through sound — includes word origins and definitions.' },
               { icon: '✖️', title: 'Times Tables Trainer', desc: 'Drill multiplication facts with instant feedback and personal bests. Speed mode challenges kids across all tables at once.' },
@@ -265,6 +278,7 @@ export default async function HomePage() {
               </div>
             ))}
           </div>
+          <EarlyAccessButton state={earlyAccessState} />
         </div>
       </section>
 
