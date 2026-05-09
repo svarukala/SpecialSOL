@@ -166,6 +166,30 @@ export default async function DashboardPage({
         </div>
         <SessionHistoryTable sessions={sessions ?? []} pausedSessions={pausedForChild ?? []} childId={activeChild.id} />
       </div>
+
+      <div className="rounded-xl border border-dashed border-primary/30 bg-primary/5 p-5 space-y-3">
+        <div className="flex items-center gap-2">
+          <span className="text-lg">☀️</span>
+          <h2 className="font-semibold text-primary">Coming This Summer</h2>
+        </div>
+        <p className="text-sm text-muted-foreground">Keep the learning going after SOL season with fun new activities — coming soon!</p>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          {[
+            { icon: '🐝', title: 'Spelling Bee', desc: 'Hear a word, spell it correctly — build vocabulary through sound.' },
+            { icon: '✖️', title: 'Times Tables', desc: 'Master multiplication facts with speed drills and personal bests.' },
+            { icon: '📚', title: 'Summer Reading', desc: 'Explore fun age-appropriate stories to keep reading skills sharp.' },
+          ].map(({ icon, title, desc }) => (
+            <div key={title} className="rounded-lg bg-background border border-border/60 px-4 py-3 opacity-80 space-y-1">
+              <div className="flex items-center gap-1.5">
+                <span>{icon}</span>
+                <span className="font-medium text-sm">{title}</span>
+                <span className="ml-auto text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">Soon</span>
+              </div>
+              <p className="text-xs text-muted-foreground">{desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
     </main>
   )
 }
