@@ -8,11 +8,12 @@ export default async function AdminUsersPage() {
   // 1. Auth users (provider info lives here)
   const { data: { users: authUsers } } = await admin.auth.admin.listUsers({ perPage: 500 })
 
-  // 2. Parents, children, and session counts in parallel
-  const [{ data: parents }, { data: children }, { data: sessions }] = await Promise.all([
+  // 2. Parents, children, session counts, and topic levels in parallel
+  const [{ data: parents }, { data: children }, { data: sessions }, { data: topicLevels }] = await Promise.all([
     admin.from('parents').select('id, email, created_at, is_admin'),
     admin.from('children').select('id, parent_id, name, grade'),
     admin.from('practice_sessions').select('child_id, started_at'),
+    admin.from('child_topic_levels').select('child_id, subject, language_level'),
   ])
 
   // Index for fast lookup
@@ -30,6 +31,25 @@ export default async function AdminUsersPage() {
     if (!prev || s.started_at > prev) lastSessionByChild.set(s.child_id, s.started_at)
   }
 
+  // Compute dominant level per (child, subject) by mode
+  type Level = 'foundational' | 'simplified' | 'standard'
+  const levelsByChild = new Map<string, { math: Level | null; reading: Level | null }>()
+  const levelCounts = new Map<string, Record<string, Record<string, number>>>()
+  for (const row of topicLevels ?? []) {
+    if (!levelCounts.has(row.child_id)) levelCounts.set(row.child_id, {})
+    const bySubject = levelCounts.get(row.child_id)!
+    if (!bySubject[row.subject]) bySubject[row.subject] = {}
+    bySubject[row.subject][row.language_level] = (bySubject[row.subject][row.language_level] ?? 0) + 1
+  }
+  for (const [childId, bySubject] of levelCounts) {
+    const mode = (subject: string): Level | null => {
+      const counts = bySubject[subject]
+      if (!counts) return null
+      return Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0] as Level
+    }
+    levelsByChild.set(childId, { math: mode('math'), reading: mode('reading') })
+  }
+
   const rows = authUsers.map(u => ({
     id: u.id,
     email: u.email ?? '—',
@@ -40,6 +60,7 @@ export default async function AdminUsersPage() {
       ...c,
       sessions: sessionsByChild.get(c.id) ?? 0,
       lastSession: lastSessionByChild.get(c.id) ?? null,
+      levels: levelsByChild.get(c.id) ?? { math: null, reading: null },
     })),
   })).map(row => ({
     ...row,
@@ -94,11 +115,32 @@ export default async function AdminUsersPage() {
                   {user.children.length === 0 ? (
                     <span className="text-muted-foreground text-xs">None</span>
                   ) : (
-                    <div className="space-y-1">
+                    <div className="space-y-2">
                       {user.children.map(child => (
-                        <div key={child.id} className="flex items-center gap-2">
-                          <span>{child.name}</span>
-                          <span className="text-xs text-muted-foreground">Grade {child.grade}</span>
+                        <div key={child.id} className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">{child.name}</span>
+                            <span className="text-xs text-muted-foreground">Gr {child.grade}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            {(['math', 'reading'] as const).map(subj => {
+                              const lvl = child.levels[subj]
+                              if (!lvl) return null
+                              const styles = {
+                                foundational: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+                                simplified:   'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+                                standard:     'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+                              }[lvl]
+                              return (
+                                <span key={subj} className={`inline-flex items-center gap-0.5 text-xs px-1.5 py-0.5 rounded font-medium ${styles}`}>
+                                  {subj === 'math' ? '➕' : '📖'} {lvl}
+                                </span>
+                              )
+                            })}
+                            {!child.levels.math && !child.levels.reading && (
+                              <span className="text-xs text-muted-foreground">no practice yet</span>
+                            )}
+                          </div>
                         </div>
                       ))}
                     </div>
