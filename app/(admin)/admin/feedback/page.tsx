@@ -10,7 +10,8 @@ const CATEGORY_LABELS: Record<string, string> = {
   praise: 'Something I love',
   other: 'Other',
   child_confused: 'Child confused',
-  child_read_again: 'Child read again',
+  too_hard: 'Too hard',
+  too_easy: 'Too easy',
 }
 
 export default async function AdminFeedbackPage() {
