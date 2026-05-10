@@ -7,6 +7,10 @@ const FEATURES = [
   { icon: '✖️', title: 'Times Tables', desc: 'Master multiplication with speed drills.', href: '/times-tables' },
   { icon: '📚', title: 'Summer Reading', desc: 'Explore age-appropriate stories.', href: '/summer-reading' },
   { icon: '🎯', title: 'Question Quest', desc: 'Master What, Where, Who, When, Why, How.', href: '/question-quest' },
+  { icon: '🐊', title: 'Numbers', desc: 'Compare numbers with >, <, and =.', href: '/crocodile-numbers' },
+  { icon: '🕐', title: 'Learn Clock', desc: 'Read analog clocks at every difficulty.', href: '/learn-clock' },
+  { icon: '💰', title: 'Money Match', desc: 'Identify coins, count money, make change.', href: '/money-match' },
+  { icon: '🍕', title: 'Fractions', desc: 'Name, compare, and find equivalent fractions.', href: '/fraction-frenzy' },
 ]
 
 export function EarlyAccessTeaser({
@@ -40,7 +44,7 @@ export function EarlyAccessTeaser({
           ? 'Keep skills sharp with fun activities — no SOL prep required!'
           : 'Fun new features launching after SOL season — spelling, math, and reading.'}
       </p>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:grid-rows-2">
         {FEATURES.map(({ icon, title, desc, href }) =>
           hasAccess ? (
             <Link

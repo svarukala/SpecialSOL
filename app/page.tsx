@@ -219,10 +219,14 @@ export default async function HomePage() {
           </p>
           <div className="grid sm:grid-cols-4 gap-4 text-left mb-10">
             {[
-              { icon: '🐝', title: 'Spelling Bee', desc: 'Hear a word spoken aloud, then spell it correctly. Includes word origins and definitions.' },
-              { icon: '✖️', title: 'Times Tables', desc: 'Drill multiplication facts with instant feedback and personal bests.' },
-              { icon: '📚', title: 'Summer Reading', desc: 'Age-appropriate stories by grade, with optional read-aloud.' },
-              { icon: '🎯', title: 'Question Quest', desc: 'Build reading comprehension through What, Where, Who, When, Why, and How questions.' },
+              { icon: '🐝', title: 'Spelling Bee', desc: 'Hear a word spoken aloud, then spell it correctly.' },
+              { icon: '✖️', title: 'Times Tables', desc: 'Drill multiplication facts with instant feedback.' },
+              { icon: '📚', title: 'Summer Reading', desc: 'Age-appropriate stories by grade, with read-aloud.' },
+              { icon: '🎯', title: 'Question Quest', desc: 'Build comprehension with What, Where, Who, When, Why, How.' },
+              { icon: '🐊', title: 'Croc Numbers', desc: 'Compare numbers with >, <, and = in three fun modes.' },
+              { icon: '🕐', title: 'Learn Clock', desc: 'Read analog clocks from easy 5-minute intervals to hard.' },
+              { icon: '💰', title: 'Money Match', desc: 'Identify coins, count amounts, and make change.' },
+              { icon: '🍕', title: 'Fractions', desc: 'Name, compare, and find equivalent fractions with visuals.' },
             ].map(({ icon, title, desc }) => (
               <div key={title} className="rounded-xl border bg-card p-5 space-y-2">
                 <div className="text-2xl">{icon}</div>
