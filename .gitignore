@@ -47,3 +47,4 @@ supabase/seed/generated/
 # Downloaded PDFs and extracted data (large binary/generated files)
 data/sol-pdfs/
 data/sol-extracted/
+.claude/worktrees/
