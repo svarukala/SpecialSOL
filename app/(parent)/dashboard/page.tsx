@@ -148,6 +148,9 @@ export default async function DashboardPage({
       >
         🚀 Start Practice for {activeChild.name}
       </Link>
+
+      <EarlyAccessTeaser hasAccess={hasAccess} hasRequested={hasRequested} />
+
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <StatCard label="Sessions This Week" value={sessionsThisWeek} icon="📅" />
         <StatCard label="Avg Score" value={`${avgScore}%`} icon="⭐" />
@@ -170,8 +173,6 @@ export default async function DashboardPage({
         </div>
         <SessionHistoryTable sessions={sessions ?? []} pausedSessions={pausedForChild ?? []} childId={activeChild.id} />
       </div>
-
-      <EarlyAccessTeaser hasAccess={hasAccess} hasRequested={hasRequested} />
     </main>
   )
 }
