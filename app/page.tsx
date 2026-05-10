@@ -262,11 +262,12 @@ export default async function HomePage() {
           <p className="text-muted-foreground mb-10 max-w-lg mx-auto text-sm leading-relaxed">
             Fun, pressure-free activities to keep skills sharp all summer long — no test prep required.
           </p>
-          <div className="grid sm:grid-cols-3 gap-4 text-left mb-10">
+          <div className="grid sm:grid-cols-4 gap-4 text-left mb-10">
             {[
-              { icon: '🐝', title: 'Spelling Bee', desc: 'Hear a word spoken aloud, then spell it correctly. Builds vocabulary through sound — includes word origins and definitions.' },
-              { icon: '✖️', title: 'Times Tables Trainer', desc: 'Drill multiplication facts with instant feedback and personal bests. Speed mode challenges kids across all tables at once.' },
-              { icon: '📚', title: 'Summer Reading Library', desc: 'Age-appropriate stories by grade, with optional read-aloud. Kids can share what they learned after each story.' },
+              { icon: '🐝', title: 'Spelling Bee', desc: 'Hear a word spoken aloud, then spell it correctly. Includes word origins and definitions.' },
+              { icon: '✖️', title: 'Times Tables', desc: 'Drill multiplication facts with instant feedback and personal bests.' },
+              { icon: '📚', title: 'Summer Reading', desc: 'Age-appropriate stories by grade, with optional read-aloud.' },
+              { icon: '🎯', title: 'Question Quest', desc: 'Build reading comprehension through What, Where, Who, When, Why, and How questions.' },
             ].map(({ icon, title, desc }) => (
               <div key={title} className="rounded-xl border bg-card p-5 space-y-2">
                 <div className="text-2xl">{icon}</div>

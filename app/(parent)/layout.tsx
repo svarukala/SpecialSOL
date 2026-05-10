@@ -6,7 +6,6 @@ import { UserAvatar } from '@/components/auth/user-avatar'
 
 const BASE_NAV_LINKS = [
   { href: '/dashboard', emoji: '📊', label: 'Dashboard' },
-  { href: '/question-quest', emoji: '🎯', label: 'Questions' },
   { href: '/children/new', emoji: '➕', label: 'Add Child' },
   { href: '/settings', emoji: '⚙️', label: 'Settings' },
   { href: '/feedback', emoji: '💬', label: 'Feedback' },
@@ -16,6 +15,7 @@ const SUMMER_NAV_LINKS = [
   { href: '/spelling-bee', emoji: '🐝', label: 'Spelling' },
   { href: '/times-tables', emoji: '✖️', label: 'Math' },
   { href: '/summer-reading', emoji: '📚', label: 'Reading' },
+  { href: '/question-quest', emoji: '🎯', label: 'Questions' },
 ]
 
 const navLinkClass = 'inline-flex items-center justify-center gap-1 rounded-lg px-2 sm:px-2.5 h-8 text-sm font-medium transition-colors hover:bg-muted hover:text-foreground'

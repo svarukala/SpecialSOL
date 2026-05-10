@@ -6,6 +6,7 @@ const FEATURES = [
   { icon: '🐝', title: 'Spelling Bee', desc: 'Hear a word, spell it correctly.', href: '/spelling-bee' },
   { icon: '✖️', title: 'Times Tables', desc: 'Master multiplication with speed drills.', href: '/times-tables' },
   { icon: '📚', title: 'Summer Reading', desc: 'Explore age-appropriate stories.', href: '/summer-reading' },
+  { icon: '🎯', title: 'Question Quest', desc: 'Master What, Where, Who, When, Why, How.', href: '/question-quest' },
 ]
 
 export function EarlyAccessTeaser({
@@ -39,7 +40,7 @@ export function EarlyAccessTeaser({
           ? 'Keep skills sharp with fun activities — no SOL prep required!'
           : 'Fun new features launching after SOL season — spelling, math, and reading.'}
       </p>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {FEATURES.map(({ icon, title, desc, href }) =>
           hasAccess ? (
             <Link
