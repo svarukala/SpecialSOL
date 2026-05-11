@@ -48,6 +48,8 @@ export function SpellingBeeGameClient({ sessionId, words, childId: _childId, par
   const [submitting, setSubmitting] = useState(false)
   const [speaking, setSpeaking] = useState(false)
   const [ttsEngine, setTtsEngine] = useState<TTSEngine | null>(null)
+  const [showDefinition, setShowDefinition] = useState(false)
+  const [showOrigin, setShowOrigin] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -97,6 +99,8 @@ export function SpellingBeeGameClient({ sessionId, words, childId: _childId, par
 
   function advance() {
     const nextIndex = currentIndex + 1
+    setShowDefinition(false)
+    setShowOrigin(false)
     if (nextIndex >= words.length) {
       setPhase('summary')
     } else {
@@ -241,6 +245,41 @@ export function SpellingBeeGameClient({ sessionId, words, childId: _childId, par
           <span className="text-xl">{speaking ? '🔊' : '🔉'}</span>
           {speaking ? 'Speaking...' : 'Hear Word'}
         </button>
+
+        <div className="flex justify-center gap-3 text-xs">
+          <button
+            type="button"
+            onClick={() => setShowDefinition((v) => !v)}
+            className="text-muted-foreground hover:text-foreground underline underline-offset-2 transition-colors"
+          >
+            📖 {showDefinition ? 'Hide definition' : 'See definition'}
+          </button>
+          {(currentWord.originLanguage || currentWord.etymologyNote) && (
+            <button
+              type="button"
+              onClick={() => setShowOrigin((v) => !v)}
+              className="text-muted-foreground hover:text-foreground underline underline-offset-2 transition-colors"
+            >
+              🌍 {showOrigin ? 'Hide origin' : 'See origin'}
+            </button>
+          )}
+        </div>
+
+        {showDefinition && (
+          <p className="text-sm text-left bg-muted/40 rounded-lg px-4 py-2.5 leading-relaxed">
+            <span className="font-medium">Definition: </span>{currentWord.definition}
+          </p>
+        )}
+        {showOrigin && (
+          <div className="text-sm text-left bg-muted/40 rounded-lg px-4 py-2.5 space-y-0.5">
+            {currentWord.originLanguage && (
+              <p><span className="font-medium">Origin: </span>{currentWord.originLanguage}</p>
+            )}
+            {currentWord.etymologyNote && (
+              <p className="text-muted-foreground">{currentWord.etymologyNote}</p>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="space-y-3">
