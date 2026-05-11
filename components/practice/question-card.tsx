@@ -1,8 +1,12 @@
+'use client'
+
 import { Card, CardContent } from '@/components/ui/card'
 import { OnScreenCalculator } from './on-screen-calculator'
 import type { Question } from '@/lib/practice/question-types'
 import { sanitizeSvg } from '@/lib/svg/sanitize'
 import { useAccommodations } from '@/lib/accommodations/context'
+import { TTSButton } from '@/components/accommodations/tts-button'
+import type { TTSEngine } from '@/lib/tts/types'
 
 export type { Question }
 
@@ -10,6 +14,7 @@ interface Props {
   question: Question
   simplified: boolean
   highlightRange?: { start: number; length: number } | null
+  ttsEngine?: TTSEngine | null
 }
 
 // Bionic Reading: bold the first N characters of each word (N = min(ceil(len/2), 4))
@@ -108,7 +113,7 @@ function QuestionTypeBadge({ questionText }: { questionText: string }) {
   )
 }
 
-export function QuestionCard({ question, simplified, highlightRange }: Props) {
+export function QuestionCard({ question, simplified, highlightRange, ttsEngine }: Props) {
   const { state } = useAccommodations()
   const text = (simplified && question.simplified_text) ? question.simplified_text : question.question_text
   return (
@@ -116,9 +121,14 @@ export function QuestionCard({ question, simplified, highlightRange }: Props) {
       {question.reading_passage && (
         <Card className="border-blue-200 bg-blue-50/40 dark:border-blue-900 dark:bg-blue-950/20">
           <CardContent className="p-5">
-            <p className="text-xs font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-400 mb-3">
-              Reading Passage
-            </p>
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-400">
+                Reading Passage
+              </p>
+              {ttsEngine && (
+                <TTSButton text={question.reading_passage} engine={ttsEngine} label="Read Passage" />
+              )}
+            </div>
             <div className="max-h-64 overflow-y-auto pr-1 text-sm leading-relaxed reading-text text-foreground/90">
               <FormattedText text={question.reading_passage} bionic={state.bionic_reading} />
             </div>

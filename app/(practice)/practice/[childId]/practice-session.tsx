@@ -387,7 +387,7 @@ export function PracticeSession({ child, availableSubjects, parentSettings, dash
             onExpire={handleTimerExpire}
           />
         )}
-        <QuestionCard question={q} simplified={languageLevel !== 'standard'} highlightRange={highlightRange} />
+        <QuestionCard question={q} simplified={languageLevel !== 'standard'} highlightRange={highlightRange} ttsEngine={ttsEngine} />
         <AnswerInput
           key={`${q.id}-${attemptNumber}`}
           question={q}

@@ -21,7 +21,7 @@ export function AccommodationToolbar({ engine, questionText, progress, onBoundar
   return (
     <div className={`flex items-center gap-2 flex-wrap py-2 ${state.reduce_distractions ? 'justify-end' : 'justify-between'}`}>
       <div className="flex items-center gap-2">
-        <TTSButton text={questionText} engine={engine} onBoundary={onBoundary} onSpeakEnd={onSpeakEnd} />
+        <TTSButton text={questionText} engine={engine} label="Read Question" onBoundary={onBoundary} onSpeakEnd={onSpeakEnd} />
         {!state.reduce_distractions && (
           <>
             <Button

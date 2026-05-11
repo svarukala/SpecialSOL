@@ -8,11 +8,12 @@ import { Volume2, VolumeX } from 'lucide-react'
 interface Props {
   text: string
   engine: TTSEngine
+  label?: string
   onBoundary?: (charIndex: number, charLength: number) => void
   onSpeakEnd?: () => void
 }
 
-export function TTSButton({ text, engine, onBoundary, onSpeakEnd }: Props) {
+export function TTSButton({ text, engine, label = 'Read Aloud', onBoundary, onSpeakEnd }: Props) {
   const { state } = useAccommodations()
   const [speaking, setSpeaking] = useState(false)
 
@@ -42,7 +43,7 @@ export function TTSButton({ text, engine, onBoundary, onSpeakEnd }: Props) {
       aria-label={speaking ? 'Stop reading' : 'Read aloud'}
     >
       {speaking ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-      <span className="ml-1">{speaking ? 'Stop' : 'Read Aloud'}</span>
+      <span className="ml-1">{speaking ? 'Stop' : label}</span>
     </Button>
   )
 }
