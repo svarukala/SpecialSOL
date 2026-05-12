@@ -1,22 +1,64 @@
 import { createAdminClient } from '@/lib/supabase/server'
+import { SummerFilters, type SummerGame } from '@/components/admin/summer-filters'
+import { Suspense } from 'react'
 
 export const metadata = { title: 'Admin — Users' }
 
-export default async function AdminUsersPage() {
+const SUMMER_GAMES = [
+  { key: 'spelling',       label: 'Spelling Bee',    emoji: '🐝', table: 'spelling_sessions' },
+  { key: 'times_tables',   label: 'Times Tables',    emoji: '✖️',  table: 'times_tables_mastery' },
+  { key: 'summer_reading', label: 'Reading',         emoji: '📚', table: 'story_reads' },
+  { key: 'quest',          label: 'Question Quest',  emoji: '❓', table: 'child_wh_progress' },
+  { key: 'crocodile',      label: 'Crocodile',       emoji: '🐊', table: 'child_comparison_scores' },
+  { key: 'clock',          label: 'Learn Clock',     emoji: '🕐', table: 'child_clock_scores' },
+  { key: 'money',          label: 'Money Match',     emoji: '💰', table: 'child_money_scores' },
+  { key: 'fractions',      label: 'Fractions',       emoji: '½',  table: 'child_fraction_scores' },
+] as const
+
+export default async function AdminUsersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ game?: string }>
+}) {
+  const { game: activeGame } = await searchParams
   const admin = createAdminClient()
 
-  // 1. Auth users (provider info lives here)
-  const { data: { users: authUsers } } = await admin.auth.admin.listUsers({ perPage: 500 })
-
-  // 2. Parents, children, session counts, and topic levels in parallel
-  const [{ data: parents }, { data: children }, { data: sessions }, { data: topicLevels }] = await Promise.all([
-    admin.from('parents').select('id, email, created_at, is_admin'),
-    admin.from('children').select('id, parent_id, name, grade'),
-    admin.from('practice_sessions').select('child_id, started_at'),
-    admin.from('child_topic_levels').select('child_id, subject, language_level'),
+  // All data fetched in parallel
+  const [
+    { data: { users: authUsers } },
+    [{ data: parents }, { data: children }, { data: sessions }, { data: topicLevels }],
+    gameResults,
+  ] = await Promise.all([
+    admin.auth.admin.listUsers({ perPage: 500 }),
+    Promise.all([
+      admin.from('parents').select('id, email, created_at, is_admin, summer_learning_access'),
+      admin.from('children').select('id, parent_id, name, grade'),
+      admin.from('practice_sessions').select('child_id, started_at'),
+      admin.from('child_topic_levels').select('child_id, subject, language_level'),
+    ]),
+    Promise.all(
+      SUMMER_GAMES.map(g => admin.from(g.table as string).select('child_id'))
+    ),
   ])
 
-  // Index for fast lookup
+  // ── Summer participation maps ──────────────────────────────────────────────
+  // participationByChild: child_id → Set of game keys played
+  const participationByChild = new Map<string, Set<string>>()
+  // gameStats: game key → unique child count
+  const gameStats = new Map<string, number>()
+
+  for (let i = 0; i < SUMMER_GAMES.length; i++) {
+    const game = SUMMER_GAMES[i]
+    const rows = gameResults[i].data ?? []
+    const uniqueChildren = new Set(rows.map((r: { child_id: string }) => r.child_id))
+    gameStats.set(game.key, uniqueChildren.size)
+    for (const childId of uniqueChildren) {
+      if (!participationByChild.has(childId)) participationByChild.set(childId, new Set())
+      participationByChild.get(childId)!.add(game.key)
+    }
+  }
+
+  // ── Standard lookups ───────────────────────────────────────────────────────
   const parentMap = new Map((parents ?? []).map(p => [p.id, p]))
   const childrenByParent = new Map<string, typeof children>()
   for (const child of children ?? []) {
@@ -31,7 +73,6 @@ export default async function AdminUsersPage() {
     if (!prev || s.started_at > prev) lastSessionByChild.set(s.child_id, s.started_at)
   }
 
-  // Compute dominant level per (child, subject) by mode
   type Level = 'foundational' | 'simplified' | 'standard'
   const levelsByChild = new Map<string, { math: Level | null; reading: Level | null }>()
   const levelCounts = new Map<string, Record<string, Record<string, number>>>()
@@ -50,33 +91,54 @@ export default async function AdminUsersPage() {
     levelsByChild.set(childId, { math: mode('math'), reading: mode('reading') })
   }
 
-  const rows = authUsers.map(u => ({
-    id: u.id,
-    email: u.email ?? '—',
-    provider: (u.app_metadata?.provider as string) ?? 'email',
-    signedUpAt: u.created_at,
-    isAdmin: parentMap.get(u.id)?.is_admin ?? false,
-    children: (childrenByParent.get(u.id) ?? []).map(c => ({
+  // ── Build rows ─────────────────────────────────────────────────────────────
+  let rows = authUsers.map(u => {
+    const kids = (childrenByParent.get(u.id) ?? []).map(c => ({
       ...c,
       sessions: sessionsByChild.get(c.id) ?? 0,
       lastSession: lastSessionByChild.get(c.id) ?? null,
       levels: levelsByChild.get(c.id) ?? { math: null, reading: null },
-    })),
-  })).map(row => ({
-    ...row,
-    lastActive: row.children.reduce<string | null>((max, c) => {
-      if (!c.lastSession) return max
-      return !max || c.lastSession > max ? c.lastSession : max
-    }, null),
-  }))
+      summerGames: participationByChild.get(c.id) ?? new Set<string>(),
+    }))
+    return {
+      id: u.id,
+      email: u.email ?? '—',
+      provider: (u.app_metadata?.provider as string) ?? 'email',
+      signedUpAt: u.created_at,
+      isAdmin: parentMap.get(u.id)?.is_admin ?? false,
+      summerAccess: parentMap.get(u.id)?.summer_learning_access ?? false,
+      children: kids,
+      lastActive: kids.reduce<string | null>((max, c) => {
+        if (!c.lastSession) return max
+        return !max || c.lastSession > max ? c.lastSession : max
+      }, null),
+    }
+  })
 
   rows.sort((a, b) => new Date(b.signedUpAt).getTime() - new Date(a.signedUpAt).getTime())
+
+  // ── Apply game filter ──────────────────────────────────────────────────────
+  if (activeGame && SUMMER_GAMES.some(g => g.key === activeGame)) {
+    rows = rows.filter(u => u.children.some(c => c.summerGames.has(activeGame)))
+  }
+
+  const filterGames: SummerGame[] = SUMMER_GAMES.map(g => ({
+    key: g.key,
+    label: g.label,
+    emoji: g.emoji,
+    count: gameStats.get(g.key) ?? 0,
+  }))
 
   return (
     <main className="max-w-5xl mx-auto px-4 py-8 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold">Users <span className="text-muted-foreground font-normal text-base">({rows.length})</span></h1>
       </div>
+
+      {/* Summer learning participation filters */}
+      <Suspense>
+        <SummerFilters games={filterGames} total={rows.length} />
+      </Suspense>
 
       <div className="rounded-lg border overflow-hidden">
         <table className="w-full text-sm">
@@ -97,6 +159,9 @@ export default async function AdminUsersPage() {
                   {user.email}
                   {user.isAdmin && (
                     <span className="ml-2 text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded font-medium">admin</span>
+                  )}
+                  {user.summerAccess && (
+                    <span className="ml-1.5 text-xs bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400 px-1.5 py-0.5 rounded font-medium">☀️</span>
                   )}
                 </td>
                 <td className="px-4 py-3">
@@ -122,6 +187,7 @@ export default async function AdminUsersPage() {
                             <span className="font-medium">{child.name}</span>
                             <span className="text-xs text-muted-foreground">Gr {child.grade}</span>
                           </div>
+                          {/* Learning level badges */}
                           <div className="flex items-center gap-1.5 flex-wrap">
                             {(['math', 'reading'] as const).map(subj => {
                               const lvl = child.levels[subj]
@@ -141,6 +207,24 @@ export default async function AdminUsersPage() {
                               <span className="text-xs text-muted-foreground">no practice yet</span>
                             )}
                           </div>
+                          {/* Summer game participation badges */}
+                          {child.summerGames.size > 0 && (
+                            <div className="flex flex-wrap gap-1">
+                              {SUMMER_GAMES.filter(g => child.summerGames.has(g.key)).map(g => (
+                                <span
+                                  key={g.key}
+                                  title={g.label}
+                                  className={`text-xs px-1.5 py-0.5 rounded border transition-colors ${
+                                    activeGame === g.key
+                                      ? 'bg-primary/10 border-primary/30 text-primary'
+                                      : 'bg-muted/50 border-border text-muted-foreground'
+                                  }`}
+                                >
+                                  {g.emoji} {g.label}
+                                </span>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -174,7 +258,9 @@ export default async function AdminUsersPage() {
         </table>
 
         {rows.length === 0 && (
-          <div className="text-center py-12 text-muted-foreground text-sm">No users yet.</div>
+          <div className="text-center py-12 text-muted-foreground text-sm">
+            {activeGame ? `No users have played this game yet.` : 'No users yet.'}
+          </div>
         )}
       </div>
     </main>
