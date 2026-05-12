@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
-const VALID_CATEGORIES = ['bug', 'question_error', 'suggestion', 'praise', 'other', 'child_confused', 'child_read_again'] as const
+const VALID_CATEGORIES = ['bug', 'question_error', 'suggestion', 'praise', 'other', 'child_confused', 'too_hard', 'too_easy'] as const
 const VALID_TYPES = ['parent', 'child'] as const
 
 export async function POST(req: NextRequest) {

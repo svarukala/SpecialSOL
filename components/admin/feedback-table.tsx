@@ -39,8 +39,13 @@ export function FeedbackTable({ rows: initial }: { rows: Row[] }) {
   const supabase = createClient()
 
   async function updateStatus(id: string, newStatus: string) {
+    const prevRows = rows
     setRows(prev => prev.map(r => r.id === id ? { ...r, status: newStatus } : r))
-    await supabase.from('feedback').update({ status: newStatus }).eq('id', id)
+    const { error } = await supabase.from('feedback').update({ status: newStatus }).eq('id', id)
+    if (error) {
+      setRows(prevRows)
+      alert('Failed to update status — please try again.')
+    }
   }
 
   const filtered = filter === 'all' ? rows : rows.filter(r => r.status === filter)
