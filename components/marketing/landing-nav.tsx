@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import { AnnouncementBar } from './announcement-bar'
 
 interface Props {
   activePage?: 'home' | 'our-story' | 'blog'
@@ -16,9 +17,7 @@ const NAV_LINKS = [
 export function LandingNav({ activePage, isLoggedIn }: Props) {
   return (
     <header className="sticky top-0 z-10">
-      <div className="bg-amber-500 text-amber-950 text-xs font-medium text-center px-4 py-2">
-        📧 Confirmation emails may land in your spam folder — please check spam and mark as &quot;Not Spam&quot; to receive future emails in your inbox.
-      </div>
+      <AnnouncementBar />
     <div className="border-b bg-background/95 backdrop-blur">
       <nav className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
         <Link href="/" className="flex items-center gap-2 shrink-0">

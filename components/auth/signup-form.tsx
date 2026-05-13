@@ -44,6 +44,9 @@ export function SignupForm() {
             We sent a confirmation link to <strong>{email}</strong>. Click it to activate your account, then{' '}
             <a href="/login" className="underline">sign in</a>.
           </p>
+          <p className="text-xs text-muted-foreground/70">
+            Don&apos;t see it? Check your spam folder and mark it as &quot;Not Spam&quot; so future emails reach your inbox.
+          </p>
         </CardContent>
       </Card>
     )
