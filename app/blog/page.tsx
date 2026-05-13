@@ -12,6 +12,14 @@ export const metadata: Metadata = {
 
 const POSTS = [
   {
+    slug: 'summer-fun-learning-activities',
+    category: 'Product Update',
+    title: 'Summer Learning That Actually Feels Like Play',
+    excerpt: "We're launching 8 summer learning activities on SolPrep — Spelling Bee, Times Tables, Summer Reading, Fraction Frenzy, Money Match, Learn Clock, Crocodile Numbers, and Question Quest. Each one targets a real academic skill while being genuinely fun. Here's what they are, how they help, and how to get early access.",
+    date: 'May 13, 2026',
+    readTime: '6 min read',
+  },
+  {
     slug: 'how-to-read-sol-score-report',
     category: 'Education',
     title: "How to Read Your Child's SOL Score Report",
