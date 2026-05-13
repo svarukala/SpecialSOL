@@ -101,6 +101,8 @@ For EVERY question, provide TWO text versions:
 - "question_text": standard SOL test-style phrasing, grade-appropriate vocabulary
 ${simplifiedTextRule(grade)}
 
+CRITICAL — embedded passages: If the question requires reading a short story, sentence, or passage that is embedded directly in the question (NOT in "reading_passage"), that text MUST appear in BOTH question_text AND simplified_text. Do NOT put the story only in simplified_text and leave question_text as a bare question. Both fields must be self-contained and answerable on their own. The only difference between the two fields should be the complexity of the phrasing — never the presence or absence of the reading context.
+
 Rules:
 - Distractors must be plausible (common mistakes, not obviously wrong)
 - 3 hints per question, each revealing a bit more (hint_1 hints at concept, hint_2 narrows approach, hint_3 nearly gives answer)
