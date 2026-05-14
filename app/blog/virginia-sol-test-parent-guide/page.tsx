@@ -28,6 +28,27 @@ export const metadata: Metadata = {
   },
 }
 
+const JSON_LD = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://solprep.app' },
+      { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://solprep.app/blog' },
+      { '@type': 'ListItem', position: 3, name: "What Is the Virginia SOL Test? A Parent's Complete Guide", item: 'https://solprep.app/blog/virginia-sol-test-parent-guide' },
+    ],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: "What Is the Virginia SOL Test? A Parent's Complete Guide (Grades 3–8)",
+    datePublished: '2026-04-11',
+    author: { '@type': 'Organization', name: 'SolPrep' },
+    publisher: { '@type': 'Organization', name: 'SolPrep', url: 'https://solprep.app' },
+    url: 'https://solprep.app/blog/virginia-sol-test-parent-guide',
+  },
+]
+
 export default async function ArticlePage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -35,6 +56,7 @@ export default async function ArticlePage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }} />
       <LandingNav isLoggedIn={isLoggedIn} />
 
       <main className="max-w-2xl mx-auto px-4 py-16 sm:py-24">

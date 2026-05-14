@@ -61,6 +61,15 @@ const POSTS = [
   },
 ]
 
+const BREADCRUMB_JSON_LD = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://solprep.app' },
+    { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://solprep.app/blog' },
+  ],
+}
+
 export default async function BlogPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -68,6 +77,10 @@ export default async function BlogPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(BREADCRUMB_JSON_LD) }}
+      />
       <LandingNav isLoggedIn={isLoggedIn} />
 
       <main className="max-w-2xl mx-auto px-4 py-16 sm:py-24">
