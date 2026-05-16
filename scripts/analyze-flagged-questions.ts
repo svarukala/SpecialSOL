@@ -64,11 +64,14 @@ interface FeedbackCount {
 async function main() {
   console.log('Fetching flagged feedback from', url, '\n')
 
-  const { data: feedback, error: fbErr } = await db
+  const statusFilter = process.argv.includes('--all') ? [] : ['new']
+  let query = db
     .from('feedback')
     .select('id, category, message, status, created_at, question_id, session_id')
     .in('category', FLAGGED_CATEGORIES)
     .order('created_at', { ascending: false })
+  if (statusFilter.length) query = query.in('status', statusFilter)
+  const { data: feedback, error: fbErr } = await query
 
   if (fbErr) { console.error('Feedback fetch failed:', fbErr.message); process.exit(1) }
   if (!feedback?.length) { console.log('No flagged feedback found.'); return }
