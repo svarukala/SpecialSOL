@@ -70,3 +70,60 @@ describe('generateTopic', () => {
     expect(prompt).toContain('image_svg')
   })
 })
+
+const mockScienceTopic: SolTopic = {
+  name: 'electricity',
+  solStandard: '5.4',
+  description: 'Circuits, conductors, insulators, static electricity, magnetic fields',
+}
+
+const mockScienceQuestion = {
+  grade: 5, subject: 'science', topic: 'electricity', subtopic: 'conductors and insulators',
+  sol_standard: '5.4', difficulty: 1,
+  question_text: 'Which material allows electricity to flow through it?',
+  simplified_text: 'Which material lets electricity pass through it?',
+  answer_type: 'multiple_choice',
+  choices: [
+    { id: 'a', text: 'Copper wire', is_correct: true },
+    { id: 'b', text: 'Rubber band', is_correct: false },
+    { id: 'c', text: 'Plastic cup', is_correct: false },
+    { id: 'd', text: 'Wood block', is_correct: false },
+  ],
+  hint_1: 'Think about what materials let electricity flow.',
+  hint_2: 'Metals are usually good at letting electricity through.',
+  hint_3: 'Copper is a metal commonly used in wires.',
+  calculator_allowed: false, source: 'ai_generated',
+  image_svg: null,
+}
+
+describe('generateTopic — science subject', () => {
+  it('accepts science as a subject and returns validated questions', async () => {
+    mockCreate.mockResolvedValueOnce({
+      content: [{ type: 'text', text: JSON.stringify([mockScienceQuestion]) }],
+    })
+    const result = await generateTopic(5, 'science', mockScienceTopic)
+    expect(result).toHaveLength(1)
+    expect(result[0].subject).toBe('science')
+  })
+
+  it('includes science-specific guidance in the prompt (no reading passage)', async () => {
+    mockCreate.mockResolvedValueOnce({
+      content: [{ type: 'text', text: JSON.stringify([mockScienceQuestion]) }],
+    })
+    await generateTopic(5, 'science', mockScienceTopic)
+    const lastCall = mockCreate.mock.calls[mockCreate.mock.calls.length - 1]
+    const prompt: string = lastCall[0].messages[0].content
+    expect(prompt).toContain('reading_passage": null')
+    expect(prompt).toContain('calculator_allowed": false')
+  })
+
+  it('includes real-world anchor guidance in science prompt', async () => {
+    mockCreate.mockResolvedValueOnce({
+      content: [{ type: 'text', text: JSON.stringify([mockScienceQuestion]) }],
+    })
+    await generateTopic(5, 'science', mockScienceTopic)
+    const lastCall = mockCreate.mock.calls[mockCreate.mock.calls.length - 1]
+    const prompt: string = lastCall[0].messages[0].content
+    expect(prompt.toLowerCase()).toContain('real-world')
+  })
+})

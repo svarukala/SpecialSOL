@@ -1,12 +1,12 @@
 // lib/generation/generate-topic.ts
 import Anthropic from '@anthropic-ai/sdk'
-import { type SolTopic } from '@/lib/curriculum/sol-curriculum'
+import { type SolTopic, type Subject } from '@/lib/curriculum/sol-curriculum'
 import { validateQuestionBatch, type GeneratedQuestion } from '@/lib/generation/question-schema'
 
 // Grade band helpers
 function isMiddleSchool(grade: number): boolean { return grade >= 6 }
 
-function gradeBandInstructions(grade: number, subject: 'math' | 'reading'): string {
+function gradeBandInstructions(grade: number, subject: Subject): string {
   if (!isMiddleSchool(grade)) return ''
 
   const mathMiddle = subject === 'math' ? `
@@ -33,6 +33,33 @@ Questions must be calibrated to actual Virginia SOL Grade ${grade} difficulty. A
 Do NOT simplify or scaffold beyond what the standard requires.${mathMiddle}${readingMiddle}\n`
 }
 
+function sciencePromptGuidance(tier: 'foundational' | 'standard'): string {
+  const foundationalNote = tier === 'foundational'
+    ? `
+FOUNDATIONAL SCIENCE:
+- Each question tests a single observable fact or straightforward classification.
+- Use everyday objects as anchors: a flashlight (circuits), a river (erosion), a refrigerator magnet, an ice cube melting.
+- Avoid any question that requires reading a diagram, chart, or table.
+- Good: "Which material would make the best conductor of electricity — copper wire, rubber band, wooden stick, or plastic straw?"
+- Bad: "Based on the circuit diagram, what happens when the switch is opened?" (requires diagram)`
+    : ''
+
+  return `
+SCIENCE SUBJECT GUIDANCE:
+- "reading_passage" must always be null. Science questions are self-contained.
+- "calculator_allowed" must always be false for Grade 5 science.
+- Anchor questions in concrete real-world scenarios: a flashlight bulb going out (open circuit), a river carving a canyon (erosion), a magnet picking up paper clips (magnetic field).
+- Vocabulary fill-in-the-blank questions work well for science: "The force that opposes motion between two surfaces is called ___."
+- Do NOT write questions that inherently require a visual (circuit diagram, force arrows, rock cycle diagram, coordinate system). If a visual is essential to answering the question, skip it and write a different question instead.
+- Strong distractor categories for science at Grade 5:
+  - Conductor vs. insulator confusion (rubber vs. copper)
+  - Renewable vs. nonrenewable confusion (solar vs. coal)
+  - Physical vs. chemical change confusion (melting vs. burning)
+  - Weathering vs. erosion confusion
+  - Open vs. closed circuit confusion
+${foundationalNote}`
+}
+
 function simplifiedTextRule(grade: number): string {
   if (isMiddleSchool(grade)) {
     return `- "simplified_text": same question with clearer sentence structure and no unnecessarily complex phrasing — but KEEP grade-level vocabulary and academic concepts intact. Do NOT reduce to elementary language. Target: one reading level below the question_text, not more.`
@@ -47,7 +74,7 @@ function calculatorRule(grade: number): string {
   return '- calculator_allowed: true only for Grade 5 multi-step decimal/fraction computation, otherwise false'
 }
 
-function buildPrompt(grade: number, subject: 'math' | 'reading', topic: SolTopic, tier: 'foundational' | 'standard'): string {
+function buildPrompt(grade: number, subject: Subject, topic: SolTopic, tier: 'foundational' | 'standard'): string {
   const foundationalInstructions = tier === 'foundational'
     ? `IMPORTANT: These questions are for children who are significantly behind grade level and need extra scaffolding. Apply every rule below without exception.
 
@@ -81,6 +108,7 @@ Topic: ${topic.name}
 SOL Standard: ${topic.solStandard}
 Standard Description: ${topic.description}
 ${gradeBandInstructions(grade, subject)}
+${subject === 'science' ? sciencePromptGuidance(tier) : ''}
 ${tier === 'foundational'
   ? 'Generate exactly 6 multiple-choice questions for this topic, ALL at difficulty 1 (see rules above).'
   : `Generate exactly 6 questions for this topic — a mix of question types:
@@ -222,7 +250,7 @@ Return a JSON array only (no markdown, no explanation):
 
 export async function generateTopic(
   grade: number,
-  subject: 'math' | 'reading',
+  subject: Subject,
   topic: SolTopic,
   tier: 'foundational' | 'standard' = 'standard'
 ): Promise<GeneratedQuestion[]> {
