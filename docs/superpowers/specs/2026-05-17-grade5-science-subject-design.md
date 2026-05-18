@@ -121,3 +121,60 @@ After the first generation batch is reviewed in the admin panel, assess question
 3. Generate + review `foundational` tier for all 8 topics
 4. Run `find-visual-reference-questions.ts` against new questions to catch any diagram-dependent ones
 5. Science appears automatically in practice sessions for Grade 5 children
+
+---
+
+## Question Generation Workflow (Zero API Cost)
+
+Use this workflow whenever generating questions from the terminal. It does not require the Anthropic API key — Claude Code in the terminal session IS the LLM.
+
+The admin page (`/admin/generate`) still calls the API because there is no Claude Code session available in that context.
+
+### Scripts
+
+| Script | Purpose |
+|---|---|
+| `scripts/judge-pending.ts` | Formats a JSON file into a structured judge review prompt |
+| `scripts/insert-pending.ts` | Validates and inserts reviewed questions into `questions_pending` |
+
+### Steps
+
+```bash
+# 1. Ask Claude Code to generate questions for a topic
+#    e.g. "Generate 6 standard Grade 5 science questions for Solar System (SOL 5.9)"
+#    Claude writes the output to tmp/questions.json
+
+# 2. Run the judge formatter — Claude reads output and judges inline
+npx tsx scripts/judge-pending.ts --file tmp/questions.json
+
+# 3. Claude applies any edits directly to tmp/questions.json
+
+# 4. Dry-run to confirm shape is valid before insert
+npx tsx scripts/insert-pending.ts --file tmp/questions.json --dry-run
+
+# 5. Insert into questions_pending
+npx tsx scripts/insert-pending.ts --file tmp/questions.json
+
+# 6. Review and approve at /admin/generate
+```
+
+### JSON Format
+
+See `tmp/questions-template.json` for a complete example. Required fields per question:
+
+```
+grade, subject, topic, tier, difficulty (1|2|3), answer_type,
+question_text, simplified_text (string, "" if none),
+choices, hint_1, hint_2, hint_3
+```
+
+Optional: `subtopic`, `sol_standard`, `reading_passage`, `calculator_allowed`, `image_svg`
+
+### Judge Criteria (enforced by `judge-pending.ts`)
+
+- **Correctness** — one correct answer for MC; ≥2 for multi-select; factually accurate
+- **Distractors** — plausible misconceptions, not obviously wrong or secretly correct
+- **Scope** — concept in grade/SOL scope; vocabulary appropriate; difficulty rating matches demand
+- **Clarity** — unambiguous; no visual-reference dependency; stem doesn't give away answer
+- **Hints** — escalate in specificity (nudge → concept → near-answer); none give it away outright
+- **Simplified text** — shorter, simpler vocabulary, same intent; not empty for standard tier
