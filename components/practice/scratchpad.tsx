@@ -1,7 +1,6 @@
 'use client'
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { getStroke } from 'perfect-freehand'
-import { Button } from '@/components/ui/button'
 
 type Point = [number, number, number]   // x, y, pressure
 type Tool = 'pen' | 'eraser'
@@ -33,7 +32,6 @@ export function Scratchpad({ questionId, onClose }: Props) {
   const [pos, setPos] = useState({ x: 16, y: 300 })
   const [size, setSize] = useState({ w: 320, h: 280 })
 
-  // toolRef lets window event listeners read the current tool without stale closure
   const toolRef = useRef<Tool>('pen')
   const svgRef = useRef<SVGSVGElement>(null)
   const isDrawing = useRef(false)
@@ -49,42 +47,39 @@ export function Scratchpad({ questionId, onClose }: Props) {
     setCurrentPoints([])
   }, [questionId])
 
-  // ── Drawing — window listeners avoid setPointerCapture conflicts ──────────────
-  function handleSvgPointerDown(e: React.PointerEvent<SVGSVGElement>) {
-    if (!svgRef.current) return
-    e.preventDefault()
+  // ── Drawing — setPointerCapture on the SVG is reliable for both mouse and touch
+  // This does NOT conflict with the X button because pointer capture is per-pointer-id
+  // and only applies to pointers that started their DOWN event on the SVG.
+  const handleSvgPointerDown = useCallback((e: React.PointerEvent<SVGSVGElement>) => {
+    e.currentTarget.setPointerCapture(e.pointerId)
     isDrawing.current = true
-    const rect = svgRef.current.getBoundingClientRect()
+    const rect = e.currentTarget.getBoundingClientRect()
     setCurrentPoints([[e.clientX - rect.left, e.clientY - rect.top, e.pressure || 0.5]])
+  }, [])
 
-    const onMove = (ev: PointerEvent) => {
-      if (!isDrawing.current || !svgRef.current) return
-      const r = svgRef.current.getBoundingClientRect()
-      const x = ev.clientX - r.left
-      const y = ev.clientY - r.top
+  const handleSvgPointerMove = useCallback((e: React.PointerEvent<SVGSVGElement>) => {
+    if (!isDrawing.current) return
+    const rect = e.currentTarget.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
 
-      if (toolRef.current === 'eraser') {
-        setStrokes(prev => prev.filter(s => !s.some(([sx, sy]) => Math.hypot(sx - x, sy - y) < ERASER_RADIUS)))
-        return
-      }
-      setCurrentPoints(prev => [...prev, [x, y, ev.pressure || 0.5]])
+    if (toolRef.current === 'eraser') {
+      setStrokes(prev => prev.filter(s => !s.some(([sx, sy]) => Math.hypot(sx - x, sy - y) < ERASER_RADIUS)))
+      return
     }
+    setCurrentPoints(prev => [...prev, [x, y, e.pressure || 0.5]])
+  }, [])
 
-    const onUp = () => {
-      isDrawing.current = false
-      window.removeEventListener('pointermove', onMove)
-      window.removeEventListener('pointerup', onUp)
-      setCurrentPoints(prev => {
-        if (toolRef.current === 'pen' && prev.length > 0) setStrokes(s => [...s, prev])
-        return []
-      })
-    }
+  const handleSvgPointerUp = useCallback(() => {
+    if (!isDrawing.current) return
+    isDrawing.current = false
+    setCurrentPoints(prev => {
+      if (toolRef.current === 'pen' && prev.length > 0) setStrokes(s => [...s, prev])
+      return []
+    })
+  }, [])
 
-    window.addEventListener('pointermove', onMove)
-    window.addEventListener('pointerup', onUp)
-  }
-
-  // ── Panel drag ───────────────────────────────────────────────────────────────
+  // ── Panel drag — window listeners, NO setPointerCapture, so button clicks are never stolen
   function handleDragPointerDown(e: React.PointerEvent<HTMLDivElement>) {
     e.preventDefault()
     const start = { sx: e.clientX, sy: e.clientY, px: pos.x, py: pos.y }
@@ -101,7 +96,7 @@ export function Scratchpad({ questionId, onClose }: Props) {
     window.addEventListener('pointerup', onUp)
   }
 
-  // ── Resize handle ────────────────────────────────────────────────────────────
+  // ── Resize handle
   function handleResizePointerDown(e: React.PointerEvent<HTMLDivElement>) {
     e.preventDefault()
     e.stopPropagation()
@@ -121,12 +116,14 @@ export function Scratchpad({ questionId, onClose }: Props) {
 
   return (
     <div
-      className="fixed z-50 bg-white border border-gray-300 rounded-lg shadow-xl flex flex-col select-none"
+      className="fixed z-50 bg-white border border-gray-300 rounded-lg shadow-xl flex flex-col"
       style={{ left: pos.x, top: pos.y, width: size.w, height: size.h }}
       data-testid="scratchpad"
     >
-      {/* Header: drag grip and buttons are SIBLINGS so drag capture never intercepts button clicks */}
-      <div className="flex items-center bg-gray-100 rounded-t-lg border-b shrink-0">
+      {/* Header: drag grip (left) and action buttons (right) are SIBLINGS.
+          setPointerCapture is only called on the SVG — drag uses window listeners —
+          so clicking the X or other buttons is never intercepted. */}
+      <div className="flex items-center bg-gray-100 rounded-t-lg border-b shrink-0 select-none">
         <div
           className="flex-1 flex items-center px-2 py-1.5 cursor-grab active:cursor-grabbing min-w-0"
           onPointerDown={handleDragPointerDown}
@@ -135,44 +132,51 @@ export function Scratchpad({ questionId, onClose }: Props) {
         </div>
 
         <div className="flex items-center gap-1 px-1 py-1">
-          <Button
-            size="sm" variant={tool === 'pen' ? 'default' : 'outline'}
-            className="h-6 px-2 text-xs"
-            aria-label="Pen tool" data-active={String(tool === 'pen')}
-            onClick={() => setTool('pen')}
-          >Pen</Button>
-          <Button
-            size="sm" variant={tool === 'eraser' ? 'default' : 'outline'}
-            className="h-6 px-2 text-xs"
-            aria-label="Eraser tool" data-active={String(tool === 'eraser')}
-            onClick={() => setTool('eraser')}
-          >Erase</Button>
-          <Button
-            size="sm" variant="outline" className="h-6 px-2 text-xs"
-            aria-label="Undo last stroke"
-            disabled={strokes.length === 0}
+          {([['pen', 'Pen'], ['eraser', 'Erase']] as const).map(([t, label]) => (
+            <button
+              key={t}
+              onPointerDown={e => e.stopPropagation()}
+              onClick={() => setTool(t)}
+              aria-label={`${label} tool`}
+              data-active={String(tool === t)}
+              className={`h-6 px-2 text-xs rounded border font-medium transition-colors
+                ${tool === t
+                  ? 'bg-gray-800 text-white border-gray-800'
+                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}
+            >{label}</button>
+          ))}
+          <button
+            onPointerDown={e => e.stopPropagation()}
             onClick={() => setStrokes(prev => prev.slice(0, -1))}
-          >↩</Button>
-          <Button
-            size="sm" variant="outline" className="h-6 px-2 text-xs"
-            aria-label="Clear all strokes"
             disabled={strokes.length === 0}
+            aria-label="Undo last stroke"
+            className="h-6 px-2 text-xs rounded border bg-white text-gray-700 border-gray-300 hover:bg-gray-50 disabled:opacity-40"
+          >↩</button>
+          <button
+            onPointerDown={e => e.stopPropagation()}
             onClick={() => setStrokes([])}
-          >Clear</Button>
-          <Button
-            size="sm" variant="ghost" className="h-6 w-6 px-0 text-xs"
-            aria-label="Close scratchpad"
+            disabled={strokes.length === 0}
+            aria-label="Clear all strokes"
+            className="h-6 px-2 text-xs rounded border bg-white text-gray-700 border-gray-300 hover:bg-gray-50 disabled:opacity-40"
+          >Clear</button>
+          <button
+            onPointerDown={e => e.stopPropagation()}
             onClick={onClose}
-          >✕</Button>
+            aria-label="Close scratchpad"
+            className="h-6 w-6 text-xs rounded hover:bg-gray-200 text-gray-600 flex items-center justify-center"
+          >✕</button>
         </div>
       </div>
 
-      {/* Drawing surface */}
+      {/* Drawing canvas */}
       <svg
         ref={svgRef}
         className="flex-1 w-full bg-white rounded-b-lg"
         style={{ touchAction: 'none', cursor: tool === 'eraser' ? 'cell' : 'crosshair' }}
         onPointerDown={handleSvgPointerDown}
+        onPointerMove={handleSvgPointerMove}
+        onPointerUp={handleSvgPointerUp}
+        onPointerLeave={handleSvgPointerUp}
         aria-label="Drawing canvas"
       >
         {strokes.map((pts, i) => (
@@ -183,7 +187,7 @@ export function Scratchpad({ questionId, onClose }: Props) {
         )}
       </svg>
 
-      {/* Resize handle — bottom-right corner triangle */}
+      {/* Resize corner */}
       <div
         className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize rounded-br-lg"
         style={{ background: 'linear-gradient(135deg, transparent 50%, #9ca3af 50%)' }}

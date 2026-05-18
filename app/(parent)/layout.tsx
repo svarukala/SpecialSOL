@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { UserAvatar } from '@/components/auth/user-avatar'
 import { SummerDropdown } from '@/components/nav/summer-dropdown'
+import { LandingFooter } from '@/components/marketing/landing-footer'
 
 const BASE_NAV_LINKS = [
   { href: '/dashboard', emoji: '📊', label: 'Dashboard' },
@@ -58,6 +59,7 @@ export default async function ParentLayout({ children }: { children: React.React
         </nav>
       </header>
       <div>{children}</div>
+      <LandingFooter isLoggedIn />
     </div>
   )
 }

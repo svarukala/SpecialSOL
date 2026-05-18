@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
+import { LandingFooter } from '@/components/marketing/landing-footer'
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -42,6 +43,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </nav>
       </header>
       <div>{children}</div>
+      <LandingFooter isLoggedIn />
     </div>
   )
 }
