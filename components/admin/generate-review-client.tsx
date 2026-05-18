@@ -33,7 +33,11 @@ function writeSession(key: string, value: unknown) {
 export function GenerateReviewClient() {
   const [grade, setGrade] = useState<number>(() => readSession('gen_grade', 3))
   const [subject, setSubject] = useState<Subject>(() => readSession('gen_subject', 'math'))
-  const [topicName, setTopicName] = useState<string>('')
+  const [topicName, setTopicName] = useState<string>(() => {
+    const g = readSession('gen_grade', 3)
+    const s = readSession<Subject>('gen_subject', 'math')
+    return SOL_CURRICULUM[g]?.[s]?.[0]?.name ?? ''
+  })
   const [tier, setTier] = useState<'standard' | 'foundational'>('standard')
   const [generating, setGenerating] = useState(false)
   const [generateError, setGenerateError] = useState<string | null>(null)
