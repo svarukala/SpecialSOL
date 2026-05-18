@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { SOL_CURRICULUM, SUPPORTED_GRADES } from '@/lib/curriculum/sol-curriculum'
+import { SOL_CURRICULUM, SUPPORTED_GRADES, type Subject } from '@/lib/curriculum/sol-curriculum'
 
 type Choice = { id: string; text: string; is_correct: boolean }
 type FibChoices = { template: string; blanks: { id: string; accepted: string[] }[] }
@@ -25,7 +25,7 @@ type PendingQuestion = {
 
 export function GenerateReviewClient() {
   const [grade, setGrade] = useState<number>(3)
-  const [subject, setSubject] = useState<'math' | 'reading'>('math')
+  const [subject, setSubject] = useState<Subject>('math')
   const [topicName, setTopicName] = useState<string>('')
   const [tier, setTier] = useState<'standard' | 'foundational'>('standard')
   const [generating, setGenerating] = useState(false)
@@ -37,8 +37,11 @@ export function GenerateReviewClient() {
 
   const topicsForCurrent = SOL_CURRICULUM[grade]?.[subject] ?? []
 
-  // Reset topic when grade or subject changes
+  // Reset topic (and subject if science is selected on a non-Grade-5 grade) when grade/subject changes
   useEffect(() => {
+    if (subject === 'science' && grade !== 5) {
+      setSubject('math')
+    }
     setTopicName(topicsForCurrent[0]?.name ?? '')
   }, [grade, subject]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -128,10 +131,13 @@ export function GenerateReviewClient() {
         </div>
         <div>
           <label className="text-xs font-medium block mb-1">Subject</label>
-          <select value={subject} onChange={e => setSubject(e.target.value as 'math' | 'reading')}
+          <select value={subject} onChange={e => setSubject(e.target.value as Subject)}
             className="border rounded px-2 py-1 text-sm bg-background">
             <option value="math">Math</option>
             <option value="reading">Reading</option>
+            <option value="science" disabled={grade !== 5}>
+              Science{grade !== 5 ? ' (Grade 5 only)' : ''}
+            </option>
           </select>
         </div>
         <div>
