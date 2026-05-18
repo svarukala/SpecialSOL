@@ -1,5 +1,8 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+# Temporary generated question files (produced by Claude Code — not for version control)
+/tmp/
+
 # dependencies
 /node_modules
 /.pnp
