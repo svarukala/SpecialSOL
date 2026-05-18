@@ -10,23 +10,26 @@ const COOKIE_GAP = 4
 
 // ── Cookie stack ──────────────────────────────────────────────────────────────
 
-function CookieStack({ value, max }: { value: number; max: number }) {
-  const count = max === 0 ? 1 : Math.max(1, Math.round((value / max) * MAX_COOKIES))
-  const totalH = MAX_COOKIES * (COOKIE_PX + COOKIE_GAP)
+function CookieStack({ value, max, compact }: { value: number; max: number; compact?: boolean }) {
+  const maxCookies = compact ? 5 : MAX_COOKIES
+  const cookiePx   = compact ? 22 : COOKIE_PX
+  const cookieGap  = compact ? 3  : COOKIE_GAP
+  const count = max === 0 ? 1 : Math.max(1, Math.round((value / max) * maxCookies))
+  const totalH = maxCookies * (cookiePx + cookieGap)
   return (
     <div className="flex flex-col items-center">
-      <div className="flex flex-col-reverse items-center" style={{ height: totalH, gap: COOKIE_GAP }}>
+      <div className="flex flex-col-reverse items-center" style={{ height: totalH, gap: cookieGap }}>
         {Array.from({ length: count }).map((_, i) => (
           <div
             key={i}
             className="rounded-full bg-amber-300 border-2 border-amber-500 flex items-center justify-center select-none"
-            style={{ width: COOKIE_PX, height: COOKIE_PX, fontSize: 16, lineHeight: 1 }}
+            style={{ width: cookiePx, height: cookiePx, fontSize: compact ? 12 : 16, lineHeight: 1 }}
           >
             🍪
           </div>
         ))}
       </div>
-      <span className="mt-3 text-3xl font-bold text-slate-700 tabular-nums">{value}</span>
+      <span className={`mt-2 font-bold text-slate-700 tabular-nums ${compact ? 'text-xl' : 'text-3xl'}`}>{value}</span>
     </div>
   )
 }
@@ -203,9 +206,11 @@ interface Props {
   right: number
   /** Start the animation automatically on mount (no ▶ button shown). */
   autoPlay?: boolean
+  /** Smaller cookies + croc for use inside the game flow */
+  compact?: boolean
 }
 
-export function CrocodileComparison({ left, right, autoPlay }: Props) {
+export function CrocodileComparison({ left, right, autoPlay, compact }: Props) {
   const [phase, setPhase] = useState<Phase>('idle')
 
   const winner: Winner = left > right ? 'left' : left < right ? 'right' : 'equal'
@@ -240,9 +245,9 @@ export function CrocodileComparison({ left, right, autoPlay }: Props) {
   return (
     <div className="flex flex-col items-center gap-6 py-4">
       <div className="flex items-center gap-6">
-        <CookieStack value={left} max={max} />
+        <CookieStack value={left} max={max} compact={compact} />
         <Crocodile winner={winner} phase={phase} mouthOpen={mouthOpen} onPlay={handlePlay} />
-        <CookieStack value={right} max={max} />
+        <CookieStack value={right} max={max} compact={compact} />
       </div>
 
       {phase === 'done' && (

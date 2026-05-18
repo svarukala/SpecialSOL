@@ -176,10 +176,10 @@ export function Scratchpad({ questionId, onClose }: Props) {
         aria-label="Drawing canvas"
       >
         {strokes.map((pts, i) => (
-          <path key={i} d={getSvgPath(pts)} fill="currentColor" className="text-gray-900" />
+          <path key={i} d={getSvgPath(pts)} fill="#111827" />
         ))}
         {currentPoints.length > 0 && tool === 'pen' && (
-          <path d={getSvgPath(currentPoints)} fill="currentColor" className="text-gray-900" />
+          <path d={getSvgPath(currentPoints)} fill="#111827" />
         )}
       </svg>
 

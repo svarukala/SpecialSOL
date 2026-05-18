@@ -460,45 +460,15 @@ export function CrocodileGameClient({ childId, scores }: Props) {
         </div>
       </div>
 
-      {/* Operator buttons */}
-      <div className="grid grid-cols-3 gap-3">
-        {OPERATORS.map((op) => {
-          let buttonClass =
-            'h-16 text-2xl font-bold rounded-xl border transition-colors min-w-0 w-full '
-
-          if (feedback !== 'idle' && chosen === op) {
-            buttonClass +=
-              feedback === 'correct'
-                ? 'bg-green-500 text-white border-green-500'
-                : 'bg-red-500 text-white border-red-500'
-          } else if (feedback !== 'idle') {
-            buttonClass += 'bg-muted text-muted-foreground border-border opacity-50 cursor-not-allowed'
-          } else {
-            buttonClass +=
-              'bg-primary text-primary-foreground border-primary hover:bg-primary/80 cursor-pointer'
-          }
-
-          return (
-            <button
-              key={op}
-              onClick={() => handleAnswer(op)}
-              disabled={feedback !== 'idle'}
-              className={buttonClass}
-            >
-              {op}
-            </button>
-          )
-        })}
-      </div>
-
-      {/* Learn mode: croc animation + Next button after correct */}
-      {mode === 'learn' && feedback === 'correct' && (
+      {/* After correct in Learn mode: show croc animation in place of buttons */}
+      {mode === 'learn' && feedback === 'correct' ? (
         <>
           <CrocodileComparison
             key={`${pair.left}-${pair.right}`}
             left={pair.left}
             right={pair.right}
             autoPlay
+            compact
           />
           <button
             onClick={handleLearnNext}
@@ -507,6 +477,37 @@ export function CrocodileGameClient({ childId, scores }: Props) {
             Next →
           </button>
         </>
+      ) : (
+        /* Operator buttons */
+        <div className="grid grid-cols-3 gap-3">
+          {OPERATORS.map((op) => {
+            let buttonClass =
+              'h-16 text-2xl font-bold rounded-xl border transition-colors min-w-0 w-full '
+
+            if (feedback !== 'idle' && chosen === op) {
+              buttonClass +=
+                feedback === 'correct'
+                  ? 'bg-green-500 text-white border-green-500'
+                  : 'bg-red-500 text-white border-red-500'
+            } else if (feedback !== 'idle') {
+              buttonClass += 'bg-muted text-muted-foreground border-border opacity-50 cursor-not-allowed'
+            } else {
+              buttonClass +=
+                'bg-primary text-primary-foreground border-primary hover:bg-primary/80 cursor-pointer'
+            }
+
+            return (
+              <button
+                key={op}
+                onClick={() => handleAnswer(op)}
+                disabled={feedback !== 'idle'}
+                className={buttonClass}
+              >
+                {op}
+              </button>
+            )
+          })}
+        </div>
       )}
     </div>
   )
