@@ -23,9 +23,16 @@ type PendingQuestion = {
   status: 'pending' | 'approved' | 'rejected'
 }
 
+function readSession<T>(key: string, fallback: T): T {
+  try { const v = sessionStorage.getItem(key); return v ? JSON.parse(v) as T : fallback } catch { return fallback }
+}
+function writeSession(key: string, value: unknown) {
+  try { sessionStorage.setItem(key, JSON.stringify(value)) } catch { /* ignore */ }
+}
+
 export function GenerateReviewClient() {
-  const [grade, setGrade] = useState<number>(3)
-  const [subject, setSubject] = useState<Subject>('math')
+  const [grade, setGrade] = useState<number>(() => readSession('gen_grade', 3))
+  const [subject, setSubject] = useState<Subject>(() => readSession('gen_subject', 'math'))
   const [topicName, setTopicName] = useState<string>('')
   const [tier, setTier] = useState<'standard' | 'foundational'>('standard')
   const [generating, setGenerating] = useState(false)
@@ -125,14 +132,14 @@ export function GenerateReviewClient() {
       <div className="flex gap-3 items-end p-4 bg-muted/40 border rounded-lg mb-6 flex-wrap">
         <div>
           <label className="text-xs font-medium block mb-1">Grade</label>
-          <select value={grade} onChange={e => setGrade(Number(e.target.value))}
+          <select value={grade} onChange={e => { const v = Number(e.target.value); setGrade(v); writeSession('gen_grade', v) }}
             className="border rounded px-2 py-1 text-sm bg-background">
             {SUPPORTED_GRADES.map(g => <option key={g} value={g}>{g}</option>)}
           </select>
         </div>
         <div>
           <label className="text-xs font-medium block mb-1">Subject</label>
-          <select value={subject} onChange={e => setSubject(e.target.value as Subject)}
+          <select value={subject} onChange={e => { const v = e.target.value as Subject; setSubject(v); writeSession('gen_subject', v) }}
             className="border rounded px-2 py-1 text-sm bg-background">
             <option value="math">Math</option>
             <option value="reading">Reading</option>
