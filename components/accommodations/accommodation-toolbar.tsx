@@ -5,6 +5,7 @@ import { TTSEngine } from '@/lib/tts/types'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
+import { Highlighter } from 'lucide-react'
 
 interface Props {
   engine: TTSEngine
@@ -72,7 +73,9 @@ export function AccommodationToolbar({
               onClick={handleHighlightToggle}
               aria-label="Toggle highlight mode"
               title="Highlight text"
-            >🖍</Button>
+            >
+              <Highlighter className={`h-4 w-4 ${highlightMode ? 'text-white' : 'text-yellow-500'}`} />
+            </Button>
             <Button
               variant={scratchpadOpen ? 'default' : 'outline'}
               size="sm"

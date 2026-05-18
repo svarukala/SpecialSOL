@@ -1,5 +1,5 @@
 'use client'
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { getStroke } from 'perfect-freehand'
 import { Button } from '@/components/ui/button'
 
@@ -7,6 +7,8 @@ type Point = [number, number, number]   // x, y, pressure
 type Tool = 'pen' | 'eraser'
 
 const ERASER_RADIUS = 20
+const MIN_W = 240
+const MIN_H = 180
 const STROKE_OPTIONS = { size: 6, thinning: 0.5, smoothing: 0.5, streamline: 0.5, simulatePressure: true }
 
 function getSvgPath(points: Point[]): string {
@@ -29,133 +31,148 @@ export function Scratchpad({ questionId, onClose }: Props) {
   const [currentPoints, setCurrentPoints] = useState<Point[]>([])
   const [tool, setTool] = useState<Tool>('pen')
   const [pos, setPos] = useState({ x: 16, y: 300 })
+  const [size, setSize] = useState({ w: 320, h: 280 })
 
+  // toolRef lets window event listeners read the current tool without stale closure
+  const toolRef = useRef<Tool>('pen')
+  const svgRef = useRef<SVGSVGElement>(null)
   const isDrawing = useRef(false)
-  const dragState = useRef<{ startX: number; startY: number; panelX: number; panelY: number } | null>(null)
 
-  // Position bottom-right on first render
+  useEffect(() => { toolRef.current = tool }, [tool])
+
   useEffect(() => {
     setPos({ x: Math.max(16, window.innerWidth - 356), y: Math.max(16, window.innerHeight - 320) })
   }, [])
 
-  // Clear strokes when question changes
   useEffect(() => {
     setStrokes([])
     setCurrentPoints([])
   }, [questionId])
 
-  // ── Drawing ──────────────────────────────────────────────────────────────────
-  const handleSvgPointerDown = useCallback((e: React.PointerEvent<SVGSVGElement>) => {
-    e.currentTarget.setPointerCapture(e.pointerId)
+  // ── Drawing — window listeners avoid setPointerCapture conflicts ──────────────
+  function handleSvgPointerDown(e: React.PointerEvent<SVGSVGElement>) {
+    if (!svgRef.current) return
+    e.preventDefault()
     isDrawing.current = true
-    const rect = e.currentTarget.getBoundingClientRect()
+    const rect = svgRef.current.getBoundingClientRect()
     setCurrentPoints([[e.clientX - rect.left, e.clientY - rect.top, e.pressure || 0.5]])
-  }, [])
 
-  const handleSvgPointerMove = useCallback((e: React.PointerEvent<SVGSVGElement>) => {
-    if (!isDrawing.current) return
-    const rect = e.currentTarget.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
-    const pressure = e.pressure || 0.5
+    const onMove = (ev: PointerEvent) => {
+      if (!isDrawing.current || !svgRef.current) return
+      const r = svgRef.current.getBoundingClientRect()
+      const x = ev.clientX - r.left
+      const y = ev.clientY - r.top
 
-    if (tool === 'eraser') {
-      setStrokes(prev => prev.filter(stroke =>
-        !stroke.some(([sx, sy]) => Math.hypot(sx - x, sy - y) < ERASER_RADIUS)
-      ))
-      return
-    }
-    setCurrentPoints(prev => [...prev, [x, y, pressure]])
-  }, [tool])
-
-  const handleSvgPointerUp = useCallback(() => {
-    if (!isDrawing.current) return
-    isDrawing.current = false
-    setCurrentPoints(prev => {
-      if (tool === 'pen' && prev.length > 0) {
-        setStrokes(s => [...s, prev])
+      if (toolRef.current === 'eraser') {
+        setStrokes(prev => prev.filter(s => !s.some(([sx, sy]) => Math.hypot(sx - x, sy - y) < ERASER_RADIUS)))
+        return
       }
-      return []
-    })
-  }, [tool])
+      setCurrentPoints(prev => [...prev, [x, y, ev.pressure || 0.5]])
+    }
+
+    const onUp = () => {
+      isDrawing.current = false
+      window.removeEventListener('pointermove', onMove)
+      window.removeEventListener('pointerup', onUp)
+      setCurrentPoints(prev => {
+        if (toolRef.current === 'pen' && prev.length > 0) setStrokes(s => [...s, prev])
+        return []
+      })
+    }
+
+    window.addEventListener('pointermove', onMove)
+    window.addEventListener('pointerup', onUp)
+  }
 
   // ── Panel drag ───────────────────────────────────────────────────────────────
-  const handleDragPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
-    e.currentTarget.setPointerCapture(e.pointerId)
-    dragState.current = { startX: e.clientX, startY: e.clientY, panelX: pos.x, panelY: pos.y }
-  }, [pos])
+  function handleDragPointerDown(e: React.PointerEvent<HTMLDivElement>) {
+    e.preventDefault()
+    const start = { sx: e.clientX, sy: e.clientY, px: pos.x, py: pos.y }
 
-  const handleDragPointerMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
-    if (!dragState.current) return
-    setPos({
-      x: dragState.current.panelX + (e.clientX - dragState.current.startX),
-      y: dragState.current.panelY + (e.clientY - dragState.current.startY),
+    const onMove = (ev: PointerEvent) => setPos({
+      x: start.px + (ev.clientX - start.sx),
+      y: start.py + (ev.clientY - start.sy),
     })
-  }, [])
+    const onUp = () => {
+      window.removeEventListener('pointermove', onMove)
+      window.removeEventListener('pointerup', onUp)
+    }
+    window.addEventListener('pointermove', onMove)
+    window.addEventListener('pointerup', onUp)
+  }
 
-  const handleDragPointerUp = useCallback(() => { dragState.current = null }, [])
+  // ── Resize handle ────────────────────────────────────────────────────────────
+  function handleResizePointerDown(e: React.PointerEvent<HTMLDivElement>) {
+    e.preventDefault()
+    e.stopPropagation()
+    const start = { sx: e.clientX, sy: e.clientY, sw: size.w, sh: size.h }
 
-  const handleUndo = () => setStrokes(prev => prev.slice(0, -1))
-  const handleClear = () => setStrokes([])
+    const onMove = (ev: PointerEvent) => setSize({
+      w: Math.max(MIN_W, start.sw + (ev.clientX - start.sx)),
+      h: Math.max(MIN_H, start.sh + (ev.clientY - start.sy)),
+    })
+    const onUp = () => {
+      window.removeEventListener('pointermove', onMove)
+      window.removeEventListener('pointerup', onUp)
+    }
+    window.addEventListener('pointermove', onMove)
+    window.addEventListener('pointerup', onUp)
+  }
 
   return (
     <div
       className="fixed z-50 bg-white border border-gray-300 rounded-lg shadow-xl flex flex-col select-none"
-      style={{ left: pos.x, top: pos.y, width: 320, height: 280 }}
+      style={{ left: pos.x, top: pos.y, width: size.w, height: size.h }}
       data-testid="scratchpad"
     >
-      {/* Drag handle + toolbar */}
-      <div
-        className="flex items-center gap-1 px-2 py-1.5 bg-gray-100 rounded-t-lg border-b cursor-grab active:cursor-grabbing"
-        onPointerDown={handleDragPointerDown}
-        onPointerMove={handleDragPointerMove}
-        onPointerUp={handleDragPointerUp}
-      >
-        <span className="text-xs text-gray-500 mr-1 flex-1">✏️ Scratch Pad</span>
-        <Button
-          size="sm" variant={tool === 'pen' ? 'default' : 'outline'}
-          className="h-6 px-2 text-xs"
-          aria-label="Pen tool" data-active={String(tool === 'pen')}
-          onPointerDown={e => e.stopPropagation()}
-          onClick={() => setTool('pen')}
-        >Pen</Button>
-        <Button
-          size="sm" variant={tool === 'eraser' ? 'default' : 'outline'}
-          className="h-6 px-2 text-xs"
-          aria-label="Eraser tool" data-active={String(tool === 'eraser')}
-          onPointerDown={e => e.stopPropagation()}
-          onClick={() => setTool('eraser')}
-        >Erase</Button>
-        <Button
-          size="sm" variant="outline" className="h-6 px-2 text-xs"
-          aria-label="Undo last stroke"
-          disabled={strokes.length === 0}
-          onPointerDown={e => e.stopPropagation()}
-          onClick={handleUndo}
-        >↩</Button>
-        <Button
-          size="sm" variant="outline" className="h-6 px-2 text-xs"
-          aria-label="Clear all strokes"
-          disabled={strokes.length === 0}
-          onPointerDown={e => e.stopPropagation()}
-          onClick={handleClear}
-        >Clear</Button>
-        <Button
-          size="sm" variant="ghost" className="h-6 px-2 text-xs"
-          aria-label="Close scratchpad"
-          onPointerDown={e => e.stopPropagation()}
-          onClick={onClose}
-        >✕</Button>
+      {/* Header: drag grip and buttons are SIBLINGS so drag capture never intercepts button clicks */}
+      <div className="flex items-center bg-gray-100 rounded-t-lg border-b shrink-0">
+        <div
+          className="flex-1 flex items-center px-2 py-1.5 cursor-grab active:cursor-grabbing min-w-0"
+          onPointerDown={handleDragPointerDown}
+        >
+          <span className="text-xs text-gray-500 truncate">✏️ Scratch Pad</span>
+        </div>
+
+        <div className="flex items-center gap-1 px-1 py-1">
+          <Button
+            size="sm" variant={tool === 'pen' ? 'default' : 'outline'}
+            className="h-6 px-2 text-xs"
+            aria-label="Pen tool" data-active={String(tool === 'pen')}
+            onClick={() => setTool('pen')}
+          >Pen</Button>
+          <Button
+            size="sm" variant={tool === 'eraser' ? 'default' : 'outline'}
+            className="h-6 px-2 text-xs"
+            aria-label="Eraser tool" data-active={String(tool === 'eraser')}
+            onClick={() => setTool('eraser')}
+          >Erase</Button>
+          <Button
+            size="sm" variant="outline" className="h-6 px-2 text-xs"
+            aria-label="Undo last stroke"
+            disabled={strokes.length === 0}
+            onClick={() => setStrokes(prev => prev.slice(0, -1))}
+          >↩</Button>
+          <Button
+            size="sm" variant="outline" className="h-6 px-2 text-xs"
+            aria-label="Clear all strokes"
+            disabled={strokes.length === 0}
+            onClick={() => setStrokes([])}
+          >Clear</Button>
+          <Button
+            size="sm" variant="ghost" className="h-6 w-6 px-0 text-xs"
+            aria-label="Close scratchpad"
+            onClick={onClose}
+          >✕</Button>
+        </div>
       </div>
 
       {/* Drawing surface */}
       <svg
-        className="flex-1 w-full rounded-b-lg bg-white"
+        ref={svgRef}
+        className="flex-1 w-full bg-white rounded-b-lg"
         style={{ touchAction: 'none', cursor: tool === 'eraser' ? 'cell' : 'crosshair' }}
         onPointerDown={handleSvgPointerDown}
-        onPointerMove={handleSvgPointerMove}
-        onPointerUp={handleSvgPointerUp}
-        onPointerLeave={handleSvgPointerUp}
         aria-label="Drawing canvas"
       >
         {strokes.map((pts, i) => (
@@ -165,6 +182,14 @@ export function Scratchpad({ questionId, onClose }: Props) {
           <path d={getSvgPath(currentPoints)} fill="currentColor" className="text-gray-900" />
         )}
       </svg>
+
+      {/* Resize handle — bottom-right corner triangle */}
+      <div
+        className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize rounded-br-lg"
+        style={{ background: 'linear-gradient(135deg, transparent 50%, #9ca3af 50%)' }}
+        onPointerDown={handleResizePointerDown}
+        aria-hidden
+      />
     </div>
   )
 }
