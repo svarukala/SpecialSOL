@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { SOL_CURRICULUM, SUPPORTED_GRADES } from '@/lib/curriculum/sol-curriculum'
+import { SOL_CURRICULUM, SUPPORTED_GRADES, type Subject } from '@/lib/curriculum/sol-curriculum'
 import { sanitizeSvg } from '@/lib/svg/sanitize'
 
 type Choice = { id: string; text: string; is_correct: boolean }
@@ -75,7 +75,7 @@ export function PublishedQuestionsClient({
   }, [pinnedId])
 
   const topicsForFilter = filters.subject && filters.grade
-    ? SOL_CURRICULUM[parseInt(filters.grade)]?.[filters.subject as 'math' | 'reading'] ?? []
+    ? SOL_CURRICULUM[parseInt(filters.grade)]?.[filters.subject as Subject] ?? []
     : []
 
   async function fetchWithFilters(newFilters: Filters, newOffset: number, append = false) {
@@ -148,6 +148,7 @@ export function PublishedQuestionsClient({
             <option value="">All</option>
             <option value="math">Math</option>
             <option value="reading">Reading</option>
+            <option value="science">Science</option>
           </select>
         </div>
         <div>
