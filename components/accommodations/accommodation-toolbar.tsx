@@ -12,11 +12,26 @@ interface Props {
   progress: { current: number; total: number }
   onBoundary?: (charIndex: number, charLength: number) => void
   onSpeakEnd?: () => void
+  scratchpadOpen?: boolean
+  onScratchpadToggle?: () => void
+  highlightMode?: boolean
+  onHighlightModeToggle?: () => void
 }
 
-export function AccommodationToolbar({ engine, questionText, progress, onBoundary, onSpeakEnd }: Props) {
+export function AccommodationToolbar({
+  engine, questionText, progress, onBoundary, onSpeakEnd,
+  scratchpadOpen, onScratchpadToggle,
+  highlightMode, onHighlightModeToggle,
+}: Props) {
   const { state, update } = useAccommodations()
   const percent = Math.round((progress.current / progress.total) * 100)
+
+  function handleHighlightToggle() {
+    if (!highlightMode && state.bionic_reading) {
+      update({ bionic_reading: false })
+    }
+    onHighlightModeToggle?.()
+  }
 
   return (
     <div className={`flex items-center gap-2 flex-wrap py-2 ${state.reduce_distractions ? 'justify-end' : 'justify-between'}`}>
@@ -29,46 +44,42 @@ export function AccommodationToolbar({ engine, questionText, progress, onBoundar
               size="sm"
               onClick={() => update({ high_contrast: !state.high_contrast })}
               aria-label="Toggle high contrast"
-            >
-              🌓
-            </Button>
+            >🌓</Button>
             <Button
               variant={state.dyslexia_font ? 'default' : 'outline'}
               size="sm"
               onClick={() => update({ dyslexia_font: !state.dyslexia_font })}
               aria-label="Toggle dyslexia font"
-            >
-              Aa
-            </Button>
+            >Aa</Button>
             <Button
               variant={state.bionic_reading ? 'default' : 'outline'}
               size="sm"
               onClick={() => update({ bionic_reading: !state.bionic_reading })}
               aria-label="Toggle bionic reading"
               title="Bionic Reading: bold the first letters of each word"
-            >
-              B
-            </Button>
+            >B</Button>
             <div className="flex items-center gap-1">
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={state.large_text === 0}
+              <Button variant="outline" size="sm" disabled={state.large_text === 0}
                 onClick={() => update({ large_text: (state.large_text - 1) as 0 | 1 | 2 })}
-                aria-label="Decrease text size"
-              >
-                A-
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={state.large_text === 2}
+                aria-label="Decrease text size">A-</Button>
+              <Button variant="outline" size="sm" disabled={state.large_text === 2}
                 onClick={() => update({ large_text: (state.large_text + 1) as 0 | 1 | 2 })}
-                aria-label="Increase text size"
-              >
-                A+
-              </Button>
+                aria-label="Increase text size">A+</Button>
             </div>
+            <Button
+              variant={highlightMode ? 'default' : 'outline'}
+              size="sm"
+              onClick={handleHighlightToggle}
+              aria-label="Toggle highlight mode"
+              title="Highlight text"
+            >🖍</Button>
+            <Button
+              variant={scratchpadOpen ? 'default' : 'outline'}
+              size="sm"
+              onClick={onScratchpadToggle}
+              aria-label="Toggle scratchpad"
+              title="Open scratch pad"
+            >✏️</Button>
           </>
         )}
       </div>

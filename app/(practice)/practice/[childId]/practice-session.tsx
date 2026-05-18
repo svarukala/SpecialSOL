@@ -18,6 +18,7 @@ import { SessionComplete } from '@/components/practice/session-complete'
 import { playCorrectChime } from '@/lib/audio/web-audio'
 import { QuestionTimer } from '@/components/practice/question-timer'
 import { ChildFeedbackSheet } from '@/components/feedback/child-feedback-sheet'
+import { Scratchpad } from '@/components/practice/scratchpad'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -89,6 +90,7 @@ export function PracticeSession({ child, availableSubjects, parentSettings, dash
   const [languageLevel, setLanguageLevel] = useState<'foundational' | 'simplified' | 'standard'>(resumeSession?.languageLevel ?? 'simplified')
   const [isStarting, setIsStarting] = useState(false)
   const [attemptNumber, setAttemptNumber] = useState(1)
+  const [scratchpadOpen, setScratchpadOpen] = useState(false)
   const ttsEngineRef = useRef<TTSEngine | null>(null)
   const questionStartTime = useRef(Date.now())
 
@@ -378,6 +380,15 @@ export function PracticeSession({ child, availableSubjects, parentSettings, dash
             progress={{ current: currentIndex + 1, total: questions.length }}
             onBoundary={(start, length) => setHighlightRange({ start, length })}
             onSpeakEnd={() => setHighlightRange(null)}
+            scratchpadOpen={scratchpadOpen}
+            onScratchpadToggle={() => setScratchpadOpen(o => !o)}
+          />
+        )}
+        {scratchpadOpen && (
+          <Scratchpad
+            key={q.id}
+            questionId={q.id}
+            onClose={() => setScratchpadOpen(false)}
           />
         )}
         {mode === 'test' && !accommodations.extended_time && (
