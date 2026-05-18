@@ -10,10 +10,17 @@ import type { TTSEngine } from '@/lib/tts/types'
 
 export type { Question }
 
+type UserHighlight = { start: number; end: number }
+
 interface Props {
   question: Question
   simplified: boolean
-  highlightRange?: { start: number; length: number } | null
+  highlightRange?: { start: number; length: number } | null  // TTS word-tracking
+  userHighlights?: UserHighlight[]
+  highlightMode?: boolean
+  onQuestionHighlightsChange?: (h: UserHighlight[]) => void
+  onPassageHighlightsChange?: (h: UserHighlight[]) => void
+  passageHighlights?: UserHighlight[]
   ttsEngine?: TTSEngine | null
 }
 
@@ -35,30 +42,56 @@ function BionicText({ text }: { text: string }) {
   )
 }
 
-function HighlightedText({ text, highlight }: { text: string; highlight?: { start: number; length: number } | null }) {
-  if (!highlight) return <>{text}</>
-  const { start, length } = highlight
-  return (
-    <>
-      {text.slice(0, start)}
-      <mark className="bg-yellow-300 dark:bg-yellow-500/50 rounded px-0.5 not-italic">{text.slice(start, start + length)}</mark>
-      {text.slice(start + length)}
-    </>
-  )
+// Splits a text segment into highlighted/plain runs and renders them.
+function renderSegments(
+  text: string,
+  userHighlights: UserHighlight[],
+  ttsHighlight: { start: number; length: number } | null
+) {
+  const boundaries = new Set<number>([0, text.length])
+  userHighlights.forEach(h => { boundaries.add(h.start); boundaries.add(h.end) })
+  if (ttsHighlight) {
+    boundaries.add(ttsHighlight.start)
+    boundaries.add(ttsHighlight.start + ttsHighlight.length)
+  }
+
+  const sorted = Array.from(boundaries).filter(b => b >= 0 && b <= text.length).sort((a, b) => a - b)
+
+  return sorted.slice(0, -1).map((start, i) => {
+    const end = sorted[i + 1]
+    const seg = text.slice(start, end)
+    const isTTS = ttsHighlight && start >= ttsHighlight.start && end <= ttsHighlight.start + ttsHighlight.length
+    const isUser = userHighlights.some(h => start >= h.start && end <= h.end)
+
+    if (isTTS) {
+      return (
+        <mark key={i} className="bg-yellow-300 dark:bg-yellow-500/50 rounded px-0.5 not-italic">
+          {seg}
+        </mark>
+      )
+    }
+    if (isUser) {
+      return (
+        <mark key={i} className="bg-yellow-200 dark:bg-yellow-600/30 rounded px-0.5 not-italic" data-user-highlight="true">
+          {seg}
+        </mark>
+      )
+    }
+    return <span key={i}>{seg}</span>
+  })
 }
 
-// Render text with \n\n as paragraph breaks and \n as line breaks
 function FormattedText({
   text,
-  highlight,
+  ttsHighlight,
+  userHighlights,
   bionic,
 }: {
   text: string
-  highlight?: { start: number; length: number } | null
+  ttsHighlight?: { start: number; length: number } | null
+  userHighlights?: UserHighlight[]
   bionic: boolean
 }) {
-  // Precompute each line's start offset in the full string so we can map
-  // the global charIndex from Web Speech API onboundary to the correct line.
   let offset = 0
   const lineGroups = text.split('\n\n').map((para, pi) => {
     if (pi > 0) offset += 2
@@ -76,14 +109,31 @@ function FormattedText({
         <span key={pi}>
           {pi > 0 && <br />}
           {paraLines.map(({ text: line, offset: lineOffset }, li) => {
-            const localHighlight =
-              highlight && highlight.start >= lineOffset && highlight.start < lineOffset + line.length
-                ? { start: highlight.start - lineOffset, length: highlight.length }
+            if (bionic) {
+              return (
+                <span key={li}>
+                  {li > 0 && <br />}
+                  <BionicText text={line} />
+                </span>
+              )
+            }
+
+            // Translate global highlights to line-local offsets
+            const localUser = (userHighlights ?? [])
+              .map(h => ({ start: h.start - lineOffset, end: h.end - lineOffset }))
+              .filter(h => h.end > 0 && h.start < line.length)
+              .map(h => ({ start: Math.max(0, h.start), end: Math.min(line.length, h.end) }))
+
+            const localTTS = ttsHighlight &&
+              ttsHighlight.start >= lineOffset &&
+              ttsHighlight.start < lineOffset + line.length
+                ? { start: ttsHighlight.start - lineOffset, length: ttsHighlight.length }
                 : null
+
             return (
               <span key={li}>
                 {li > 0 && <br />}
-                {bionic ? <BionicText text={line} /> : <HighlightedText text={line} highlight={localHighlight} />}
+                {renderSegments(line, localUser, localTTS)}
               </span>
             )
           })}
@@ -113,7 +163,11 @@ function QuestionTypeBadge({ questionText }: { questionText: string }) {
   )
 }
 
-export function QuestionCard({ question, simplified, highlightRange, ttsEngine }: Props) {
+export function QuestionCard({
+  question, simplified, highlightRange, userHighlights, highlightMode,
+  onQuestionHighlightsChange, passageHighlights, onPassageHighlightsChange,
+  ttsEngine,
+}: Props) {
   const { state } = useAccommodations()
   const text = (simplified && question.simplified_text) ? question.simplified_text : question.question_text
   return (
@@ -129,8 +183,16 @@ export function QuestionCard({ question, simplified, highlightRange, ttsEngine }
                 <TTSButton text={question.reading_passage} engine={ttsEngine} label="Read Passage" />
               )}
             </div>
-            <div className="max-h-64 overflow-y-auto pr-1 text-sm leading-relaxed reading-text text-foreground/90">
-              <FormattedText text={question.reading_passage} bionic={state.bionic_reading} />
+            <div
+              className="max-h-64 overflow-y-auto pr-1 text-sm leading-relaxed reading-text text-foreground/90"
+              data-highlight-container="passage"
+              onPointerUp={highlightMode ? (e) => handleTextSelection(e, question.reading_passage!, passageHighlights ?? [], onPassageHighlightsChange) : undefined}
+            >
+              <FormattedText
+                text={question.reading_passage}
+                userHighlights={passageHighlights}
+                bionic={state.bionic_reading}
+              />
             </div>
           </CardContent>
         </Card>
@@ -138,8 +200,18 @@ export function QuestionCard({ question, simplified, highlightRange, ttsEngine }
       <Card>
         <CardContent className="p-6 space-y-3">
           <QuestionTypeBadge questionText={text} />
-          <p className="text-lg font-medium reading-text">
-            <FormattedText text={text} highlight={highlightRange} bionic={state.bionic_reading} />
+          <p
+            className="text-lg font-medium reading-text"
+            data-highlight-container="question"
+            onPointerUp={highlightMode ? (e) => handleTextSelection(e, text, userHighlights ?? [], onQuestionHighlightsChange) : undefined}
+            style={highlightMode ? { cursor: 'text', userSelect: 'text' } : undefined}
+          >
+            <FormattedText
+              text={text}
+              ttsHighlight={highlightRange}
+              userHighlights={userHighlights}
+              bionic={state.bionic_reading}
+            />
           </p>
           {question.image_svg && (
             <div className="flex justify-center my-3">
@@ -155,4 +227,54 @@ export function QuestionCard({ question, simplified, highlightRange, ttsEngine }
       </Card>
     </div>
   )
+}
+
+// ── Text selection → character offset ──────────────────────────────────────────
+
+function getCharOffset(container: Element, node: Node, offset: number): number {
+  const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT)
+  let count = 0
+  while (walker.nextNode()) {
+    if (walker.currentNode === node) return count + offset
+    count += (walker.currentNode as Text).length
+  }
+  return count
+}
+
+function handleTextSelection(
+  e: React.PointerEvent,
+  _fullText: string,
+  current: UserHighlight[],
+  onChange?: (h: UserHighlight[]) => void
+) {
+  if (!onChange) return
+  const container = e.currentTarget as Element
+  const sel = window.getSelection()
+
+  if (!sel || !sel.rangeCount) return
+
+  if (sel.isCollapsed) {
+    // Tap on existing highlight → remove it
+    const target = e.target as Element
+    if (target.closest('[data-user-highlight]')) {
+      const range = document.caretRangeFromPoint?.(e.clientX, e.clientY)
+      if (range) {
+        const pos = getCharOffset(container, range.startContainer, range.startOffset)
+        onChange(current.filter(h => !(h.start <= pos && h.end > pos)))
+      }
+    }
+    sel.removeAllRanges()
+    return
+  }
+
+  const range = sel.getRangeAt(0)
+  if (!container.contains(range.commonAncestorContainer)) {
+    sel.removeAllRanges()
+    return
+  }
+
+  const start = getCharOffset(container, range.startContainer, range.startOffset)
+  const end = getCharOffset(container, range.endContainer, range.endOffset)
+  if (end > start) onChange([...current, { start, end }])
+  sel.removeAllRanges()
 }
