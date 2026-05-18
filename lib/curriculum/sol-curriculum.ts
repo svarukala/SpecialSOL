@@ -9,7 +9,10 @@ export interface SolTopic {
 export interface SolSubject {
   math: SolTopic[]
   reading: SolTopic[]
+  science?: SolTopic[]
 }
+
+export type Subject = 'math' | 'reading' | 'science'
 
 export const SOL_CURRICULUM: Record<number, SolSubject> = {
   3: {
@@ -73,6 +76,16 @@ export const SOL_CURRICULUM: Record<number, SolSubject> = {
       { name: 'nonfiction comprehension',       solStandard: '5.6',  description: "Analyze nonfiction: author's purpose, argument, evidence, text structure, bias" },
       { name: 'poetry',                         solStandard: '5.7',  description: 'Analyze figurative language, mood, tone, and structure in poetry' },
       { name: 'research and reference',         solStandard: '5.10', description: 'Collect, evaluate, synthesize, and cite information from print and digital resources' },
+    ],
+    science: [
+      { name: 'scientific investigation', solStandard: '5.1', description: 'Design and conduct investigations using the scientific method; identify variables and controls; record and analyze data; follow lab safety procedures' },
+      { name: 'force and motion',         solStandard: '5.3', description: 'Describe motion by direction and speed; kinetic energy; net force and mass affect changes in motion; friction opposes motion; energy transfer in collisions' },
+      { name: 'energy',                   solStandard: '5.2', description: 'Identify forms of energy (thermal, radiant, mechanical, electrical/magnetic); describe energy transformations; energy cannot be created or destroyed' },
+      { name: 'electricity',              solStandard: '5.4', description: 'Distinguish open from closed circuits; compare conductors and insulators; describe static electricity; explain how electric current creates a magnetic field' },
+      { name: 'sound and light',          solStandard: '5.5', description: 'Explain sound production and transmission; describe pitch and volume; describe light reflection, refraction, and absorption; explain color separation' },
+      { name: 'matter',                   solStandard: '5.7', description: 'Describe atomic composition of matter; distinguish physical from chemical properties; distinguish mixtures from solutions; describe phase changes and energy' },
+      { name: 'earth and space systems',  solStandard: '5.8', description: 'Explain plate tectonics and the rock cycle; describe weathering and erosion; identify how fossils form; describe layers of Earth; describe solar system relationships' },
+      { name: 'earth resources',          solStandard: '5.9', description: 'Distinguish renewable from nonrenewable energy sources; describe conservation practices; explain human impact on natural resources' },
     ],
   },
   6: {
@@ -143,6 +156,6 @@ export const SOL_CURRICULUM: Record<number, SolSubject> = {
 /** All supported grade levels, derived from the curriculum — single source of truth. */
 export const SUPPORTED_GRADES = Object.keys(SOL_CURRICULUM).map(Number).sort((a, b) => a - b)
 
-export function getTopicsForGradeSubject(grade: number, subject: 'math' | 'reading'): SolTopic[] {
+export function getTopicsForGradeSubject(grade: number, subject: Subject): SolTopic[] {
   return SOL_CURRICULUM[grade]?.[subject] ?? []
 }
