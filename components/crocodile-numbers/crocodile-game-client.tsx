@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { CrocodileComparison } from '@/components/practice/crocodile-comparison'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -490,14 +491,22 @@ export function CrocodileGameClient({ childId, scores }: Props) {
         })}
       </div>
 
-      {/* Learn mode: Next button after correct */}
+      {/* Learn mode: croc animation + Next button after correct */}
       {mode === 'learn' && feedback === 'correct' && (
-        <button
-          onClick={handleLearnNext}
-          className="w-full inline-flex items-center justify-center rounded-xl bg-primary text-primary-foreground h-12 text-base font-semibold hover:bg-primary/80 transition-colors"
-        >
-          Next →
-        </button>
+        <>
+          <CrocodileComparison
+            key={`${pair.left}-${pair.right}`}
+            left={pair.left}
+            right={pair.right}
+            autoPlay
+          />
+          <button
+            onClick={handleLearnNext}
+            className="w-full inline-flex items-center justify-center rounded-xl bg-primary text-primary-foreground h-12 text-base font-semibold hover:bg-primary/80 transition-colors"
+          >
+            Next →
+          </button>
+        </>
       )}
     </div>
   )

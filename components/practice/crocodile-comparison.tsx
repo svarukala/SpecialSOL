@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 type Phase = 'idle' | 'turning' | 'chomping' | 'done'
 type Winner = 'left' | 'right' | 'equal'
@@ -201,26 +201,38 @@ function ResultBanner({ left, right, winner }: { left: number; right: number; wi
 interface Props {
   left: number
   right: number
+  /** Start the animation automatically on mount (no ▶ button shown). */
+  autoPlay?: boolean
 }
 
-export function CrocodileComparison({ left, right }: Props) {
+export function CrocodileComparison({ left, right, autoPlay }: Props) {
   const [phase, setPhase] = useState<Phase>('idle')
 
   const winner: Winner = left > right ? 'left' : left < right ? 'right' : 'equal'
   const mouthOpen = winner !== 'equal' && (phase === 'chomping' || phase === 'done')
 
-  function handlePlay() {
-    if (phase !== 'idle') return
-
-    if (winner === 'equal') {
-      setPhase('turning')                              // triggers shake animation
-      setTimeout(() => setPhase('done'), 900)          // show result after shake finishes
+  function triggerPlay(w: Winner) {
+    if (w === 'equal') {
+      setPhase('turning')
+      setTimeout(() => setPhase('done'), 900)
       return
     }
-
     setPhase('turning')
-    setTimeout(() => setPhase('chomping'), 720)        // jaw opens after croc has turned
-    setTimeout(() => setPhase('done'), 1500)           // settle
+    setTimeout(() => setPhase('chomping'), 720)
+    setTimeout(() => setPhase('done'), 1500)
+  }
+
+  // Auto-trigger once on mount when used in game context
+  useEffect(() => {
+    if (!autoPlay) return
+    const t = setTimeout(() => triggerPlay(winner), 350)
+    return () => clearTimeout(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  function handlePlay() {
+    if (phase !== 'idle') return
+    triggerPlay(winner)
   }
 
   const max = Math.max(left, right)
