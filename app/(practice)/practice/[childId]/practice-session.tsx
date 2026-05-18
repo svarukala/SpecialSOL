@@ -11,6 +11,7 @@ import { QuestionCard } from '@/components/practice/question-card'
 import { AnswerInput } from '@/components/practice/answer-input'
 import { checkAnswer, isShuffleable, AnswerValue } from '@/lib/practice/question-types'
 import type { Question } from '@/lib/practice/question-types'
+import type { Subject } from '@/lib/curriculum/sol-curriculum'
 import { HintPanel } from '@/components/practice/hint-panel'
 import { AccommodationToolbar } from '@/components/accommodations/accommodation-toolbar'
 import { SessionComplete } from '@/components/practice/session-complete'
@@ -106,7 +107,7 @@ export function PracticeSession({ child, availableSubjects, parentSettings, dash
     mode: m,
     source,
   }: {
-    subject: 'math' | 'reading'
+    subject: Subject
     mode: Mode
     source: Source
   }) => {
@@ -276,7 +277,7 @@ export function PracticeSession({ child, availableSubjects, parentSettings, dash
       <AccommodationProvider initial={accommodations}>
         <SubjectModePicker
           childName={child.name}
-          availableSubjects={availableSubjects as ('math' | 'reading')[]}
+          availableSubjects={availableSubjects as Subject[]}
           onStart={handleStart}
           loading={isStarting}
           dashboardHref={dashboardHref}

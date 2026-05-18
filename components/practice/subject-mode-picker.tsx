@@ -7,6 +7,7 @@ import Link from 'next/link'
 const SUBJECT_CONFIG = {
   math: { label: 'Math', emoji: '🔢', description: 'Numbers, shapes, and patterns' },
   reading: { label: 'Reading', emoji: '📚', description: 'Stories, words, and ideas' },
+  science: { label: 'Science', emoji: '🔬', description: 'Life, earth, and physical science' },
 } as const
 
 type Subject = keyof typeof SUBJECT_CONFIG
