@@ -79,8 +79,8 @@ export const SOL_CURRICULUM: Record<number, SolSubject> = {
     ],
     science: [
       { name: 'scientific investigation', solStandard: '5.1', description: 'Design and conduct investigations using the scientific method; identify variables and controls; record and analyze data; follow lab safety procedures' },
-      { name: 'force and motion',         solStandard: '5.3', description: 'Describe motion by direction and speed; kinetic energy; net force and mass affect changes in motion; friction opposes motion; energy transfer in collisions' },
       { name: 'energy',                   solStandard: '5.2', description: 'Identify forms of energy (thermal, radiant, mechanical, electrical/magnetic); describe energy transformations; energy cannot be created or destroyed' },
+      { name: 'force and motion',         solStandard: '5.3', description: 'Describe motion by direction and speed; kinetic energy; net force and mass affect changes in motion; friction opposes motion; energy transfer in collisions' },
       { name: 'electricity',              solStandard: '5.4', description: 'Distinguish open from closed circuits; compare conductors and insulators; describe static electricity; explain how electric current creates a magnetic field' },
       { name: 'sound and light',          solStandard: '5.5', description: 'Explain sound production and transmission; describe pitch and volume; describe light reflection, refraction, and absorption; explain color separation' },
       { name: 'matter',                   solStandard: '5.7', description: 'Describe atomic composition of matter; distinguish physical from chemical properties; distinguish mixtures from solutions; describe phase changes and energy' },
