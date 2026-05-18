@@ -114,7 +114,7 @@ export function GenerateReviewClient() {
 
   const displayedQuestions = pendingQuestions.filter(q => {
     const status = optimisticStatuses[q.id] ?? q.status
-    if (q.grade !== grade || q.subject !== subject) return false
+    if (q.grade !== grade || q.subject !== subject || q.topic !== topicName) return false
     return showRejected || status !== 'rejected'
   })
   const pendingCount = displayedQuestions.filter(
