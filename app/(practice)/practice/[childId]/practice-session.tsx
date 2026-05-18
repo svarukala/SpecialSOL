@@ -91,6 +91,9 @@ export function PracticeSession({ child, availableSubjects, parentSettings, dash
   const [isStarting, setIsStarting] = useState(false)
   const [attemptNumber, setAttemptNumber] = useState(1)
   const [scratchpadOpen, setScratchpadOpen] = useState(false)
+  const [highlightMode, setHighlightMode] = useState(false)
+  const [questionHighlights, setQuestionHighlights] = useState<Array<{ start: number; end: number }>>([])
+  const [passageHighlights, setPassageHighlights] = useState<Array<{ start: number; end: number }>>([])
   const ttsEngineRef = useRef<TTSEngine | null>(null)
   const questionStartTime = useRef(Date.now())
 
@@ -160,6 +163,8 @@ export function PracticeSession({ child, availableSubjects, parentSettings, dash
     setIsCorrect(null)
     setHintsUsed(0)
     setHighlightRange(null)
+    setQuestionHighlights([])
+    setPassageHighlights([])
     setAttemptNumber(1)
     questionStartTime.current = Date.now()
     if (nextIndex >= totalCount) {
@@ -382,6 +387,8 @@ export function PracticeSession({ child, availableSubjects, parentSettings, dash
             onSpeakEnd={() => setHighlightRange(null)}
             scratchpadOpen={scratchpadOpen}
             onScratchpadToggle={() => setScratchpadOpen(o => !o)}
+            highlightMode={highlightMode}
+            onHighlightModeToggle={() => setHighlightMode(m => !m)}
           />
         )}
         {scratchpadOpen && (
@@ -399,7 +406,17 @@ export function PracticeSession({ child, availableSubjects, parentSettings, dash
             onExpire={handleTimerExpire}
           />
         )}
-        <QuestionCard question={q} simplified={languageLevel !== 'standard'} highlightRange={highlightRange} ttsEngine={ttsEngine} />
+        <QuestionCard
+          question={q}
+          simplified={languageLevel !== 'standard'}
+          highlightRange={highlightRange}
+          ttsEngine={ttsEngine}
+          highlightMode={highlightMode}
+          userHighlights={questionHighlights}
+          onQuestionHighlightsChange={setQuestionHighlights}
+          passageHighlights={passageHighlights}
+          onPassageHighlightsChange={setPassageHighlights}
+        />
         <AnswerInput
           key={`${q.id}-${attemptNumber}`}
           question={q}

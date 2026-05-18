@@ -18,6 +18,6 @@ describe('SubjectModePicker', () => {
     fireEvent.click(screen.getByRole('button', { name: /practice/i }))
     // Click Let's Go
     fireEvent.click(screen.getByRole('button', { name: /let.*go/i }))
-    expect(onStart).toHaveBeenCalledWith({ subject: 'math', mode: 'practice' })
+    expect(onStart).toHaveBeenCalledWith({ subject: 'math', mode: 'practice', source: 'all' })
   })
 })
