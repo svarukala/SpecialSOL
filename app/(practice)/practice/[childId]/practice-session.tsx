@@ -92,10 +92,15 @@ export function PracticeSession({ child, availableSubjects, parentSettings, dash
   const [attemptNumber, setAttemptNumber] = useState(1)
   const [scratchpadOpen, setScratchpadOpen] = useState(false)
   const [highlightMode, setHighlightMode] = useState(false)
+  const [showToolHint, setShowToolHint] = useState(false)
   const [questionHighlights, setQuestionHighlights] = useState<Array<{ start: number; end: number }>>([])
   const [passageHighlights, setPassageHighlights] = useState<Array<{ start: number; end: number }>>([])
   const ttsEngineRef = useRef<TTSEngine | null>(null)
   const questionStartTime = useRef(Date.now())
+
+  useEffect(() => {
+    if (phase === 'session' && !localStorage.getItem('saw-tool-hint')) setShowToolHint(true)
+  }, [phase])
 
   useEffect(() => {
     createTTSEngine({
@@ -390,6 +395,22 @@ export function PracticeSession({ child, availableSubjects, parentSettings, dash
             highlightMode={highlightMode}
             onHighlightModeToggle={() => setHighlightMode(m => !m)}
           />
+        )}
+        {showToolHint && (
+          <div className="flex items-start gap-3 rounded-xl border border-yellow-300 bg-yellow-50 px-4 py-3 text-sm text-yellow-900 animate-in fade-in slide-in-from-top-2 duration-300">
+            <span className="text-xl shrink-0 mt-0.5">💡</span>
+            <div className="flex-1 space-y-0.5">
+              <p className="font-semibold">Did you know?</p>
+              <p className="text-xs text-yellow-800">
+                You can <strong>highlight</strong> important words in the question 🖊️ and open a <strong>scratch pad</strong> ✏️ to draw and write your working out! Look for those buttons in the toolbar above.
+              </p>
+            </div>
+            <button
+              onClick={() => { localStorage.setItem('saw-tool-hint', '1'); setShowToolHint(false) }}
+              aria-label="Dismiss tip"
+              className="shrink-0 text-yellow-600 hover:text-yellow-900 transition-colors text-lg leading-none mt-0.5"
+            >✕</button>
+          </div>
         )}
         {scratchpadOpen && (
           <Scratchpad

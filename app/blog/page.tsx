@@ -12,6 +12,14 @@ export const metadata: Metadata = {
 
 const POSTS = [
   {
+    slug: 'new-practice-tools',
+    category: 'Product Update',
+    title: 'New: Scratchpad, Text Highlighting, and a Croc Hint',
+    excerpt: 'We shipped three new practice tools: a freehand scratchpad that floats over any question, text highlighting so kids can mark up what matters, and a "Show me the croc first!" hint button in Crocodile Numbers Learn mode. Try them and let us know what you think.',
+    date: 'May 19, 2026',
+    readTime: '3 min read',
+  },
+  {
     slug: 'summer-fun-learning-activities',
     category: 'Product Update',
     title: 'Summer Learning That Actually Feels Like Play',
