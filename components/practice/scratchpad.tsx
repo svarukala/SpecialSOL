@@ -45,7 +45,15 @@ export function Scratchpad({ questionId, onClose }: Props) {
   const eraserCircleRef = useRef<SVGCircleElement>(null)
   const isDrawing = useRef(false)
 
-  useEffect(() => { setMounted(true) }, [])
+  useEffect(() => {
+    console.log('[Scratchpad] mounted')
+    setMounted(true)
+    return () => console.log('[Scratchpad] UNMOUNTED from React tree')
+  }, [])
+
+  useEffect(() => {
+    console.log('[Scratchpad] visible =>', visible, '| DOM pads:', document.querySelectorAll('[data-testid="scratchpad"]').length)
+  }, [visible])
 
   useEffect(() => { toolRef.current = tool }, [tool])
 
@@ -135,7 +143,12 @@ export function Scratchpad({ questionId, onClose }: Props) {
     window.addEventListener('pointerup', onUp)
   }
 
-  if (!mounted || !visible) return null
+  console.log('[Scratchpad] render — mounted:', mounted, 'visible:', visible)
+  if (!mounted || !visible) {
+    console.log('[Scratchpad] returning null')
+    return null
+  }
+  console.log('[Scratchpad] rendering portal to body')
 
   return createPortal(
     <div
@@ -180,7 +193,13 @@ export function Scratchpad({ questionId, onClose }: Props) {
             className="h-6 px-2 text-xs rounded border bg-white text-gray-700 border-gray-300 hover:bg-gray-50 disabled:opacity-40"
           >Clear</button>
           <button
-            onClick={(e) => { e.stopPropagation(); setVisible(false); onClose() }}
+            onClick={(e) => {
+              e.stopPropagation()
+              console.log('[Scratchpad] X clicked. DOM pads before:', document.querySelectorAll('[data-testid="scratchpad"]').length)
+              setVisible(false)
+              onClose()
+              setTimeout(() => console.log('[Scratchpad] 200ms after X: DOM pads:', document.querySelectorAll('[data-testid="scratchpad"]').length, '| body children:', document.body.children.length), 200)
+            }}
             aria-label="Close scratchpad"
             className="h-6 w-6 text-xs rounded hover:bg-gray-200 text-gray-600 flex items-center justify-center"
           >✕</button>
