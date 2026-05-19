@@ -33,6 +33,7 @@ interface Props {
 
 export function Scratchpad({ questionId, onClose }: Props) {
   const [mounted, setMounted] = useState(false)
+  const [visible, setVisible] = useState(true)
   const [strokes, setStrokes] = useState<Point[][]>([])
   const [currentPoints, setCurrentPoints] = useState<Point[]>([])
   const [tool, setTool] = useState<Tool>('pen')
@@ -134,7 +135,7 @@ export function Scratchpad({ questionId, onClose }: Props) {
     window.addEventListener('pointerup', onUp)
   }
 
-  if (!mounted) return null
+  if (!mounted || !visible) return null
 
   return createPortal(
     <div
@@ -179,9 +180,7 @@ export function Scratchpad({ questionId, onClose }: Props) {
             className="h-6 px-2 text-xs rounded border bg-white text-gray-700 border-gray-300 hover:bg-gray-50 disabled:opacity-40"
           >Clear</button>
           <button
-            onClick={(e) => { e.stopPropagation(); console.log('[Scratchpad] X onClick fired'); onClose(); console.log('[Scratchpad] onClose() called') }}
-            onPointerUp={(e) => { console.log('[Scratchpad] X onPointerUp fired') }}
-            onPointerDown={(e) => { console.log('[Scratchpad] X onPointerDown fired') }}
+            onClick={(e) => { e.stopPropagation(); setVisible(false); onClose() }}
             aria-label="Close scratchpad"
             className="h-6 w-6 text-xs rounded hover:bg-gray-200 text-gray-600 flex items-center justify-center"
           >✕</button>

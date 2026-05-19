@@ -91,8 +91,6 @@ export function PracticeSession({ child, availableSubjects, parentSettings, dash
   const [isStarting, setIsStarting] = useState(false)
   const [attemptNumber, setAttemptNumber] = useState(1)
   const [scratchpadOpen, setScratchpadOpen] = useState(false)
-  // DEBUG - remove after fixing
-  const dbgSet = (v: boolean) => { console.log('[Session] setScratchpadOpen ->', v, new Error().stack?.split('\n')[2]); setScratchpadOpen(v) }
   const [highlightMode, setHighlightMode] = useState(false)
   const [questionHighlights, setQuestionHighlights] = useState<Array<{ start: number; end: number }>>([])
   const [passageHighlights, setPassageHighlights] = useState<Array<{ start: number; end: number }>>([])
@@ -388,7 +386,7 @@ export function PracticeSession({ child, availableSubjects, parentSettings, dash
             onBoundary={(start, length) => setHighlightRange({ start, length })}
             onSpeakEnd={() => setHighlightRange(null)}
             scratchpadOpen={scratchpadOpen}
-            onScratchpadToggle={() => dbgSet(true)}
+            onScratchpadToggle={() => setScratchpadOpen(true)}
             highlightMode={highlightMode}
             onHighlightModeToggle={() => setHighlightMode(m => !m)}
           />
@@ -397,7 +395,7 @@ export function PracticeSession({ child, availableSubjects, parentSettings, dash
           <Scratchpad
             key={q.id}
             questionId={q.id}
-            onClose={() => dbgSet(false)}
+            onClose={() => setScratchpadOpen(false)}
           />
         )}
         {mode === 'test' && !accommodations.extended_time && (
