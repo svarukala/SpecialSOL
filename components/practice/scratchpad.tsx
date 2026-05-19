@@ -43,6 +43,7 @@ export function Scratchpad({ questionId, onClose }: Props) {
   const toolRef = useRef<Tool>('pen')
   const svgRef = useRef<SVGSVGElement>(null)
   const eraserCircleRef = useRef<SVGCircleElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
   const isDrawing = useRef(false)
 
   useEffect(() => {
@@ -152,6 +153,7 @@ export function Scratchpad({ questionId, onClose }: Props) {
 
   return createPortal(
     <div
+      ref={panelRef}
       className="fixed z-50 bg-white border border-gray-300 rounded-lg shadow-xl flex flex-col"
       style={{ left: pos.x, top: pos.y, width: size.w, height: size.h }}
       onClick={e => e.stopPropagation()}
@@ -196,6 +198,13 @@ export function Scratchpad({ questionId, onClose }: Props) {
             onClick={(e) => {
               e.stopPropagation()
               console.log('[Scratchpad] X clicked. DOM pads before:', document.querySelectorAll('[data-testid="scratchpad"]').length)
+              // Imperatively hide the panel RIGHT NOW — bypasses React scheduler
+              if (panelRef.current) {
+                panelRef.current.style.display = 'none'
+                console.log('[Scratchpad] panel hidden via DOM ref')
+              } else {
+                console.log('[Scratchpad] panelRef is NULL — cannot hide directly')
+              }
               setVisible(false)
               onClose()
               setTimeout(() => console.log('[Scratchpad] 200ms after X: DOM pads:', document.querySelectorAll('[data-testid="scratchpad"]').length, '| body children:', document.body.children.length), 200)
