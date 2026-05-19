@@ -1,5 +1,6 @@
 'use client'
 import { useState, useRef, useEffect, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { getStroke } from 'perfect-freehand'
 
 type Point = [number, number, number]   // x, y, pressure
@@ -31,6 +32,7 @@ interface Props {
 }
 
 export function Scratchpad({ questionId, onClose }: Props) {
+  const [mounted, setMounted] = useState(false)
   const [strokes, setStrokes] = useState<Point[][]>([])
   const [currentPoints, setCurrentPoints] = useState<Point[]>([])
   const [tool, setTool] = useState<Tool>('pen')
@@ -41,6 +43,8 @@ export function Scratchpad({ questionId, onClose }: Props) {
   const svgRef = useRef<SVGSVGElement>(null)
   const eraserCircleRef = useRef<SVGCircleElement>(null)
   const isDrawing = useRef(false)
+
+  useEffect(() => { setMounted(true) }, [])
 
   useEffect(() => { toolRef.current = tool }, [tool])
 
@@ -130,7 +134,9 @@ export function Scratchpad({ questionId, onClose }: Props) {
     window.addEventListener('pointerup', onUp)
   }
 
-  return (
+  if (!mounted) return null
+
+  return createPortal(
     <div
       className="fixed z-50 bg-white border border-gray-300 rounded-lg shadow-xl flex flex-col"
       style={{ left: pos.x, top: pos.y, width: size.w, height: size.h }}
@@ -215,6 +221,7 @@ export function Scratchpad({ questionId, onClose }: Props) {
         onPointerDown={handleResizePointerDown}
         aria-hidden
       />
-    </div>
+    </div>,
+    document.body
   )
 }
