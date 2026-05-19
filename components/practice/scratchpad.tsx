@@ -179,7 +179,9 @@ export function Scratchpad({ questionId, onClose }: Props) {
             className="h-6 px-2 text-xs rounded border bg-white text-gray-700 border-gray-300 hover:bg-gray-50 disabled:opacity-40"
           >Clear</button>
           <button
-            onClick={(e) => { e.stopPropagation(); onClose() }}
+            onClick={(e) => { e.stopPropagation(); console.log('[Scratchpad] X onClick fired'); onClose(); console.log('[Scratchpad] onClose() called') }}
+            onPointerUp={(e) => { console.log('[Scratchpad] X onPointerUp fired') }}
+            onPointerDown={(e) => { console.log('[Scratchpad] X onPointerDown fired') }}
             aria-label="Close scratchpad"
             className="h-6 w-6 text-xs rounded hover:bg-gray-200 text-gray-600 flex items-center justify-center"
           >✕</button>
