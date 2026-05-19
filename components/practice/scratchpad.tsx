@@ -14,8 +14,6 @@ const STROKE_OPTIONS = { size: 6, thinning: 0.5, smoothing: 0.5, streamline: 0.5
 function getSvgPath(points: Point[]): string {
   const outline = getStroke(points, STROKE_OPTIONS)
   if (!outline.length) return ''
-  // Correct perfect-freehand pattern: M x y Q then ALL control+end pairs chained
-  // without repeating Q. A single Q command accepts multiple bezier segments.
   const d: (string | number)[] = ['M', outline[0][0], outline[0][1], 'Q']
   for (let i = 0; i < outline.length; i++) {
     const [x0, y0] = outline[i]
@@ -53,17 +51,11 @@ export const Scratchpad = memo(function Scratchpad({ questionId, onClose }: Prop
     document.body.appendChild(el)
     portalEl.current = el
     setMounted(true)
-    console.log('[Scratchpad] mounted, portal el created. body portals:', document.querySelectorAll('[data-scratchpad-portal]').length)
     return () => {
       document.body.removeChild(el)
       portalEl.current = null
-      console.log('[Scratchpad] UNMOUNTED, portal el removed from body. body portals after:', document.querySelectorAll('[data-scratchpad-portal]').length)
     }
   }, [])
-
-  useEffect(() => {
-    console.log('[Scratchpad] visible =>', visible, '| DOM pads:', document.querySelectorAll('[data-testid="scratchpad"]').length)
-  }, [visible])
 
   useEffect(() => { toolRef.current = tool }, [tool])
 
@@ -76,9 +68,7 @@ export const Scratchpad = memo(function Scratchpad({ questionId, onClose }: Prop
     setCurrentPoints([])
   }, [questionId])
 
-  // ── Drawing — setPointerCapture on the SVG is reliable for both mouse and touch
-  // This does NOT conflict with the X button because pointer capture is per-pointer-id
-  // and only applies to pointers that started their DOWN event on the SVG.
+  // setPointerCapture on the SVG is per-pointer-id — doesn't interfere with sibling button clicks.
   const handleSvgPointerDown = useCallback((e: React.PointerEvent<SVGSVGElement>) => {
     e.currentTarget.setPointerCapture(e.pointerId)
     isDrawing.current = true
@@ -118,7 +108,7 @@ export const Scratchpad = memo(function Scratchpad({ questionId, onClose }: Prop
     })
   }, [])
 
-  // ── Panel drag — window listeners, NO setPointerCapture, so button clicks are never stolen
+  // Panel drag uses window listeners (no setPointerCapture) so sibling button clicks are never stolen.
   function handleDragPointerDown(e: React.PointerEvent<HTMLDivElement>) {
     e.preventDefault()
     const start = { sx: e.clientX, sy: e.clientY, px: pos.x, py: pos.y }
@@ -135,7 +125,6 @@ export const Scratchpad = memo(function Scratchpad({ questionId, onClose }: Prop
     window.addEventListener('pointerup', onUp)
   }
 
-  // ── Resize handle
   function handleResizePointerDown(e: React.PointerEvent<HTMLDivElement>) {
     e.preventDefault()
     e.stopPropagation()
@@ -153,12 +142,7 @@ export const Scratchpad = memo(function Scratchpad({ questionId, onClose }: Prop
     window.addEventListener('pointerup', onUp)
   }
 
-  console.log('[Scratchpad] render — mounted:', mounted, 'visible:', visible, 'portalEl:', !!portalEl.current)
-  if (!mounted || !visible || !portalEl.current) {
-    console.log('[Scratchpad] returning null')
-    return null
-  }
-  console.log('[Scratchpad] rendering portal to dedicated container')
+  if (!mounted || !visible || !portalEl.current) return null
 
   return createPortal(
     <div
@@ -168,8 +152,6 @@ export const Scratchpad = memo(function Scratchpad({ questionId, onClose }: Prop
       onClick={e => e.stopPropagation()}
       data-testid="scratchpad"
     >
-      {/* Header: drag grip (left) and action buttons (right) are SIBLINGS —
-          clicking buttons never reaches the drag div since they are not descendants of it. */}
       <div className="flex items-center bg-gray-100 rounded-t-lg border-b shrink-0 select-none">
         <div
           className="flex-1 flex items-center px-2 py-1.5 cursor-grab active:cursor-grabbing min-w-0"
@@ -206,17 +188,9 @@ export const Scratchpad = memo(function Scratchpad({ questionId, onClose }: Prop
           <button
             onClick={(e) => {
               e.stopPropagation()
-              console.log('[Scratchpad] X clicked. DOM pads before:', document.querySelectorAll('[data-testid="scratchpad"]').length)
-              // Imperatively hide the panel RIGHT NOW — bypasses React scheduler
-              if (panelRef.current) {
-                panelRef.current.style.display = 'none'
-                console.log('[Scratchpad] panel hidden via DOM ref')
-              } else {
-                console.log('[Scratchpad] panelRef is NULL — cannot hide directly')
-              }
+              if (panelRef.current) panelRef.current.style.display = 'none'
               setVisible(false)
               onClose()
-              setTimeout(() => console.log('[Scratchpad] 200ms after X: DOM pads:', document.querySelectorAll('[data-testid="scratchpad"]').length, '| body children:', document.body.children.length), 200)
             }}
             aria-label="Close scratchpad"
             className="h-6 w-6 text-xs rounded hover:bg-gray-200 text-gray-600 flex items-center justify-center"
