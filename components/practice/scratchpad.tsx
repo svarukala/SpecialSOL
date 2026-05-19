@@ -13,11 +13,16 @@ const STROKE_OPTIONS = { size: 6, thinning: 0.5, smoothing: 0.5, streamline: 0.5
 function getSvgPath(points: Point[]): string {
   const outline = getStroke(points, STROKE_OPTIONS)
   if (!outline.length) return ''
-  const d = outline.reduce((acc, [x0, y0], i, arr) => {
-    const [x1, y1] = arr[(i + 1) % arr.length]
-    return `${acc} ${x0},${y0} Q${x0},${y0} ${(x0 + x1) / 2},${(y0 + y1) / 2}`
-  }, `M${outline[0][0]},${outline[0][1]} Q`)
-  return `${d} Z`
+  // Correct perfect-freehand pattern: M x y Q then ALL control+end pairs chained
+  // without repeating Q. A single Q command accepts multiple bezier segments.
+  const d: (string | number)[] = ['M', outline[0][0], outline[0][1], 'Q']
+  for (let i = 0; i < outline.length; i++) {
+    const [x0, y0] = outline[i]
+    const [x1, y1] = outline[(i + 1) % outline.length]
+    d.push(x0, y0, (x0 + x1) / 2, (y0 + y1) / 2)
+  }
+  d.push('Z')
+  return d.join(' ')
 }
 
 interface Props {
@@ -60,8 +65,9 @@ export function Scratchpad({ questionId, onClose }: Props) {
   const handleSvgPointerMove = useCallback((e: React.PointerEvent<SVGSVGElement>) => {
     if (!isDrawing.current) return
     const rect = e.currentTarget.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
+    // Clamp to SVG bounds so captured-pointer drift outside the canvas doesn't corrupt coords
+    const x = Math.max(0, Math.min(rect.width,  e.clientX - rect.left))
+    const y = Math.max(0, Math.min(rect.height, e.clientY - rect.top))
 
     if (toolRef.current === 'eraser') {
       setStrokes(prev => prev.filter(s => !s.some(([sx, sy]) => Math.hypot(sx - x, sy - y) < ERASER_RADIUS)))
@@ -161,7 +167,7 @@ export function Scratchpad({ questionId, onClose }: Props) {
           >Clear</button>
           <button
             onPointerDown={e => e.stopPropagation()}
-            onClick={onClose}
+            onPointerUp={(e) => { e.stopPropagation(); onClose() }}
             aria-label="Close scratchpad"
             className="h-6 w-6 text-xs rounded hover:bg-gray-200 text-gray-600 flex items-center justify-center"
           >✕</button>

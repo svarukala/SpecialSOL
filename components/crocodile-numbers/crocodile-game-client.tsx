@@ -460,14 +460,18 @@ export function CrocodileGameClient({ childId, scores }: Props) {
         </div>
       </div>
 
-      {/* After correct in Learn mode: show croc animation in place of buttons */}
+      {/* After correct in Learn mode: croc replaces the answer buttons.
+          autoPlay is intentionally OFF so the ▶ button stays visible — user
+          presses it to see which number the croc eats. */}
       {mode === 'learn' && feedback === 'correct' ? (
         <>
+          <p className="text-center text-sm font-medium text-emerald-700">
+            🐊 Press ▶ to see which number the croc eats!
+          </p>
           <CrocodileComparison
             key={`${pair.left}-${pair.right}`}
             left={pair.left}
             right={pair.right}
-            autoPlay
             compact
           />
           <button
