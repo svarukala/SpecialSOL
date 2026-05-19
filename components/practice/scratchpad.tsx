@@ -1,5 +1,5 @@
 'use client'
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect, useCallback, memo } from 'react'
 import { createPortal } from 'react-dom'
 import { getStroke } from 'perfect-freehand'
 
@@ -31,7 +31,7 @@ interface Props {
   onClose: () => void
 }
 
-export function Scratchpad({ questionId, onClose }: Props) {
+export const Scratchpad = memo(function Scratchpad({ questionId, onClose }: Props) {
   const [mounted, setMounted] = useState(false)
   const [visible, setVisible] = useState(true)
   const [strokes, setStrokes] = useState<Point[][]>([])
@@ -44,12 +44,21 @@ export function Scratchpad({ questionId, onClose }: Props) {
   const svgRef = useRef<SVGSVGElement>(null)
   const eraserCircleRef = useRef<SVGCircleElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
+  const portalEl = useRef<HTMLDivElement | null>(null)
   const isDrawing = useRef(false)
 
   useEffect(() => {
-    console.log('[Scratchpad] mounted')
+    const el = document.createElement('div')
+    el.setAttribute('data-scratchpad-portal', '1')
+    document.body.appendChild(el)
+    portalEl.current = el
     setMounted(true)
-    return () => console.log('[Scratchpad] UNMOUNTED from React tree')
+    console.log('[Scratchpad] mounted, portal el created. body portals:', document.querySelectorAll('[data-scratchpad-portal]').length)
+    return () => {
+      document.body.removeChild(el)
+      portalEl.current = null
+      console.log('[Scratchpad] UNMOUNTED, portal el removed from body. body portals after:', document.querySelectorAll('[data-scratchpad-portal]').length)
+    }
   }, [])
 
   useEffect(() => {
@@ -144,12 +153,12 @@ export function Scratchpad({ questionId, onClose }: Props) {
     window.addEventListener('pointerup', onUp)
   }
 
-  console.log('[Scratchpad] render — mounted:', mounted, 'visible:', visible)
-  if (!mounted || !visible) {
+  console.log('[Scratchpad] render — mounted:', mounted, 'visible:', visible, 'portalEl:', !!portalEl.current)
+  if (!mounted || !visible || !portalEl.current) {
     console.log('[Scratchpad] returning null')
     return null
   }
-  console.log('[Scratchpad] rendering portal to body')
+  console.log('[Scratchpad] rendering portal to dedicated container')
 
   return createPortal(
     <div
@@ -251,6 +260,6 @@ export function Scratchpad({ questionId, onClose }: Props) {
         aria-hidden
       />
     </div>,
-    document.body
+    portalEl.current
   )
-}
+})
