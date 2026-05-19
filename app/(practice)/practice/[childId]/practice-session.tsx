@@ -386,7 +386,7 @@ export function PracticeSession({ child, availableSubjects, parentSettings, dash
             onBoundary={(start, length) => setHighlightRange({ start, length })}
             onSpeakEnd={() => setHighlightRange(null)}
             scratchpadOpen={scratchpadOpen}
-            onScratchpadToggle={() => setScratchpadOpen(o => !o)}
+            onScratchpadToggle={() => setScratchpadOpen(true)}
             highlightMode={highlightMode}
             onHighlightModeToggle={() => setHighlightMode(m => !m)}
           />

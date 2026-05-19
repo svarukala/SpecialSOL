@@ -134,11 +134,11 @@ export function Scratchpad({ questionId, onClose }: Props) {
     <div
       className="fixed z-50 bg-white border border-gray-300 rounded-lg shadow-xl flex flex-col"
       style={{ left: pos.x, top: pos.y, width: size.w, height: size.h }}
+      onClick={e => e.stopPropagation()}
       data-testid="scratchpad"
     >
-      {/* Header: drag grip (left) and action buttons (right) are SIBLINGS.
-          setPointerCapture is only called on the SVG — drag uses window listeners —
-          so clicking the X or other buttons is never intercepted. */}
+      {/* Header: drag grip (left) and action buttons (right) are SIBLINGS —
+          clicking buttons never reaches the drag div since they are not descendants of it. */}
       <div className="flex items-center bg-gray-100 rounded-t-lg border-b shrink-0 select-none">
         <div
           className="flex-1 flex items-center px-2 py-1.5 cursor-grab active:cursor-grabbing min-w-0"
@@ -151,7 +151,6 @@ export function Scratchpad({ questionId, onClose }: Props) {
           {([['pen', 'Pen'], ['eraser', 'Erase']] as const).map(([t, label]) => (
             <button
               key={t}
-              onPointerDown={e => e.stopPropagation()}
               onClick={() => setTool(t)}
               aria-label={`${label} tool`}
               data-active={String(tool === t)}
@@ -162,22 +161,19 @@ export function Scratchpad({ questionId, onClose }: Props) {
             >{label}</button>
           ))}
           <button
-            onPointerDown={e => e.stopPropagation()}
             onClick={() => setStrokes(prev => prev.slice(0, -1))}
             disabled={strokes.length === 0}
             aria-label="Undo last stroke"
             className="h-6 px-2 text-xs rounded border bg-white text-gray-700 border-gray-300 hover:bg-gray-50 disabled:opacity-40"
           >↩</button>
           <button
-            onPointerDown={e => e.stopPropagation()}
             onClick={() => setStrokes([])}
             disabled={strokes.length === 0}
             aria-label="Clear all strokes"
             className="h-6 px-2 text-xs rounded border bg-white text-gray-700 border-gray-300 hover:bg-gray-50 disabled:opacity-40"
           >Clear</button>
           <button
-            onPointerDown={e => e.stopPropagation()}
-            onClick={onClose}
+            onClick={(e) => { e.stopPropagation(); onClose() }}
             aria-label="Close scratchpad"
             className="h-6 w-6 text-xs rounded hover:bg-gray-200 text-gray-600 flex items-center justify-center"
           >✕</button>
