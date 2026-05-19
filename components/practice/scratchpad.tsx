@@ -5,7 +5,7 @@ import { getStroke } from 'perfect-freehand'
 type Point = [number, number, number]   // x, y, pressure
 type Tool = 'pen' | 'eraser'
 
-const ERASER_RADIUS = 20
+const ERASER_RADIUS = 40
 const MIN_W = 240
 const MIN_H = 180
 const STROKE_OPTIONS = { size: 6, thinning: 0.5, smoothing: 0.5, streamline: 0.5, simulatePressure: true }
@@ -39,6 +39,7 @@ export function Scratchpad({ questionId, onClose }: Props) {
 
   const toolRef = useRef<Tool>('pen')
   const svgRef = useRef<SVGSVGElement>(null)
+  const eraserCircleRef = useRef<SVGCircleElement>(null)
   const isDrawing = useRef(false)
 
   useEffect(() => { toolRef.current = tool }, [tool])
@@ -63,11 +64,19 @@ export function Scratchpad({ questionId, onClose }: Props) {
   }, [])
 
   const handleSvgPointerMove = useCallback((e: React.PointerEvent<SVGSVGElement>) => {
-    if (!isDrawing.current) return
     const rect = e.currentTarget.getBoundingClientRect()
     // Clamp to SVG bounds so captured-pointer drift outside the canvas doesn't corrupt coords
     const x = Math.max(0, Math.min(rect.width,  e.clientX - rect.left))
     const y = Math.max(0, Math.min(rect.height, e.clientY - rect.top))
+
+    // Keep eraser circle synced via direct DOM mutation (no re-render)
+    if (eraserCircleRef.current) {
+      eraserCircleRef.current.setAttribute('cx', String(x))
+      eraserCircleRef.current.setAttribute('cy', String(y))
+      eraserCircleRef.current.style.display = toolRef.current === 'eraser' ? 'block' : 'none'
+    }
+
+    if (!isDrawing.current) return
 
     if (toolRef.current === 'eraser') {
       setStrokes(prev => prev.filter(s => !s.some(([sx, sy]) => Math.hypot(sx - x, sy - y) < ERASER_RADIUS)))
@@ -77,6 +86,7 @@ export function Scratchpad({ questionId, onClose }: Props) {
   }, [])
 
   const handleSvgPointerUp = useCallback(() => {
+    if (eraserCircleRef.current) eraserCircleRef.current.style.display = 'none'
     if (!isDrawing.current) return
     isDrawing.current = false
     setCurrentPoints(prev => {
@@ -191,6 +201,15 @@ export function Scratchpad({ questionId, onClose }: Props) {
         {currentPoints.length > 0 && tool === 'pen' && (
           <path d={getSvgPath(currentPoints)} fill="#111827" />
         )}
+        <circle
+          ref={eraserCircleRef}
+          r={ERASER_RADIUS}
+          fill="rgba(239,68,68,0.1)"
+          stroke="rgba(239,68,68,0.5)"
+          strokeWidth="1.5"
+          strokeDasharray="5 3"
+          style={{ display: 'none', pointerEvents: 'none' }}
+        />
       </svg>
 
       {/* Resize corner */}

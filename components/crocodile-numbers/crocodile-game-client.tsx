@@ -124,6 +124,9 @@ export function CrocodileGameClient({ childId, scores }: Props) {
   const [competeCorrect, setCompeteCorrect] = useState(0)
   const [competeTotal, setCompeteTotal] = useState(0)
 
+  // ---- learn mode hint (show croc before answering) ----
+  const [showHint, setShowHint] = useState(false)
+
   // ---- submitting flag to avoid duplicate POSTs ----
   const [submitting, setSubmitting] = useState(false)
   const submitted = useRef(false)
@@ -217,6 +220,7 @@ export function CrocodileGameClient({ childId, scores }: Props) {
 
   // ---- learn next handler ----
   function handleLearnNext() {
+    setShowHint(false)
     setFeedback('idle')
     setChosen(null)
     setPair(generatePair())
@@ -228,6 +232,7 @@ export function CrocodileGameClient({ childId, scores }: Props) {
     setPair(generatePair())
     setFeedback('idle')
     setChosen(null)
+    setShowHint(false)
     setTestIndex(0)
     setTestLog([])
     setTimeLeft(COMPETE_SECONDS)
@@ -482,36 +487,58 @@ export function CrocodileGameClient({ childId, scores }: Props) {
           </button>
         </>
       ) : (
-        /* Operator buttons */
-        <div className="grid grid-cols-3 gap-3">
-          {OPERATORS.map((op) => {
-            let buttonClass =
-              'h-16 text-2xl font-bold rounded-xl border transition-colors min-w-0 w-full '
+        <>
+          {/* Visual hint: croc shown BEFORE answering when child asks to see it */}
+          {mode === 'learn' && showHint && (
+            <CrocodileComparison
+              key={`hint-${pair.left}-${pair.right}`}
+              left={pair.left}
+              right={pair.right}
+              compact
+            />
+          )}
 
-            if (feedback !== 'idle' && chosen === op) {
-              buttonClass +=
-                feedback === 'correct'
-                  ? 'bg-green-500 text-white border-green-500'
-                  : 'bg-red-500 text-white border-red-500'
-            } else if (feedback !== 'idle') {
-              buttonClass += 'bg-muted text-muted-foreground border-border opacity-50 cursor-not-allowed'
-            } else {
-              buttonClass +=
-                'bg-primary text-primary-foreground border-primary hover:bg-primary/80 cursor-pointer'
-            }
+          {/* Operator buttons */}
+          <div className="grid grid-cols-3 gap-3">
+            {OPERATORS.map((op) => {
+              let buttonClass =
+                'h-16 text-2xl font-bold rounded-xl border transition-colors min-w-0 w-full '
 
-            return (
-              <button
-                key={op}
-                onClick={() => handleAnswer(op)}
-                disabled={feedback !== 'idle'}
-                className={buttonClass}
-              >
-                {op}
-              </button>
-            )
-          })}
-        </div>
+              if (feedback !== 'idle' && chosen === op) {
+                buttonClass +=
+                  feedback === 'correct'
+                    ? 'bg-green-500 text-white border-green-500'
+                    : 'bg-red-500 text-white border-red-500'
+              } else if (feedback !== 'idle') {
+                buttonClass += 'bg-muted text-muted-foreground border-border opacity-50 cursor-not-allowed'
+              } else {
+                buttonClass +=
+                  'bg-primary text-primary-foreground border-primary hover:bg-primary/80 cursor-pointer'
+              }
+
+              return (
+                <button
+                  key={op}
+                  onClick={() => handleAnswer(op)}
+                  disabled={feedback !== 'idle'}
+                  className={buttonClass}
+                >
+                  {op}
+                </button>
+              )
+            })}
+          </div>
+
+          {/* "Show me!" hint button — Learn mode only, before answering */}
+          {mode === 'learn' && !showHint && feedback === 'idle' && (
+            <button
+              onClick={() => setShowHint(true)}
+              className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-800 h-10 text-sm font-medium hover:bg-emerald-100 transition-colors"
+            >
+              🐊 Show me the croc first!
+            </button>
+          )}
+        </>
       )}
     </div>
   )
