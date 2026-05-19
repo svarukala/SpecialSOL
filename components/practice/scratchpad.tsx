@@ -177,7 +177,7 @@ export function Scratchpad({ questionId, onClose }: Props) {
           >Clear</button>
           <button
             onPointerDown={e => e.stopPropagation()}
-            onPointerUp={(e) => { e.stopPropagation(); onClose() }}
+            onClick={onClose}
             aria-label="Close scratchpad"
             className="h-6 w-6 text-xs rounded hover:bg-gray-200 text-gray-600 flex items-center justify-center"
           >✕</button>

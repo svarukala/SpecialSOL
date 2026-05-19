@@ -80,8 +80,9 @@ export function AccommodationToolbar({
               variant={scratchpadOpen ? 'default' : 'outline'}
               size="sm"
               onClick={onScratchpadToggle}
-              aria-label="Toggle scratchpad"
-              title="Open scratch pad"
+              disabled={scratchpadOpen}
+              aria-label="Open scratchpad"
+              title={scratchpadOpen ? 'Scratchpad is open' : 'Open scratch pad'}
             >✏️</Button>
           </>
         )}
