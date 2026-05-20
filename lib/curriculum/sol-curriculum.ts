@@ -89,6 +89,15 @@ export const SOL_CURRICULUM: Record<number, SolSubject> = {
     ],
   },
   6: {
+    science: [
+      { name: 'scientific investigation', solStandard: 'LS.1', description: 'Design and conduct investigations; identify variables and controls; analyze data; use scientific reasoning; follow lab safety procedures' },
+      { name: 'cell structure and function', solStandard: 'LS.2', description: 'Describe cell theory; compare plant and animal cells; identify organelles and their functions; describe cell processes including diffusion and osmosis' },
+      { name: 'genetics and heredity',    solStandard: 'LS.3', description: 'Describe DNA and genes; explain dominant and recessive traits; apply Mendelian genetics; distinguish sexual from asexual reproduction' },
+      { name: 'classification',           solStandard: 'LS.4', description: 'Explain how organisms are classified into domains and kingdoms; use dichotomous keys; distinguish characteristics of major kingdoms' },
+      { name: 'ecosystems and food webs', solStandard: 'LS.7', description: 'Describe energy flow through food chains and food webs; explain producer, consumer, and decomposer roles; describe population interactions including predation and competition' },
+      { name: 'photosynthesis and respiration', solStandard: 'LS.6', description: 'Describe photosynthesis and cellular respiration; explain the role of chlorophyll; identify reactants and products of each process; explain how energy is converted' },
+      { name: 'biodiversity and adaptations', solStandard: 'LS.8', description: 'Explain natural selection and adaptation; describe how traits help organisms survive; define biodiversity and explain its importance; describe human impact on biodiversity' },
+    ],
     math: [
       { name: 'integers and absolute value',    solStandard: '6.3',  description: 'Identify, represent, order, and compare integers; find absolute value; locate on a number line' },
       { name: 'fractions, decimals, percents',  solStandard: '6.1',  description: 'Represent and convert between fractions, decimals, and percents; compare and order rational numbers' },
@@ -110,6 +119,15 @@ export const SOL_CURRICULUM: Record<number, SolSubject> = {
     ],
   },
   7: {
+    science: [
+      { name: 'scientific investigation', solStandard: 'ES.1', description: 'Design and conduct investigations; identify variables and controls; construct and interpret graphs and tables; follow lab safety procedures' },
+      { name: 'minerals and rocks',        solStandard: 'ES.2', description: 'Identify minerals by physical properties; describe the three rock types (igneous, sedimentary, metamorphic) and how each forms; explain the rock cycle' },
+      { name: 'plate tectonics',           solStandard: 'ES.4', description: 'Explain plate tectonic theory; describe convergent, divergent, and transform boundaries; explain how tectonics cause earthquakes, volcanoes, and mountain building' },
+      { name: 'weathering and soil',       solStandard: 'ES.5', description: 'Distinguish physical and chemical weathering; describe how erosion and deposition shape landforms; explain soil formation and composition; describe soil horizons' },
+      { name: 'water cycle and fresh water', solStandard: 'ES.6', description: 'Describe the water cycle including evaporation, condensation, precipitation, and runoff; explain groundwater and watersheds; describe human impact on fresh water' },
+      { name: 'atmosphere and weather',    solStandard: 'ES.8', description: 'Describe layers of the atmosphere; explain how air pressure, temperature, and humidity affect weather; describe fronts, cloud types, and severe weather patterns' },
+      { name: 'climate and astronomy',     solStandard: 'ES.9', description: 'Distinguish weather from climate; explain factors affecting climate; describe Earth-Moon-Sun relationships; explain seasons, tides, phases of the moon, and eclipses' },
+    ],
     math: [
       { name: 'rational numbers',               solStandard: '7.1',  description: 'Compare, order, and represent rational numbers (fractions, decimals, percents, integers) on a number line' },
       { name: 'percent applications',           solStandard: '7.2',  description: 'Solve practical problems involving percents: discounts, taxes, simple interest, and percent change' },
@@ -131,6 +149,17 @@ export const SOL_CURRICULUM: Record<number, SolSubject> = {
     ],
   },
   8: {
+    science: [
+      { name: 'scientific investigation', solStandard: 'PS.1', description: 'Design and conduct investigations; identify variables and controls; construct and interpret graphs; apply scientific reasoning; follow lab safety procedures' },
+      { name: 'matter and atomic structure', solStandard: 'PS.2', description: 'Describe atomic structure (protons, neutrons, electrons); explain how the periodic table is organized; distinguish elements, compounds, and mixtures; describe chemical bonding' },
+      { name: 'chemical reactions',       solStandard: 'PS.3', description: 'Distinguish physical from chemical changes; describe evidence of chemical reactions; apply conservation of mass; describe common reaction types including synthesis and decomposition' },
+      { name: 'states of matter',         solStandard: 'PS.4', description: 'Describe properties of solids, liquids, and gases; explain phase changes using the kinetic molecular theory; relate temperature and pressure to particle motion' },
+      { name: 'waves, sound, and light',  solStandard: 'PS.5', description: 'Describe wave properties (wavelength, frequency, amplitude, speed); explain sound production and transmission; describe the electromagnetic spectrum; explain reflection, refraction, and absorption of light' },
+      { name: 'force and motion',         solStandard: 'PS.10', description: "Describe motion using speed, velocity, and acceleration; apply Newton's three laws of motion; describe inertia, momentum, and the effect of friction; interpret motion graphs" },
+      { name: 'work, power, and machines', solStandard: 'PS.7', description: 'Define and calculate work and power; describe how simple machines change force and distance; explain mechanical advantage; identify types of simple machines' },
+      { name: 'energy transformations',   solStandard: 'PS.8', description: 'Describe forms of energy and transformations between them; explain conservation of energy; describe how heat is transferred by conduction, convection, and radiation; explain nuclear energy' },
+      { name: 'electricity and magnetism', solStandard: 'PS.9', description: 'Describe static and current electricity; distinguish series and parallel circuits; explain how electric current creates magnetic fields; describe electromagnetic induction' },
+    ],
     math: [
       { name: 'real numbers and irrational numbers', solStandard: '8.1', description: 'Identify real numbers; classify irrational numbers; estimate square roots; compare and order real numbers' },
       { name: 'exponents and scientific notation',   solStandard: '8.2', description: 'Evaluate expressions with integer exponents; convert between standard form and scientific notation' },

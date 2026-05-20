@@ -33,7 +33,7 @@ Questions must be calibrated to actual Virginia SOL Grade ${grade} difficulty. A
 Do NOT simplify or scaffold beyond what the standard requires.${mathMiddle}${readingMiddle}\n`
 }
 
-function sciencePromptGuidance(tier: 'foundational' | 'standard'): string {
+function sciencePromptGuidance(grade: number, tier: 'foundational' | 'standard'): string {
   const foundationalNote = tier === 'foundational'
     ? `
 FOUNDATIONAL SCIENCE:
@@ -44,19 +44,41 @@ FOUNDATIONAL SCIENCE:
 - Bad: "Based on the circuit diagram, what happens when the switch is opened?" (requires diagram)`
     : ''
 
-  return `
-SCIENCE SUBJECT GUIDANCE:
-- "reading_passage" must always be null. Science questions are self-contained.
-- "calculator_allowed" must always be false for Grade 5 science.
-- Anchor questions in concrete real-world scenarios: a flashlight bulb going out (open circuit), a river carving a canyon (erosion), a magnet picking up paper clips (magnetic field).
-- Vocabulary fill-in-the-blank questions work well for science: "The force that opposes motion between two surfaces is called ___."
-- Do NOT write questions that inherently require a visual (circuit diagram, force arrows, rock cycle diagram, coordinate system). If a visual is essential to answering the question, skip it and write a different question instead.
-- Strong distractor categories for science at Grade 5:
-  - Conductor vs. insulator confusion (rubber vs. copper)
+  const gradeDistracters: Record<number, string> = {
+    5: `  - Conductor vs. insulator confusion (rubber vs. copper)
   - Renewable vs. nonrenewable confusion (solar vs. coal)
   - Physical vs. chemical change confusion (melting vs. burning)
   - Weathering vs. erosion confusion
-  - Open vs. closed circuit confusion
+  - Open vs. closed circuit confusion`,
+    6: `  - Photosynthesis vs. respiration confusion (which releases vs. absorbs CO₂)
+  - Cell wall vs. cell membrane confusion (plant vs. animal cells)
+  - Dominant vs. recessive trait confusion
+  - Producer vs. consumer vs. decomposer confusion
+  - Adaptation vs. learned behavior confusion`,
+    7: `  - Igneous vs. metamorphic vs. sedimentary rock confusion
+  - Weathering vs. erosion vs. deposition confusion
+  - Convergent vs. divergent vs. transform boundary confusion
+  - Weather vs. climate confusion
+  - Revolution vs. rotation confusion (Earth-Sun-Moon)`,
+    8: `  - Physical change vs. chemical change confusion (melting vs. burning)
+  - Element vs. compound vs. mixture confusion
+  - Speed vs. velocity vs. acceleration confusion
+  - Conduction vs. convection vs. radiation confusion
+  - Series vs. parallel circuit confusion
+  - Work (physics) vs. everyday meaning of "work"`,
+  }
+
+  const distractors = gradeDistracters[grade] ?? gradeDistracters[5]
+
+  return `
+SCIENCE SUBJECT GUIDANCE:
+- "reading_passage" must always be null. Science questions are self-contained.
+- "calculator_allowed" must always be false for science.
+- Anchor questions in concrete real-world scenarios appropriate for Grade ${grade}: lab investigations, real-world phenomena, familiar objects.
+- Vocabulary fill-in-the-blank questions work well for science: "The force that opposes motion between two surfaces is called ___."
+- Do NOT write questions that inherently require a visual (diagrams, force arrows, rock cycle diagrams, circuit drawings). If a visual is essential to answering the question, skip it and write a different question instead.
+- Strong distractor categories for Grade ${grade} science:
+${distractors}
 ${foundationalNote}`
 }
 
@@ -108,7 +130,7 @@ Topic: ${topic.name}
 SOL Standard: ${topic.solStandard}
 Standard Description: ${topic.description}
 ${gradeBandInstructions(grade, subject)}
-${subject === 'science' ? sciencePromptGuidance(tier) : ''}
+${subject === 'science' ? sciencePromptGuidance(grade, tier) : ''}
 ${tier === 'foundational'
   ? 'Generate exactly 6 multiple-choice questions for this topic, ALL at difficulty 1 (see rules above).'
   : `Generate exactly 6 questions for this topic — a mix of question types:

@@ -48,9 +48,8 @@ export function GenerateReviewClient() {
 
   const topicsForCurrent = SOL_CURRICULUM[grade]?.[subject] ?? []
 
-  // Reset topic (and subject if science is selected on a non-Grade-5 grade) when grade/subject changes
   useEffect(() => {
-    if (subject === 'science' && grade !== 5) {
+    if (subject === 'science' && !SOL_CURRICULUM[grade]?.science?.length) {
       setSubject('math')
     }
     setTopicName(topicsForCurrent[0]?.name ?? '')
@@ -147,8 +146,8 @@ export function GenerateReviewClient() {
             className="border rounded px-2 py-1 text-sm bg-background">
             <option value="math">Math</option>
             <option value="reading">Reading</option>
-            <option value="science" disabled={grade !== 5}>
-              Science{grade !== 5 ? ' (Grade 5 only)' : ''}
+            <option value="science" disabled={!SOL_CURRICULUM[grade]?.science?.length}>
+              Science{!SOL_CURRICULUM[grade]?.science?.length ? ' (not available)' : ''}
             </option>
           </select>
         </div>
