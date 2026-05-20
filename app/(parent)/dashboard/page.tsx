@@ -110,14 +110,11 @@ export default async function DashboardPage({
     .sort((a, b) => a.accuracy - b.accuracy)
   const weakTopics = topicList.filter((t) => t.accuracy < 0.65).slice(0, 2)
 
-  const [milestones, topicLevels, masteredTopics, parentRow] = await Promise.all([
+  const [milestones, topicLevels, masteredTopics] = await Promise.all([
     getRecentMilestones(supabase, activeChild.id).catch(() => [] as Milestone[]),
     getAllChildTopicLevels(supabase, activeChild.id).catch(() => ({} as Record<string, 'simplified' | 'standard'>)),
     getMasteredTopics(supabase, activeChild.id).catch(() => new Set<string>()),
-    supabase.from('parents').select('summer_learning_access, summer_learning_requested').eq('id', user.id).single(),
   ])
-  const hasAccess = parentRow.data?.summer_learning_access ?? false
-  const hasRequested = parentRow.data?.summer_learning_requested ?? false
 
   return (
     <main className="max-w-3xl mx-auto p-6 space-y-6">
@@ -149,7 +146,7 @@ export default async function DashboardPage({
         🚀 Start Practice for {activeChild.name}
       </Link>
 
-      <EarlyAccessTeaser hasAccess={hasAccess} hasRequested={hasRequested} />
+      <EarlyAccessTeaser hasAccess={true} hasRequested={false} />
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <StatCard label="Sessions This Week" value={sessionsThisWeek} icon="📅" />
