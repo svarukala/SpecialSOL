@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 
-const DISMISS_KEY = 'dismissed-announcement-practice-tools-may26'
+const DISMISS_KEY = 'dismissed-announcement-science-grades5-8-may20'
 
 export function AnnouncementBar() {
   const [visible, setVisible] = useState(false)
@@ -15,7 +15,7 @@ export function AnnouncementBar() {
 
   return (
     <div className="bg-primary text-primary-foreground text-xs font-medium flex items-center justify-center gap-2 px-4 py-2">
-      <span>✨ New: <Link href="/blog/new-practice-tools" className="underline underline-offset-2 hover:opacity-80 transition-opacity">Scratchpad, highlighting &amp; croc hint</Link> — try them in your next practice session!</span>
+      <span>🔬 New: Science for grades 5–8 is ready — <Link href="/dashboard" className="underline underline-offset-2 hover:opacity-80 transition-opacity">start practicing now!</Link></span>
       <button
         onClick={() => { localStorage.setItem(DISMISS_KEY, '1'); setVisible(false) }}
         aria-label="Dismiss announcement"
