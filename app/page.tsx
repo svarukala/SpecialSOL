@@ -207,11 +207,11 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── Coming This Summer ─────────────────────────────────── */}
+      {/* ── Summer Learning ─────────────────────────────────────── */}
       <section className="border-t bg-muted/30">
         <div className="max-w-4xl mx-auto px-4 py-16 text-center">
           <div className="inline-flex items-center gap-2 bg-primary/10 text-primary text-xs font-semibold px-3 py-1 rounded-full mb-4 tracking-wide uppercase">
-            ☀️ Coming This Summer
+            ☀️ Summer Learning
           </div>
           <h2 className="text-2xl sm:text-3xl font-bold mb-3">Keep learning after SOL season</h2>
           <p className="text-muted-foreground mb-10 max-w-lg mx-auto text-sm leading-relaxed">
@@ -230,10 +230,7 @@ export default async function HomePage() {
             ].map(({ icon, title, desc }) => (
               <div key={title} className="rounded-xl border bg-card p-5 space-y-2">
                 <div className="text-2xl">{icon}</div>
-                <div className="flex items-center gap-2">
-                  <h3 className="font-semibold text-sm">{title}</h3>
-                  <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">Soon</span>
-                </div>
+                <h3 className="font-semibold text-sm">{title}</h3>
                 <p className="text-xs text-muted-foreground leading-relaxed">{desc}</p>
               </div>
             ))}
