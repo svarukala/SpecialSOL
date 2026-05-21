@@ -12,6 +12,7 @@ const MIN_AGE_DAYS: Record<string, number> = {
   inactive_14d: 14,
   inactive_30d: 30,
   paused_session: 5,
+  summer_update_may2025: 0,
 }
 
 export interface EngagementRow {
@@ -138,6 +139,7 @@ export default async function EngagementPage() {
       r.pausedSessions > 0 &&
       daysSince(r.signedUpAt) >= MIN_AGE_DAYS.paused_session
     ),
+    summer_update_may2025: allRows,
   }
 
   return (

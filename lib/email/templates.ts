@@ -6,6 +6,7 @@ export type TemplateType =
   | 'inactive_14d'
   | 'inactive_30d'
   | 'paused_session'
+  | 'summer_update_may2025'
 
 interface TemplateData {
   childNames?: string[]
@@ -175,6 +176,71 @@ export function buildEmail(template: TemplateType, data: TemplateData): EmailCon
             <a href="${dashboardUrl}" style="background: #1a1a1a; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-size: 14px;">Resume the session →</a>
           </p>
           <p style="margin-top: 24px;">— Sri</p>
+        `),
+      }
+
+    case 'summer_update_may2025':
+      return {
+        subject: 'Science is live on SolPrep — plus summer activities for your kids',
+        html: layout(`
+          <p>Hi,</p>
+          <p>A quick update on what's new at SolPrep as we wrap up SOL season.</p>
+
+          <p style="font-weight: bold; margin-top: 24px;">🔬 Science practice is now live for grades 5–8</p>
+          <p>Your child can now practice Virginia SOL Science alongside Math and Reading. All four grades are covered — grade 5 Life Science, grade 6 Life Science, grade 7 Earth Science, and grade 8 Physical Science — with the same hint system, accommodations, and practice/test modes you're used to.</p>
+          <p style="margin: 20px 0;">
+            <a href="https://solprep.app/dashboard" style="background: #1a1a1a; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-size: 14px;">Start a Science session →</a>
+          </p>
+
+          <p style="font-weight: bold; margin-top: 28px;">☀️ Keep learning this summer</p>
+          <p>SOL season ending doesn't mean learning has to stop. SolPrep now has eight fun, pressure-free summer activities:</p>
+
+          <table width="100%" cellpadding="0" cellspacing="0" style="margin: 16px 0;">
+            <tr>
+              <td style="padding: 8px 0; vertical-align: top; width: 28px;">🐝</td>
+              <td style="padding: 8px 0;"><strong>Spelling Bee</strong> — A word is spoken aloud and your child spells it. Great for building vocabulary and listening skills.</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; vertical-align: top;">✖️</td>
+              <td style="padding: 8px 0;"><strong>Times Tables</strong> — Drill multiplication facts with instant feedback to lock in the fundamentals.</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; vertical-align: top;">📚</td>
+              <td style="padding: 8px 0;"><strong>Summer Reading</strong> — Age-appropriate stories by grade, with read-aloud support — perfect for keeping reading habits going.</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; vertical-align: top;">🎯</td>
+              <td style="padding: 8px 0;"><strong>Question Quest</strong> — Builds reading comprehension through What, Where, Who, When, Why, and How questions.</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; vertical-align: top;">🐊</td>
+              <td style="padding: 8px 0;"><strong>Croc Numbers</strong> — Compare numbers using &gt;, &lt;, and = in three fun modes. The crocodile always eats the bigger number!</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; vertical-align: top;">🕐</td>
+              <td style="padding: 8px 0;"><strong>Learn Clock</strong> — Read analog clocks, from easy 5-minute intervals to harder mixed times.</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; vertical-align: top;">💰</td>
+              <td style="padding: 8px 0;"><strong>Money Match</strong> — Identify coins, count amounts, and make change — a practical everyday skill.</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; vertical-align: top;">🍕</td>
+              <td style="padding: 8px 0;"><strong>Fractions</strong> — Name, compare, and find equivalent fractions with visual aids to make the concept click.</td>
+            </tr>
+          </table>
+
+          <p style="margin: 20px 0;">
+            <a href="https://solprep.app/dashboard" style="background: #1a1a1a; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-size: 14px;">Explore summer activities →</a>
+          </p>
+
+          <p style="margin-top: 28px; padding-top: 24px; border-top: 1px solid #eee;">As SOL season comes to a close, I want to genuinely thank every child and parent who signed up and used SolPrep this year. The feedback your kids submitted — flagging confusing questions, pointing out errors — directly improved the quality of the content for everyone. That kind of real-world feedback is invaluable, and I'm grateful for it.</p>
+
+          <p>If you have suggestions, feature requests, or anything you'd like to share, the <a href="https://solprep.app/feedback" style="color: #333;">feedback page</a> is always open. I read every message personally.</p>
+
+          <p>I'll keep adding new content throughout the summer — more subjects, more activities, more grade coverage. Check back periodically and you'll find something new.</p>
+
+          <p style="margin-top: 24px;">Thank you again — it means a lot.<br/>— Sri<br/><span style="color: #999; font-size: 13px;">Built this as a Virginia parent, for Virginia families.</span></p>
         `),
       }
 

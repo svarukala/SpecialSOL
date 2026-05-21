@@ -13,7 +13,8 @@ const SEGMENT_META: Record<SegmentKey, { label: string; description: string; col
   single_session:  { label: 'One session, then quiet',    description: 'Completed exactly one session, 7+ days ago',                       color: 'bg-purple-50 border-purple-200 text-purple-800' },
   inactive_14d:    { label: 'Inactive 14–30 days',        description: 'No completed session in 14–30 days',                              color: 'bg-blue-50 border-blue-200 text-blue-800' },
   inactive_30d:    { label: 'Inactive 30+ days',          description: 'No completed session in over 30 days',                            color: 'bg-slate-50 border-slate-200 text-slate-800' },
-  paused_session:  { label: 'Paused session pending',     description: 'Has a paused session that hasn\'t been resumed (5+ days)',        color: 'bg-teal-50 border-teal-200 text-teal-800' },
+  paused_session:       { label: 'Paused session pending',     description: 'Has a paused session that hasn\'t been resumed (5+ days)',        color: 'bg-teal-50 border-teal-200 text-teal-800' },
+  summer_update_may2025: { label: 'Summer update (May 2025)',   description: 'Broadcast: Science launch + summer activities announcement',        color: 'bg-green-50 border-green-200 text-green-800' },
 }
 
 const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000
