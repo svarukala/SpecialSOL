@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { Lexend, Geist_Mono } from 'next/font/google'
 import { headers } from 'next/headers'
 import Script from 'next/script'
+import { Suspense } from 'react'
+import { NavigationProgress } from '@/components/nav/navigation-progress'
 import './globals.css'
 
 const lexend = Lexend({
@@ -126,6 +128,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         />
       </head>
       <body className="min-h-screen bg-background font-sans antialiased">
+        <Suspense fallback={null}>
+          <NavigationProgress />
+        </Suspense>
         {children}
         <Script nonce={nonce} src="https://www.googletagmanager.com/gtag/js?id=G-LTDBK0L31S" strategy="afterInteractive" />
         <Script nonce={nonce} id="gtag-init" strategy="afterInteractive">{`

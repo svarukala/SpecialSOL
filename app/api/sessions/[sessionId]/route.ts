@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient, createAdminClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 import { bumpTopicLevelIfEarned } from '@/lib/supabase/queries'
 import { updateStreak } from '@/lib/supabase/streak'
 
@@ -71,8 +71,8 @@ export async function PATCH(
   const { action = 'complete', currentIndex } = body
 
   if (action === 'pause') {
-    const admin = createAdminClient()
-    const { error } = await admin
+    // Verify ownership via RLS — regular client enforces sessions_by_parent policy
+    const { error } = await supabase
       .from('practice_sessions')
       .update({
         status: 'paused',
@@ -86,8 +86,8 @@ export async function PATCH(
   }
 
   if (action === 'abandon') {
-    const admin = createAdminClient()
-    const { error } = await admin
+    // Verify ownership via RLS — regular client enforces sessions_by_parent policy
+    const { error } = await supabase
       .from('practice_sessions')
       .update({ status: 'abandoned', ended_at: new Date().toISOString() })
       .eq('id', sessionId)
