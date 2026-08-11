@@ -161,7 +161,7 @@ export default async function HomePage() {
           Virginia Standards of Learning
         </div>
         <h1 className="text-4xl sm:text-5xl font-bold leading-tight tracking-tight mb-5">
-          SOL test prep built for<br />
+          Virginia SOL test prep built for<br />
           <span className="text-primary">every learner</span>
         </h1>
         <p className="text-lg text-muted-foreground max-w-xl mx-auto mb-8 leading-relaxed">

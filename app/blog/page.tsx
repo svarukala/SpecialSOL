@@ -12,6 +12,14 @@ export const metadata: Metadata = {
 
 const POSTS = [
   {
+    slug: 'welcome-back-2026-2027-school-year',
+    category: 'Announcement',
+    title: 'Welcome Back — Here\'s to a Great 2026–2027 School Year',
+    excerpt: 'A new school year is here, and SolPrep is starting its second year right alongside it. Congratulations to every Virginia student heading into a new grade, and thank you to the parents making it happen.',
+    date: 'August 11, 2026',
+    readTime: '3 min read',
+  },
+  {
     slug: 'new-practice-tools',
     category: 'Product Update',
     title: 'New: Scratchpad, Text Highlighting, and a Croc Hint',

@@ -35,6 +35,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.6,
     },
     {
+      url: `${SITE_URL}/blog/welcome-back-2026-2027-school-year`,
+      lastModified: new Date('2026-08-11'),
+      changeFrequency: 'yearly',
+      priority: 0.7,
+    },
+    {
+      url: `${SITE_URL}/blog/new-practice-tools`,
+      lastModified: new Date('2026-05-19'),
+      changeFrequency: 'yearly',
+      priority: 0.7,
+    },
+    {
       url: `${SITE_URL}/blog/summer-fun-learning-activities`,
       lastModified: new Date('2026-05-13'),
       changeFrequency: 'yearly',
