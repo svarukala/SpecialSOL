@@ -28,10 +28,11 @@ That was deliberately dropped:
 ## What we're building
 
 A **weekly puzzle**, one per grade band (Elementary 3–5, Middle 6–8),
-released every Monday. A family sees one puzzle per band that has a child in
-it — two elementary children in one family share a single puzzle/attempt/
-streak, they don't each get their own. No public leaderboard. A Monday email
-reminds parents it's live and mentions their current streak.
+released every Monday. Puzzle *content* is shared per band — two elementary
+children in one family see the same Mystery Code puzzle — but each child
+solves it **independently on their own profile**, with their own attempt
+and their own streak. No public leaderboard. A Monday email reminds parents
+it's live and summarizes each child's current streak.
 
 ### Puzzle formats (one fixed format per band, not a new format weekly)
 
@@ -96,20 +97,22 @@ CREATE POLICY "weekly_puzzles_approved_read" ON weekly_puzzles
 
 CREATE TABLE weekly_puzzle_attempts (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  parent_id uuid NOT NULL REFERENCES parents(id) ON DELETE CASCADE,
+  child_id uuid NOT NULL REFERENCES children(id) ON DELETE CASCADE,
   puzzle_id uuid NOT NULL REFERENCES weekly_puzzles(id) ON DELETE CASCADE,
   band text NOT NULL CHECK (band IN ('elementary', 'middle')),
   solved_at timestamptz,
   attempt_count int NOT NULL DEFAULT 0,
   created_at timestamptz NOT NULL DEFAULT now(),
-  UNIQUE(parent_id, puzzle_id)
+  UNIQUE(child_id, puzzle_id)
 );
 ALTER TABLE weekly_puzzle_attempts ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "weekly_puzzle_attempts_own" ON weekly_puzzle_attempts
-  FOR ALL USING (parent_id = auth.uid());
+  FOR ALL USING (
+    EXISTS (SELECT 1 FROM children WHERE id = weekly_puzzle_attempts.child_id AND parent_id = auth.uid())
+  );
 
 
-ALTER TABLE parents
+ALTER TABLE children
   ADD COLUMN IF NOT EXISTS current_streak_elementary int NOT NULL DEFAULT 0,
   ADD COLUMN IF NOT EXISTS best_streak_elementary    int NOT NULL DEFAULT 0,
   ADD COLUMN IF NOT EXISTS last_solved_week_elementary date,
@@ -118,27 +121,34 @@ ALTER TABLE parents
   ADD COLUMN IF NOT EXISTS last_solved_week_middle    date;
 ```
 
-Streak update rule (applied on solve, per band): if
+These are separate from the existing `current_streak`/`best_streak`
+columns on `children` (daily practice-session streak, from
+`0017_streak_columns.sql`) — the weekly-challenge streak is a distinct
+counter, just following the same column pattern.
+
+Streak update rule (applied on solve, per child, per band): if
 `last_solved_week_<band>` is exactly 7 days before the puzzle's
 `week_start_date`, increment `current_streak_<band>`; otherwise reset it to
 1. Always update `best_streak_<band>` to the max, and set
 `last_solved_week_<band>` to this puzzle's `week_start_date`.
 
-A family only has a puzzle/streak for a band if they have at least one
-child in that grade range — a family with only elementary children never
-sees a Middle puzzle or accrues a `_middle` streak.
+A child only has a puzzle/streak for a band matching their own grade — an
+elementary child never sees a Middle puzzle or accrues a `_middle` streak.
+Only one band's columns are ever populated for a given child.
 
 ## Page & release flow
 
-- New route (e.g. `/challenge`), reachable once logged in. For each band the
-  family has a child in, resolve "this week's" puzzle: the `approved` row
-  for that band with the current `week_start_date` (America/New_York week,
-  Monday start).
+- New route (e.g. `/challenge`), reachable once logged in, child-selected
+  the same way other per-child views (practice sessions, etc.) already
+  work. For the selected child's band, resolve "this week's" puzzle: the
+  `approved` row for that band with the current `week_start_date`
+  (America/New_York week, Monday start).
 - Rendering branches on `puzzle_type` — a `MysteryCode` component and a
   `Soldle` component, both taking `content` and reporting an answer back to
   a shared submit handler that checks against `solution`, writes/updates
-  `weekly_puzzle_attempts`, and updates the parent's streak columns on
-  first solve.
+  `weekly_puzzle_attempts` for that child, and updates that child's streak
+  columns on first solve. Two siblings in the same band see identical
+  puzzle content but have fully independent attempt state.
 - No admin UI is being built as part of this pass — puzzle review/approval
   and week scheduling are done directly via Supabase, matching how
   `questions_pending` is reviewed today (per `scripts/approve-*.ts`
@@ -149,15 +159,16 @@ sees a Middle puzzle or accrues a `_middle` streak.
 - Monday morning, Resend send via `lib/email/resend.ts` to every parent
   with at least one child, using a plain-text-first template consistent
   with existing transactional emails: "This week's challenge is live" +
-  link to `/challenge`, and if `current_streak_<band> > 0` for a relevant
-  band, a line mentioning the streak.
+  link to `/challenge`, listing each child by name with their current
+  streak (for whichever band they're in) when it's > 0.
 - No mid-week reminder in this pass.
 
 ## Explicitly out of scope for this pass
 
 - Public/shared leaderboard of any kind.
 - District/school/county tagging.
-- Per-child (rather than per-family-band) puzzles or streaks.
+- Per-child puzzle *content* (content is shared per band, only attempts/
+  streaks are per child).
 - Live/runtime AI generation of puzzles.
 - Automated weekly content generation — puzzles are authored in manual
   batches via Claude Code sessions.
