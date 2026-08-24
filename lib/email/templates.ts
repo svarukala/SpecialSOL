@@ -7,10 +7,12 @@ export type TemplateType =
   | 'inactive_30d'
   | 'paused_session'
   | 'summer_update_may2025'
+  | 'weekly_challenge'
 
 interface TemplateData {
   childNames?: string[]
   lastSessionDate?: string
+  childStreaks?: { name: string; streak: number }[]
 }
 
 interface EmailContent {
@@ -243,6 +245,26 @@ export function buildEmail(template: TemplateType, data: TemplateData): EmailCon
           <p style="margin-top: 24px;">Thank you again — it means a lot.<br/>— Sri<br/><span style="color: #999; font-size: 13px;">Built this as a Virginia parent, for Virginia families.</span></p>
         `),
       }
+
+    case 'weekly_challenge': {
+      const streakLines = (data.childStreaks ?? [])
+        .filter((c) => c.streak > 0)
+        .map((c) => `<li style="padding: 4px 0;">🔥 <strong>${c.name}</strong>: ${c.streak} week${c.streak === 1 ? '' : 's'} in a row</li>`)
+        .join('')
+
+      return {
+        subject: "This week's challenge is live!",
+        html: layout(`
+          <p>Hi,</p>
+          <p>A new Weekly Challenge is up for ${child} — a fun puzzle to solve together, no pressure, just a few minutes.</p>
+          ${streakLines ? `<ul style="list-style: none; padding: 0; margin: 20px 0;">${streakLines}</ul>` : ''}
+          <p style="margin: 28px 0;">
+            <a href="https://solprep.app/challenge" style="background: #1a1a1a; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-size: 14px;">Solve this week's challenge →</a>
+          </p>
+          <p style="margin-top: 24px;">— Sri</p>
+        `),
+      }
+    }
 
     default:
       throw new Error(`Unknown template: ${template}`)
