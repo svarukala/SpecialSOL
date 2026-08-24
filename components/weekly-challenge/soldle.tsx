@@ -36,8 +36,10 @@ export function Soldle({ childId, puzzleId, title, content, alreadySolved }: Pro
         body: JSON.stringify({ childId, puzzleId, soldleGuess: guess }),
       })
       const body = await res.json()
-      setHistory((prev) => [...prev, { guess, feedback: body.feedback }])
-      setGuessValue('')
+      if (res.ok) {
+        setHistory((prev) => [...prev, { guess, feedback: body.feedback }])
+        setGuessValue('')
+      }
     } finally {
       setSubmitting(false)
     }

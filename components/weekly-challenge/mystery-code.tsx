@@ -28,7 +28,9 @@ export function MysteryCode({ childId, puzzleId, title, content, alreadySolved }
         body: JSON.stringify({ childId, puzzleId, mysteryAnswerIndexes: answers }),
       })
       const body = await res.json()
-      setResult({ solved: body.solved, revealedCode: body.revealedCode })
+      if (res.ok) {
+        setResult({ solved: body.solved, revealedCode: body.revealedCode })
+      }
     } finally {
       setSubmitting(false)
     }

@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { gradeToBand } from '@/lib/weekly-challenge/band'
+import { getCurrentWeekStartDate } from '@/lib/weekly-challenge/week'
 import { computeStreakUpdate, type StreakState } from '@/lib/weekly-challenge/streak'
 import {
   checkMysteryCodeAnswers,
   checkSoldleGuess,
   type MysteryCodeContent,
+  type SoldleContent,
   type SoldleSolution,
 } from '@/lib/weekly-challenge/puzzle-types'
 
@@ -31,11 +33,14 @@ export async function POST(req: NextRequest) {
     .single()
   if (!child) return NextResponse.json({ error: 'Child not found' }, { status: 404 })
 
+  const currentWeek = getCurrentWeekStartDate()
+
   const { data: puzzle } = await supabase
     .from('weekly_puzzles')
-    .select('id, band, puzzle_type, content, solution')
+    .select('id, band, puzzle_type, week_start_date, content, solution')
     .eq('id', puzzleId)
     .eq('status', 'approved')
+    .eq('week_start_date', currentWeek)
     .single()
   if (!puzzle) return NextResponse.json({ error: 'Puzzle not found' }, { status: 404 })
 
@@ -50,6 +55,7 @@ export async function POST(req: NextRequest) {
     .maybeSingle()
 
   const wasAlreadySolved = Boolean(existingAttempt?.solved_at)
+  const priorAttemptCount = existingAttempt?.attempt_count ?? 0
 
   let solved = false
   let revealedCode: string | undefined
@@ -60,11 +66,25 @@ export async function POST(req: NextRequest) {
     solved = result.solved
     revealedCode = result.revealedCode
   } else {
-    feedback = checkSoldleGuess(puzzle.solution as SoldleSolution, soldleGuess ?? NaN)
+    const content = puzzle.content as SoldleContent
+
+    if (!wasAlreadySolved && priorAttemptCount >= content.maxGuesses) {
+      return NextResponse.json({ error: 'Out of guesses for this week' }, { status: 403 })
+    }
+    if (
+      typeof soldleGuess !== 'number' ||
+      !Number.isInteger(soldleGuess) ||
+      soldleGuess < content.min ||
+      soldleGuess > content.max
+    ) {
+      return NextResponse.json({ error: 'Invalid guess' }, { status: 400 })
+    }
+
+    feedback = checkSoldleGuess(puzzle.solution as SoldleSolution, soldleGuess)
     solved = feedback === 'correct'
   }
 
-  const attemptCount = (existingAttempt?.attempt_count ?? 0) + 1
+  const attemptCount = priorAttemptCount + 1
   const isFirstSolve = solved && !wasAlreadySolved
 
   await supabase.from('weekly_puzzle_attempts').upsert(
@@ -98,13 +118,7 @@ export async function POST(req: NextRequest) {
       lastSolvedWeek: (streakRow as any)?.[lastCol] ?? null,
     }
 
-    const { data: weekRow } = await supabase
-      .from('weekly_puzzles')
-      .select('week_start_date')
-      .eq('id', puzzleId)
-      .single()
-
-    const updated = computeStreakUpdate(priorState, weekRow!.week_start_date as string)
+    const updated = computeStreakUpdate(priorState, currentWeek)
     currentStreak = updated.currentStreak
     bestStreak = updated.bestStreak
 
