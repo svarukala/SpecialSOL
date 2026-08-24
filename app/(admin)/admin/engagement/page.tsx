@@ -140,6 +140,7 @@ export default async function EngagementPage() {
       daysSince(r.signedUpAt) >= MIN_AGE_DAYS.paused_session
     ),
     summer_update_may2025: allRows,
+    weekly_challenge: allRows.filter(r => r.childNames.length > 0),
   }
 
   return (
