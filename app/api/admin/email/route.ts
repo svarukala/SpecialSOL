@@ -9,6 +9,7 @@ interface Recipient {
   parentEmail: string
   childNames?: string[]
   lastSessionDate?: string
+  childStreaks?: { name: string; streak: number }[]
 }
 
 export async function POST(req: NextRequest) {
@@ -40,6 +41,7 @@ export async function POST(req: NextRequest) {
       const { subject, html } = buildEmail(template, {
         childNames: r.childNames,
         lastSessionDate: r.lastSessionDate,
+        childStreaks: r.childStreaks,
       })
 
       const { error } = await getResend().emails.send({
