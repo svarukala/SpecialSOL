@@ -8,6 +8,7 @@ import { LandingFooter } from '@/components/marketing/landing-footer'
 
 const BASE_NAV_LINKS = [
   { href: '/dashboard', emoji: '📊', label: 'Dashboard' },
+  { href: '/challenge', emoji: '🧩', label: 'Weekly Challenge' },
   { href: '/children/new', emoji: '➕', label: 'Add Child' },
   { href: '/settings', emoji: '⚙️', label: 'Settings' },
   { href: '/feedback', emoji: '💬', label: 'Feedback' },
