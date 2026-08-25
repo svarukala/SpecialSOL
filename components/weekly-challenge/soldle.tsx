@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import type { SoldleContent } from '@/lib/weekly-challenge/puzzle-types'
+import type { BadgeAward } from '@/lib/weekly-challenge/badges'
+import { BadgeReveal } from './badge-reveal'
 
 interface Props {
   childId: string
@@ -20,6 +22,7 @@ export function Soldle({ childId, puzzleId, title, content, alreadySolved }: Pro
   const [guessValue, setGuessValue] = useState('')
   const [history, setHistory] = useState<GuessRecord[]>([])
   const [submitting, setSubmitting] = useState(false)
+  const [badgeQueue, setBadgeQueue] = useState<BadgeAward[]>([])
 
   const solved = alreadySolved || history.some((h) => h.feedback === 'correct')
   const outOfGuesses = history.length >= content.maxGuesses && !solved
@@ -39,6 +42,7 @@ export function Soldle({ childId, puzzleId, title, content, alreadySolved }: Pro
       if (res.ok) {
         setHistory((prev) => [...prev, { guess, feedback: body.feedback }])
         setGuessValue('')
+        if (body.newBadges?.length) setBadgeQueue((prev) => [...prev, ...body.newBadges])
       }
     } finally {
       setSubmitting(false)
@@ -86,6 +90,13 @@ export function Soldle({ childId, puzzleId, title, content, alreadySolved }: Pro
             {submitting ? 'Checking...' : 'Guess'}
           </button>
         </div>
+      )}
+
+      {badgeQueue.length > 0 && (
+        <BadgeReveal
+          badge={badgeQueue[0]}
+          onDismiss={() => setBadgeQueue((prev) => prev.slice(1))}
+        />
       )}
     </div>
   )
