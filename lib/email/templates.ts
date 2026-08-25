@@ -8,6 +8,7 @@ export type TemplateType =
   | 'paused_session'
   | 'summer_update_may2025'
   | 'weekly_challenge'
+  | 'welcome_back_2026'
 
 interface TemplateData {
   childNames?: string[]
@@ -265,6 +266,27 @@ export function buildEmail(template: TemplateType, data: TemplateData): EmailCon
         `),
       }
     }
+
+    case 'welcome_back_2026':
+      return {
+        subject: 'Welcome back — plus a new Weekly Challenge 🧩',
+        html: layout(`
+          <p>Hi,</p>
+          <p>The 2026–2027 school year is here — new grade, new teacher, maybe a new school. Whatever this year brings, we wanted to say: welcome back, and good luck.</p>
+          <p>We wrote a short note to every student stepping into a new grade this fall, and to the parents making it all happen — you can read it here:</p>
+          <p style="margin: 20px 0;">
+            <a href="https://solprep.app/blog/welcome-back-2026-2027-school-year" style="background: #1a1a1a; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-size: 14px;">Read our welcome back note →</a>
+          </p>
+
+          <p style="font-weight: bold; margin-top: 28px;">🧩 New this year: the Weekly Challenge</p>
+          <p>Alongside SOL practice, SolPrep now has a free Weekly Challenge — one fun puzzle a week (Mystery Code for younger kids, SOLdle for middle schoolers), with a streak your child can build week over week. No pressure, just a few minutes, any time of year.</p>
+          <p style="margin: 20px 0;">
+            <a href="https://solprep.app/challenge" style="background: #1a1a1a; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-size: 14px;">Try this week's challenge →</a>
+          </p>
+
+          <p style="margin-top: 24px;">Here's to a great year ahead.<br/>— SolPrep</p>
+        `),
+      }
 
     default:
       throw new Error(`Unknown template: ${template}`)

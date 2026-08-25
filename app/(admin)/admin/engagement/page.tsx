@@ -141,6 +141,7 @@ export default async function EngagementPage() {
     ),
     summer_update_may2025: allRows,
     weekly_challenge: allRows.filter(r => r.childNames.length > 0),
+    welcome_back_2026: allRows,
   }
 
   return (

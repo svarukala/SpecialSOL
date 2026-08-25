@@ -16,6 +16,7 @@ const SEGMENT_META: Record<SegmentKey, { label: string; description: string; col
   paused_session:       { label: 'Paused session pending',     description: 'Has a paused session that hasn\'t been resumed (5+ days)',        color: 'bg-teal-50 border-teal-200 text-teal-800' },
   summer_update_may2025: { label: 'Summer update (May 2025)',   description: 'Broadcast: Science launch + summer activities announcement',        color: 'bg-green-50 border-green-200 text-green-800' },
   weekly_challenge: { label: 'Weekly Challenge',        description: 'Broadcast: notify families with children that a new weekly puzzle is live', color: 'bg-indigo-50 border-indigo-200 text-indigo-800' },
+  welcome_back_2026: { label: 'Welcome back (2026-27)',  description: 'Broadcast: new school year welcome + Weekly Challenge announcement',        color: 'bg-amber-50 border-amber-200 text-amber-800' },
 }
 
 const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000

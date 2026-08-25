@@ -25,3 +25,16 @@ describe('buildEmail weekly_challenge', () => {
     expect(html).not.toContain('0 week')
   })
 })
+
+describe('buildEmail welcome_back_2026', () => {
+  it('links to the welcome-back blog post and the Weekly Challenge', () => {
+    const { subject, html } = buildEmail('welcome_back_2026', {})
+
+    expect(subject).toContain('Welcome back')
+    expect(subject).toContain('Weekly Challenge')
+    expect(html).toContain('solprep.app/blog/welcome-back-2026-2027-school-year')
+    expect(html).toContain('solprep.app/challenge')
+    expect(html).toContain('Weekly Challenge')
+    expect(html).toContain('— SolPrep')
+  })
+})
