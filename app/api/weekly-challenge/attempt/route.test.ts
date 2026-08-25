@@ -45,6 +45,11 @@ function makeClient(opts: {
           upsert: upsertAttemptMock,
         }
       }
+      if (table === 'child_badges') {
+        return {
+          upsert: vi.fn().mockResolvedValue({ error: null }),
+        }
+      }
       throw new Error(`Unexpected table: ${table}`)
     }),
   }
@@ -224,5 +229,68 @@ describe('POST /api/weekly-challenge/attempt', () => {
 
     expect(res.status).toBe(400)
     expect(upsertAttemptMock).not.toHaveBeenCalled()
+  })
+
+  it('awards a puzzle badge on a first-time soldle solve', async () => {
+    const puzzle = {
+      id: 'puzzle-3',
+      band: 'middle',
+      puzzle_type: 'soldle',
+      title: 'Ratio Riddle',
+      week_start_date: CURRENT_WEEK,
+      content: { concept: 'ratio', clue: 'clue', min: 1, max: 100, maxGuesses: 6 },
+      solution: { target: 42 },
+    }
+    const { client } = makeClient({
+      child: { id: 'child-1', grade: 7 },
+      puzzle,
+      existingAttempt: null,
+      parentStreak: {},
+    })
+    vi.mocked(createClient).mockResolvedValue(client as any)
+
+    const req = new NextRequest('http://localhost/api/weekly-challenge/attempt', {
+      method: 'POST',
+      body: JSON.stringify({ childId: 'child-1', puzzleId: 'puzzle-3', soldleGuess: 42 }),
+    })
+    const res = await POST(req)
+    const body = await res.json()
+
+    expect(res.status).toBe(200)
+    expect(body.newBadges).toContainEqual(
+      expect.objectContaining({ badgeKey: 'puzzle:puzzle-3', badgeType: 'puzzle', emoji: '🔢' })
+    )
+  })
+
+  it('returns an empty newBadges array when no badge is earned', async () => {
+    const puzzle = {
+      id: 'puzzle-1',
+      band: 'elementary',
+      puzzle_type: 'mystery_code',
+      title: 'The Locker Code',
+      week_start_date: CURRENT_WEEK,
+      content: {
+        codeLabel: '2-digit code',
+        questions: [{ prompt: '2+2?', choices: ['3', '4'], correctIndex: 1, revealsDigit: '7' }],
+      },
+      solution: { code: '7' },
+    }
+    const { client } = makeClient({
+      child: { id: 'child-1', grade: 4 },
+      puzzle,
+      existingAttempt: null,
+      parentStreak: {},
+    })
+    vi.mocked(createClient).mockResolvedValue(client as any)
+
+    const req = new NextRequest('http://localhost/api/weekly-challenge/attempt', {
+      method: 'POST',
+      body: JSON.stringify({ childId: 'child-1', puzzleId: 'puzzle-1', mysteryAnswerIndexes: [0] }),
+    })
+    const res = await POST(req)
+    const body = await res.json()
+
+    expect(body.solved).toBe(false)
+    expect(body.newBadges).toEqual([])
   })
 })

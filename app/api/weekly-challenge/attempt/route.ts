@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { gradeToBand } from '@/lib/weekly-challenge/band'
 import { getCurrentWeekStartDate } from '@/lib/weekly-challenge/week'
 import { computeStreakUpdate, type StreakState } from '@/lib/weekly-challenge/streak'
+import { puzzleBadge, streakMilestoneBadge, type BadgeAward } from '@/lib/weekly-challenge/badges'
 import {
   checkMysteryCodeAnswers,
   checkSoldleGuess,
@@ -16,6 +17,25 @@ interface AttemptBody {
   puzzleId: string
   mysteryAnswerIndexes?: number[]
   soldleGuess?: number
+}
+
+async function awardBadge(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  childId: string,
+  badge: BadgeAward
+) {
+  const { error } = await supabase.from('child_badges').upsert(
+    {
+      child_id: childId,
+      badge_key: badge.badgeKey,
+      badge_type: badge.badgeType,
+      band: badge.band,
+      title: badge.title,
+      emoji: badge.emoji,
+    },
+    { onConflict: 'child_id,badge_key', ignoreDuplicates: true }
+  )
+  return !error
 }
 
 export async function POST(req: NextRequest) {
@@ -37,7 +57,7 @@ export async function POST(req: NextRequest) {
 
   const { data: puzzle } = await supabase
     .from('weekly_puzzles')
-    .select('id, band, puzzle_type, week_start_date, content, solution')
+    .select('id, band, puzzle_type, title, week_start_date, content, solution')
     .eq('id', puzzleId)
     .eq('status', 'approved')
     .eq('week_start_date', currentWeek)
@@ -98,6 +118,13 @@ export async function POST(req: NextRequest) {
     { onConflict: 'child_id,puzzle_id' }
   )
 
+  const newBadges: BadgeAward[] = []
+
+  if (isFirstSolve && puzzle.puzzle_type === 'soldle') {
+    const badge = puzzleBadge(puzzle.id, 'soldle', puzzle.title as string, band)
+    if (await awardBadge(supabase, childId, badge)) newBadges.push(badge)
+  }
+
   let currentStreak: number | undefined
   let bestStreak: number | undefined
 
@@ -130,6 +157,11 @@ export async function POST(req: NextRequest) {
         [lastCol]: updated.lastSolvedWeek,
       })
       .eq('id', childId)
+
+    const streakBadge = streakMilestoneBadge(band, updated.currentStreak)
+    if (streakBadge && (await awardBadge(supabase, childId, streakBadge))) {
+      newBadges.push(streakBadge)
+    }
   }
 
   return NextResponse.json({
@@ -138,5 +170,6 @@ export async function POST(req: NextRequest) {
     ...(revealedCode !== undefined ? { revealedCode } : {}),
     ...(feedback !== undefined ? { feedback } : {}),
     ...(currentStreak !== undefined ? { currentStreak, bestStreak } : {}),
+    newBadges,
   })
 }
