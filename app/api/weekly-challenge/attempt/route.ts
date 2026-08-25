@@ -24,7 +24,7 @@ async function awardBadge(
   childId: string,
   badge: BadgeAward
 ) {
-  const { error } = await supabase.from('child_badges').upsert(
+  const { data, error } = await supabase.from('child_badges').upsert(
     {
       child_id: childId,
       badge_key: badge.badgeKey,
@@ -34,8 +34,8 @@ async function awardBadge(
       emoji: badge.emoji,
     },
     { onConflict: 'child_id,badge_key', ignoreDuplicates: true }
-  )
-  return !error
+  ).select()
+  return !error && Boolean(data && data.length > 0)
 }
 
 export async function POST(req: NextRequest) {

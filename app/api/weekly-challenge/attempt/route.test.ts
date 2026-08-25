@@ -15,18 +15,37 @@ function makeClient(opts: {
   puzzle: Record<string, unknown> | null
   existingAttempt: Record<string, unknown> | null
   parentStreak: Record<string, unknown>
+  childBadgesUpsertData?: Record<string, unknown>[]
 }) {
   const upsertAttemptMock = vi.fn().mockResolvedValue({ error: null })
   const updateChildMock = vi.fn().mockReturnValue({ eq: vi.fn().mockResolvedValue({ error: null }) })
+  const childBadgesUpsertMock = vi.fn().mockReturnValue({
+    select: vi.fn().mockResolvedValue({
+      data: opts.childBadgesUpsertData ?? [{ id: 'badge-row-1' }],
+      error: null,
+    }),
+  })
+
+  // The route calls .single() on 'children' up to twice per request: once for the
+  // initial child lookup, and (only on a first-time solve) again to fetch the prior
+  // streak row. Return the child lookup data on the first call and the streak row
+  // data (opts.parentStreak) on any subsequent call. Shared across from('children')
+  // invocations since the route calls .from('children') separately each time.
+  let childrenSingleCallCount = 0
 
   const client = {
     auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'parent-1' } } }) },
     from: vi.fn().mockImplementation((table: string) => {
       if (table === 'children') {
+        const singleMock = vi.fn().mockImplementation(() => {
+          childrenSingleCallCount += 1
+          const data = childrenSingleCallCount === 1 ? opts.child : opts.parentStreak
+          return Promise.resolve({ data, error: null })
+        })
         return {
           select: vi.fn().mockReturnThis(),
           eq: vi.fn().mockReturnThis(),
-          single: vi.fn().mockResolvedValue({ data: opts.child, error: null }),
+          single: singleMock,
           update: updateChildMock,
         }
       }
@@ -47,13 +66,13 @@ function makeClient(opts: {
       }
       if (table === 'child_badges') {
         return {
-          upsert: vi.fn().mockResolvedValue({ error: null }),
+          upsert: childBadgesUpsertMock,
         }
       }
       throw new Error(`Unexpected table: ${table}`)
     }),
   }
-  return { client, upsertAttemptMock, updateChildMock }
+  return { client, upsertAttemptMock, updateChildMock, childBadgesUpsertMock }
 }
 
 beforeEach(() => {
@@ -292,5 +311,50 @@ describe('POST /api/weekly-challenge/attempt', () => {
 
     expect(body.solved).toBe(false)
     expect(body.newBadges).toEqual([])
+  })
+
+  it('does not re-add a streak badge to newBadges when the milestone was already earned', async () => {
+    const puzzle = {
+      id: 'puzzle-1',
+      band: 'elementary',
+      puzzle_type: 'mystery_code',
+      title: 'The Locker Code',
+      week_start_date: CURRENT_WEEK,
+      content: {
+        codeLabel: '1-digit code',
+        questions: [{ prompt: '1+1?', choices: ['2'], correctIndex: 0, revealsDigit: '9' }],
+      },
+      solution: { code: '9' },
+    }
+    // Prior streak of 4; solving this week brings it to 5, hitting the streak-milestone
+    // badge_key 'streak:elementary:5' — but simulate that badge already being owned
+    // (e.g. from an earlier streak run) by making the upsert's .select() return no rows.
+    const { client, childBadgesUpsertMock } = makeClient({
+      child: { id: 'child-1', grade: 4 },
+      puzzle,
+      existingAttempt: null,
+      parentStreak: {
+        current_streak_elementary: 4,
+        best_streak_elementary: 5,
+        last_solved_week_elementary: '2026-08-17',
+      },
+      childBadgesUpsertData: [],
+    })
+    vi.mocked(createClient).mockResolvedValue(client as any)
+
+    const req = new NextRequest('http://localhost/api/weekly-challenge/attempt', {
+      method: 'POST',
+      body: JSON.stringify({ childId: 'child-1', puzzleId: 'puzzle-1', mysteryAnswerIndexes: [0] }),
+    })
+    const res = await POST(req)
+    const body = await res.json()
+
+    expect(res.status).toBe(200)
+    expect(body.solved).toBe(true)
+    expect(body.currentStreak).toBe(5)
+    expect(body.newBadges).not.toContainEqual(
+      expect.objectContaining({ badgeKey: 'streak:elementary:5' })
+    )
+    expect(childBadgesUpsertMock).toHaveBeenCalled()
   })
 })
