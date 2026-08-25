@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
 
   const badge = puzzleBadge(puzzle.id, 'mystery_code', puzzle.title as string, band)
 
-  await supabase.from('child_badges').upsert(
+  const { error: badgeError } = await supabase.from('child_badges').upsert(
     {
       child_id: childId,
       badge_key: badge.badgeKey,
@@ -68,6 +68,11 @@ export async function POST(req: NextRequest) {
     },
     { onConflict: 'child_id,badge_key', ignoreDuplicates: true }
   )
+
+  if (badgeError) {
+    console.error('Failed to award badge on redeem:', badgeError)
+    return NextResponse.json({ error: 'Failed to save badge' }, { status: 500 })
+  }
 
   return NextResponse.json({ badge })
 }

@@ -153,6 +153,7 @@ export function MysteryCode({ childId, puzzleId, title, content, alreadySolved, 
 
       {badgeQueue.length > 0 && (
         <BadgeReveal
+          key={badgeQueue[0].badgeKey}
           badge={badgeQueue[0]}
           onDismiss={() => setBadgeQueue((prev) => prev.slice(1))}
         />

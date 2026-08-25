@@ -167,4 +167,25 @@ describe('POST /api/weekly-challenge/redeem', () => {
     expect(body.badge.badgeKey).toBe('puzzle:puzzle-1')
     expect(upsertBadgeMock).toHaveBeenCalled()
   })
+
+  it('returns 500 and does not report success when the badge upsert fails', async () => {
+    const { client, upsertBadgeMock } = makeClient({
+      child: { id: 'child-1', grade: 4 },
+      puzzle,
+      attempt: { solved_at: '2026-08-24T12:00:00Z' },
+    })
+    upsertBadgeMock.mockResolvedValue({ error: { message: 'some db error' } })
+    vi.mocked(createClient).mockResolvedValue(client as any)
+
+    const req = new NextRequest('http://localhost/api/weekly-challenge/redeem', {
+      method: 'POST',
+      body: JSON.stringify({ childId: 'child-1', puzzleId: 'puzzle-1', code: '419' }),
+    })
+    const res = await POST(req)
+    const body = await res.json()
+
+    expect(res.status).toBe(500)
+    expect(body.error).toBeTruthy()
+    expect(body.badge).toBeUndefined()
+  })
 })

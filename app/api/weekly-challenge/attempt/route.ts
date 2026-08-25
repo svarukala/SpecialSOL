@@ -35,7 +35,11 @@ async function awardBadge(
     },
     { onConflict: 'child_id,badge_key', ignoreDuplicates: true }
   ).select()
-  return !error && Boolean(data && data.length > 0)
+  if (error) {
+    console.error('Failed to award badge:', badge.badgeKey, error)
+    return false
+  }
+  return Boolean(data && data.length > 0)
 }
 
 export async function POST(req: NextRequest) {

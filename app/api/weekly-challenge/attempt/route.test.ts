@@ -357,4 +357,47 @@ describe('POST /api/weekly-challenge/attempt', () => {
     )
     expect(childBadgesUpsertMock).toHaveBeenCalled()
   })
+
+  it('awards a streak badge but not a puzzle badge on a first-time mystery_code solve that crosses a streak milestone', async () => {
+    const puzzle = {
+      id: 'puzzle-1',
+      band: 'elementary',
+      puzzle_type: 'mystery_code',
+      title: 'The Locker Code',
+      week_start_date: CURRENT_WEEK,
+      content: {
+        codeLabel: '1-digit code',
+        questions: [{ prompt: '1+1?', choices: ['2'], correctIndex: 0, revealsDigit: '9' }],
+      },
+      solution: { code: '9' },
+    }
+    const { client } = makeClient({
+      child: { id: 'child-1', grade: 4 },
+      puzzle,
+      existingAttempt: null,
+      parentStreak: {
+        current_streak_elementary: 4,
+        best_streak_elementary: 4,
+        last_solved_week_elementary: '2026-08-17',
+      },
+    })
+    vi.mocked(createClient).mockResolvedValue(client as any)
+
+    const req = new NextRequest('http://localhost/api/weekly-challenge/attempt', {
+      method: 'POST',
+      body: JSON.stringify({ childId: 'child-1', puzzleId: 'puzzle-1', mysteryAnswerIndexes: [0] }),
+    })
+    const res = await POST(req)
+    const body = await res.json()
+
+    expect(res.status).toBe(200)
+    expect(body.solved).toBe(true)
+    expect(body.currentStreak).toBe(5)
+    expect(body.newBadges).toContainEqual(
+      expect.objectContaining({ badgeKey: 'streak:elementary:5' })
+    )
+    expect(
+      body.newBadges.some((b: { badgeKey: string }) => b.badgeKey.startsWith('puzzle:'))
+    ).toBe(false)
+  })
 })

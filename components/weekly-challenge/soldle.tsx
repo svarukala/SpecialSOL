@@ -94,6 +94,7 @@ export function Soldle({ childId, puzzleId, title, content, alreadySolved }: Pro
 
       {badgeQueue.length > 0 && (
         <BadgeReveal
+          key={badgeQueue[0].badgeKey}
           badge={badgeQueue[0]}
           onDismiss={() => setBadgeQueue((prev) => prev.slice(1))}
         />
