@@ -30,38 +30,39 @@ export default async function ChallengePage({
   const band = gradeToBand(activeChild.grade)
   const weekStartDate = getCurrentWeekStartDate()
 
-  const { data: puzzle } = await supabase
-    .from('weekly_puzzles')
-    .select('id, puzzle_type, title, content')
-    .eq('band', band)
-    .eq('status', 'approved')
-    .eq('week_start_date', weekStartDate)
-    .maybeSingle()
-
   const currentCol = band === 'elementary' ? 'current_streak_elementary' : 'current_streak_middle'
-  const { data: childStreak } = await supabase
-    .from('children')
-    .select(currentCol)
-    .eq('id', activeChild.id)
-    .single()
 
-  const { data: attempt } = puzzle
-    ? await supabase
-        .from('weekly_puzzle_attempts')
-        .select('solved_at, attempt_count')
-        .eq('child_id', activeChild.id)
-        .eq('puzzle_id', puzzle.id)
-        .maybeSingle()
-    : { data: null }
+  const [{ data: puzzle }, { data: childStreak }] = await Promise.all([
+    supabase
+      .from('weekly_puzzles')
+      .select('id, puzzle_type, title, content')
+      .eq('band', band)
+      .eq('status', 'approved')
+      .eq('week_start_date', weekStartDate)
+      .maybeSingle(),
+    supabase
+      .from('children')
+      .select(currentCol)
+      .eq('id', activeChild.id)
+      .single(),
+  ])
 
-  const { data: existingBadge } = puzzle
-    ? await supabase
-        .from('child_badges')
-        .select('id')
-        .eq('child_id', activeChild.id)
-        .eq('badge_key', `puzzle:${puzzle.id}`)
-        .maybeSingle()
-    : { data: null }
+  const [{ data: attempt }, { data: existingBadge }] = puzzle
+    ? await Promise.all([
+        supabase
+          .from('weekly_puzzle_attempts')
+          .select('solved_at, attempt_count')
+          .eq('child_id', activeChild.id)
+          .eq('puzzle_id', puzzle.id)
+          .maybeSingle(),
+        supabase
+          .from('child_badges')
+          .select('id')
+          .eq('child_id', activeChild.id)
+          .eq('badge_key', `puzzle:${puzzle.id}`)
+          .maybeSingle(),
+      ])
+    : [{ data: null }, { data: null }]
 
   const streakCount = (childStreak as Record<string, number> | null)?.[currentCol] ?? 0
 
