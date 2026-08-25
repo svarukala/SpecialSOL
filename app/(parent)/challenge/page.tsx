@@ -1,3 +1,4 @@
+// app/(parent)/challenge/page.tsx
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
@@ -53,6 +54,15 @@ export default async function ChallengePage({
         .maybeSingle()
     : { data: null }
 
+  const { data: existingBadge } = puzzle
+    ? await supabase
+        .from('child_badges')
+        .select('id')
+        .eq('child_id', activeChild.id)
+        .eq('badge_key', `puzzle:${puzzle.id}`)
+        .maybeSingle()
+    : { data: null }
+
   const streakCount = (childStreak as Record<string, number> | null)?.[currentCol] ?? 0
 
   return (
@@ -84,11 +94,16 @@ export default async function ChallengePage({
         </div>
       )}
 
-      {streakCount > 0 && (
-        <p className="text-sm text-muted-foreground">
-          🔥 {activeChild.name}&apos;s streak: {streakCount} week{streakCount === 1 ? '' : 's'}
-        </p>
-      )}
+      <div className="flex items-center justify-between">
+        {streakCount > 0 ? (
+          <p className="text-sm text-muted-foreground">
+            🔥 {activeChild.name}&apos;s streak: {streakCount} week{streakCount === 1 ? '' : 's'}
+          </p>
+        ) : <span />}
+        <Link href={`/badges?childId=${activeChild.id}`} className="text-sm text-primary hover:underline">
+          🏅 My Badges
+        </Link>
+      </div>
 
       {!puzzle ? (
         <p className="text-sm text-muted-foreground">
@@ -101,6 +116,7 @@ export default async function ChallengePage({
           title={puzzle.title}
           content={puzzle.content as MysteryCodeContent}
           alreadySolved={Boolean(attempt?.solved_at)}
+          alreadyRedeemed={Boolean(existingBadge)}
         />
       ) : (
         <Soldle
