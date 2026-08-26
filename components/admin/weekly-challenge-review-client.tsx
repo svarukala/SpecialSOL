@@ -11,6 +11,8 @@ type WeeklyPuzzle = {
   title: string
   content: MysteryCodeContent | SoldleContent
   status: 'pending' | 'approved' | 'rejected'
+  attemptedCount: number
+  solvedCount: number
 }
 
 export function WeeklyChallengeReviewClient() {
@@ -106,6 +108,11 @@ export function WeeklyChallengeReviewClient() {
               <span className="bg-muted text-muted-foreground text-xs px-2 py-0.5 rounded">{p.puzzle_type}</span>
               {isApproved && <span className="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded">Approved</span>}
               {isRejected && <span className="bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded">Rejected</span>}
+              {isApproved && (
+                <span className="bg-purple-100 text-purple-800 text-xs px-2 py-0.5 rounded">
+                  {p.attemptedCount} attempted &middot; {p.solvedCount} solved
+                </span>
+              )}
             </div>
 
             <p className="font-medium text-sm mb-2">{p.title}</p>
