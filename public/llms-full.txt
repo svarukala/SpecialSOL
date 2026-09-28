@@ -69,6 +69,10 @@ SolPrep's blog covers product, education, and engineering topics — how the pla
 
 ### Articles
 
+- **Grade 3 Reading SOL: Why It Matters More Than Any Other Elementary Test** (Education, September 28, 2026)
+  The Virginia Literacy Act, retention risk, what the Grade 3 Reading SOL tests (phonics, vocabulary, fiction comprehension, nonfiction comprehension, literary craft), how scaled scores work (0–600, passing at 400), what happens if a child doesn't pass, and how to prepare.
+  URL: https://solprep.app/blog/grade-3-reading-sol-guide
+
 - **How to Read Your Child's SOL Score Report** (Education, May 5, 2026)
   Scaled scores 0–600, why 400 is a policy threshold not a measurement line, Pass/Proficient vs Pass/Advanced including the 8th-grade EOC credit distinction, how to read the reporting category table, using categories to target practice, the Grade 3 Reading retention gate.
   URL: https://solprep.app/blog/how-to-read-sol-score-report
@@ -353,6 +357,22 @@ For grades 3–7, not passing does not automatically mean retention — schools 
 4. Don't neglect Reading — SOL reading comprehension affects performance on every other subject's test.
 
 SolPrep was built to solve the access problem: over 2,300 questions extracted from official VDOE released tests, organized for interactive practice with immediate feedback, adaptive learning tiers, and full IEP/504 accommodation support. Free, no account required to browse.
+
+---
+
+## Page: Blog Article — Grade 3 Reading SOL: Why It Matters More Than Any Other Elementary Test (https://solprep.app/blog/grade-3-reading-sol-guide)
+
+*Education · September 28, 2026 · 6 min read*
+
+The Grade 3 Reading SOL is different from every other elementary test in Virginia because of the Virginia Literacy Act, passed in 2022 and fully implemented starting in the 2024–25 school year. The law requires students to demonstrate reading proficiency by the end of third grade. Students who don't pass the Grade 3 Reading SOL may be retained rather than promoted to fourth grade — making this the one elementary SOL with direct, immediate stakes.
+
+Reading in third grade marks the shift from "learning to read" to "reading to learn." Research consistently shows that students who aren't reading at grade level by the end of third grade face compounding academic barriers across every subject. The Virginia Literacy Act targets this transition point with required early identification, intervention plans, and a proficiency gate.
+
+The Grade 3 Reading SOL covers five skill strands: word study and phonics (decoding, word families, prefixes/suffixes); vocabulary (context clues, word meaning); fiction comprehension (main character, setting, plot, inference, character motivation); nonfiction comprehension (main idea, supporting details, author's purpose, comparing passages); and literary elements and author's craft (point of view, word choice, text features). Each strand appears as a separate reporting category on the score report.
+
+Scores run 0–600. Passing is 400. Pass/Proficient is 400–499. Pass/Advanced is 500 or above. The test is computer-adaptive: questions adjust in real time to student performance. For the Grade 3 Reading SOL, a score below 400 triggers formal reading intervention under the Virginia Literacy Act and a possible retention review. Retention is not automatic — families have input, and schools must consider all available evidence. Options include summer intervention, a written promotion agreement, or a second SOL administration.
+
+Parents can support Grade 3 Reading preparation at home by asking "why" questions about books (building inference and character motivation skills), pointing out context clues in unfamiliar words, reading nonfiction together, and talking about what children read. The families who feel most prepared in spring are those who built a short, consistent practice habit in the fall — before the test format is unfamiliar and stressful. If a child has school accommodations (text-to-speech, dyslexia font, extended time), they should practice with those accommodations at home too, so they are familiar on test day. SolPrep provides all of these accommodations and real VDOE questions for free at solprep.app.
 
 ---
 

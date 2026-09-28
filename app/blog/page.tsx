@@ -12,6 +12,14 @@ export const metadata: Metadata = {
 
 const POSTS = [
   {
+    slug: 'grade-3-reading-sol-guide',
+    category: 'Education',
+    title: 'Grade 3 Reading SOL: Why It Matters More Than Any Other Elementary Test',
+    excerpt: 'The Virginia Literacy Act makes the Grade 3 Reading SOL the one elementary test with real retention stakes. Learn what it tests, what a passing score means, and how to help your child prepare.',
+    date: 'September 28, 2026',
+    readTime: '6 min read',
+  },
+  {
     slug: 'welcome-back-2026-2027-school-year',
     category: 'Announcement',
     title: 'Welcome Back — Here\'s to a Great 2026–2027 School Year',

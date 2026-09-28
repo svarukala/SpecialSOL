@@ -77,6 +77,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     {
+      url: `${SITE_URL}/blog/grade-3-reading-sol-guide`,
+      lastModified: new Date(),
+      changeFrequency: 'yearly',
+      priority: 0.8,
+    },
+    {
       url: `${SITE_URL}/blog/accommodations-for-special-needs-students`,
       lastModified: new Date('2026-04-10'),
       changeFrequency: 'yearly',
