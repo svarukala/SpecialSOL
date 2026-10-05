@@ -12,6 +12,14 @@ export const metadata: Metadata = {
 
 const POSTS = [
   {
+    slug: 'sol-test-anxiety-help',
+    category: 'Education',
+    title: 'SOL Test Anxiety: What It Is and How to Help Your Child',
+    excerpt: 'Test anxiety affects 25–40% of students and is especially disruptive on high-stakes tests. Learn what it is, why familiarity is the best antidote, and how short daily practice sessions reduce it over time.',
+    date: 'October 5, 2026',
+    readTime: '5 min read',
+  },
+  {
     slug: 'grade-3-reading-sol-guide',
     category: 'Education',
     title: 'Grade 3 Reading SOL: Why It Matters More Than Any Other Elementary Test',
