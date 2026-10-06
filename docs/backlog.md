@@ -113,6 +113,21 @@ Items are grouped by area. Add new items at the bottom of the relevant section.
 
 ---
 
+## Marketing & SEO / Growth
+
+Prompted by competitor review of thesolguru.com (2026-10-06). They out-rank us on long-tail
+"Grade N Virginia SOL practice test" queries via dedicated per-grade/per-subject SEO pages, and
+show sample questions pre-signup. Items below close those gaps and borrow their best ideas.
+
+| # | Item | Priority | Notes |
+|---|------|----------|-------|
+| MK-1 | Per-grade SEO landing pages | High | **(in progress)** Dedicated `/sol-practice/grade-N` pages for grades 3–8, each targeting "Grade N Virginia SOL practice test". Per-grade topic lists (from `SOL_CURRICULUM`), real sample VDOE questions, question counts, internal links between grades. Added to sitemap. Biggest organic-search growth lever; question data already exists. |
+| MK-2 | Sample questions on homepage | High | **(in progress)** Show 3 real VDOE released questions (with correct answer marked + "real released test" badge) before signup to build trust and cut signup friction. Reusable `SampleQuestions` component also used on grade pages. |
+| MK-3 | Mistake Locker (review wrong answers) | High | Competitor feature worth borrowing: persistent, auto-collected list of questions a child got wrong, available for targeted re-practice. Fits existing practice-session flow. Check whether wrong-answer review already exists before building. |
+| MK-4 | Per-standard mastery dashboard | Medium | Parent-facing breakdown of mastery % per SOL standard/topic (vs. current session/streak view). Maps to how VDOE reporting categories work; helps parents target practice. Overlaps with AN-1 (topic sparklines) and EG-2 (mastery badges). |
+
+---
+
 ## Monetization (Future)
 
 | # | Item | Priority | Notes |

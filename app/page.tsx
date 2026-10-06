@@ -7,6 +7,8 @@ import { LandingFooter } from '@/components/marketing/landing-footer'
 import { AccommodationTiles } from '@/components/marketing/accommodation-tiles'
 import { ThankYouBanner } from '@/components/marketing/thank-you-banner'
 import { EarlyAccessButton } from '@/components/marketing/early-access-button'
+import { SampleQuestions } from '@/components/marketing/sample-questions'
+import { getSampleQuestions } from '@/lib/supabase/marketing'
 
 export const metadata: Metadata = {
   title: 'Free Virginia SOL Practice Test — Real VDOE Questions, Grades 3–8',
@@ -136,6 +138,8 @@ export default async function HomePage() {
     db.from('questions').select('*', { count: 'exact', head: true }).eq('source', 'ai_generated'),
   ])
 
+  const sampleQuestions = await getSampleQuestions({ limit: 3 })
+
   function roundDown(n: number, to: number) { return Math.floor(n / to) * to }
 
   const STATS = [
@@ -206,6 +210,17 @@ export default async function HomePage() {
           ))}
         </div>
       </section>
+
+      {/* ── Sample questions ───────────────────────────────────── */}
+      {sampleQuestions.length > 0 && (
+        <section className="max-w-5xl mx-auto px-4 py-16">
+          <SampleQuestions
+            questions={sampleQuestions}
+            heading="See the real thing"
+            subheading="Actual questions from official Virginia DOE released SOL tests — the same ones that have appeared on real exams. No signup needed to look."
+          />
+        </section>
+      )}
 
       {/* ── Summer Learning ─────────────────────────────────────── */}
       <section className="border-t bg-muted/30">

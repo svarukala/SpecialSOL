@@ -2,6 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 
 const BASE_FOOTER_LINKS = [
+  { href: '/sol-practice', label: 'Practice Tests' },
   { href: '/#features', label: 'Features' },
   { href: '/#accommodations', label: 'Accommodations' },
   { href: '/our-story', label: 'Our Story' },

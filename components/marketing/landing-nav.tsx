@@ -8,6 +8,7 @@ interface Props {
 }
 
 const NAV_LINKS = [
+  { href: '/sol-practice', label: 'Practice Tests' },
   { href: '/#features', label: 'Features' },
   { href: '/#accommodations', label: 'Accommodations' },
   { href: '/our-story', label: 'Our Story' },

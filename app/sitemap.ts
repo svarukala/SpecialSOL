@@ -1,8 +1,24 @@
 import { MetadataRoute } from 'next'
+import { SUPPORTED_GRADES } from '@/lib/curriculum/sol-curriculum'
 
 const SITE_URL = 'https://solprep.app'
 
 export default function sitemap(): MetadataRoute.Sitemap {
+  const solPracticePages: MetadataRoute.Sitemap = [
+    {
+      url: `${SITE_URL}/sol-practice`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.9,
+    },
+    ...SUPPORTED_GRADES.map((grade) => ({
+      url: `${SITE_URL}/sol-practice/grade-${grade}`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.9,
+    })),
+  ]
+
   return [
     {
       url: SITE_URL,
@@ -10,6 +26,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly',
       priority: 1,
     },
+    ...solPracticePages,
     {
       url: `${SITE_URL}/our-story`,
       lastModified: new Date(),
