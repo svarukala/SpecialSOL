@@ -12,6 +12,14 @@ export const metadata: Metadata = {
 
 const POSTS = [
   {
+    slug: 'what-is-a-504-plan',
+    category: 'Education',
+    title: 'What Is a 504 Plan and How Is It Different From an IEP?',
+    excerpt: 'A plain-language guide for Virginia parents: what a 504 plan covers, how it differs from an IEP, how to request one, and which accommodations apply to SOL tests.',
+    date: 'October 12, 2026',
+    readTime: '5 min read',
+  },
+  {
     slug: 'sol-test-anxiety-help',
     category: 'Education',
     title: 'SOL Test Anxiety: What It Is and How to Help Your Child',

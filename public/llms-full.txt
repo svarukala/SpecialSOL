@@ -69,6 +69,10 @@ SolPrep's blog covers product, education, and engineering topics — how the pla
 
 ### Articles
 
+- **What Is a 504 Plan and How Is It Different From an IEP?** (Education, October 12, 2026)
+  What a 504 plan covers, how it differs from an IEP, the two federal laws behind them (IDEA and Section 504), eligibility differences, how to request one in Virginia, which accommodations VDOE allows on SOL tests, and how to make sure accommodations are being used in the classroom before test day.
+  URL: https://solprep.app/blog/what-is-a-504-plan
+
 - **SOL Test Anxiety: What It Is and How to Help Your Child** (Education, October 5, 2026)
   What test anxiety is, why 25–40% of students experience it, why the SOL format specifically amplifies it, why familiarity is the most effective antidote, how short spaced-practice sessions reduce anxiety over time, and what 504 accommodations Virginia allows for test anxiety including extended time and separate testing rooms.
   URL: https://solprep.app/blog/sol-test-anxiety-help
@@ -391,6 +395,22 @@ The Virginia SOL format amplifies test anxiety in specific ways: it is a single-
 The most robust finding in test anxiety research is that familiarity with the test format is the most effective anxiety reducer. This is grounded in exposure therapy theory: anxiety decreases through repeated, low-stakes contact with the anxiety-provoking situation. When the question format is familiar, cognitive overhead disappears and working memory is available for actually answering. Short sessions distributed over weeks (spaced practice) are more effective than cramming, and keeping sessions genuinely low-stakes — no urgency, no graded reactions to wrong answers — is what makes the familiarity therapeutic rather than just academic.
 
 Virginia students whose test anxiety is severe enough to consistently interfere with school performance may qualify for a 504 plan. Accommodations allowed on SOL tests for anxiety include extended time (1.5× or 2×), a separate testing room, and scheduled breaks. If a child has school accommodations, they should practice at home with those same accommodations enabled — a child practicing without TTS when they use it at school is not building familiarity with their actual test experience. SolPrep provides all standard accommodations including no-timer mode, text-to-speech, dyslexia font, bionic reading, and step-by-step hints, free for grades 3–8 at solprep.app.
+
+---
+
+## Page: Blog Article — What Is a 504 Plan and How Is It Different From an IEP? (https://solprep.app/blog/what-is-a-504-plan)
+
+*Education · October 12, 2026 · 5 min read*
+
+An IEP (Individualized Education Program) and a 504 plan both support students with disabilities, and both can include accommodations that apply to Virginia SOL tests — but they come from different laws and cover different situations. An IEP is governed by the Individuals with Disabilities Education Act (IDEA) and guarantees specialized instruction for students with qualifying disabilities. A 504 plan comes from Section 504 of the Rehabilitation Act of 1973, a civil rights law that ensures equal access for students whose disability substantially limits a major life activity but who don't require specialized instruction. The key distinction: an IEP changes what instruction happens; a 504 plan changes how a student accesses instruction.
+
+To qualify for an IEP, a student must have a qualifying disability under IDEA's defined categories and must need specialized instruction as a result. An IEP is a detailed legal document specifying services (small-group reading instruction, speech therapy, occupational therapy, resource support), accommodations, and measurable annual goals. To qualify for a 504 plan, a student needs a physical or mental impairment that substantially limits a major life activity — a lower threshold than IDEA in some ways. A 504 plan typically documents accommodations only: extended time, text-to-speech, preferential seating, breaks, reduced distractions, and similar supports.
+
+In Virginia, either a parent or the school can initiate a request for either type of plan. For an IEP: submit a written request for a special education evaluation to the principal or special education coordinator; the school has 65 business days to evaluate. For a 504: contact the school counselor, principal, or 504 coordinator directly; the process is less formal but should still be documented in writing.
+
+Virginia allows both IEP and 504 accommodations on SOL tests, but only VDOE-approved accommodations that are documented in the student's current plan and regularly used in classroom assessments. VDOE-approved SOL accommodations include extended time (1.5× or 2×), text-to-speech (read aloud), calculator, breaks as needed, enlarged print, reduced-distraction testing room, and directions read aloud. A critical rule: the accommodation must be regularly used during classroom assessments to be allowed on the SOL — an accommodation listed in a plan but never used in class may be denied on test day.
+
+Families can prepare for IEP or 504 meetings by asking which accommodations are VDOE-approved for SOL testing, confirming each is being used in classroom assessments, and identifying supports the child uses informally at home that should be formally documented. Practicing for the SOL at home with the same accommodations a child has at school builds genuine familiarity and reduces test-day anxiety. SolPrep provides all standard VDOE accommodations free at solprep.app.
 
 ---
 
