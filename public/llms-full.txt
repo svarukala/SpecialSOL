@@ -69,6 +69,10 @@ SolPrep's blog covers product, education, and engineering topics — how the pla
 
 ### Articles
 
+- **5 Things Parents Can Do Right Now to Help With SOL Prep** (Education, October 19, 2026)
+  A practical checklist for Virginia parents: short daily sessions, real VDOE questions, reading the score report to target weak categories, using IEP/504 accommodations at home, and keeping practice low-stakes so the test feels familiar rather than threatening.
+  URL: https://solprep.app/blog/sol-prep-tips-for-parents
+
 - **What Is a 504 Plan and How Is It Different From an IEP?** (Education, October 12, 2026)
   What a 504 plan covers, how it differs from an IEP, the two federal laws behind them (IDEA and Section 504), eligibility differences, how to request one in Virginia, which accommodations VDOE allows on SOL tests, and how to make sure accommodations are being used in the classroom before test day.
   URL: https://solprep.app/blog/what-is-a-504-plan
@@ -411,6 +415,20 @@ In Virginia, either a parent or the school can initiate a request for either typ
 Virginia allows both IEP and 504 accommodations on SOL tests, but only VDOE-approved accommodations that are documented in the student's current plan and regularly used in classroom assessments. VDOE-approved SOL accommodations include extended time (1.5× or 2×), text-to-speech (read aloud), calculator, breaks as needed, enlarged print, reduced-distraction testing room, and directions read aloud. A critical rule: the accommodation must be regularly used during classroom assessments to be allowed on the SOL — an accommodation listed in a plan but never used in class may be denied on test day.
 
 Families can prepare for IEP or 504 meetings by asking which accommodations are VDOE-approved for SOL testing, confirming each is being used in classroom assessments, and identifying supports the child uses informally at home that should be formally documented. Practicing for the SOL at home with the same accommodations a child has at school builds genuine familiarity and reduces test-day anxiety. SolPrep provides all standard VDOE accommodations free at solprep.app.
+
+---
+
+## Page: Blog Article — 5 Things Parents Can Do Right Now to Help With SOL Prep (https://solprep.app/blog/sol-prep-tips-for-parents)
+
+*Education · October 19, 2026 · 5 min read*
+
+The most effective SOL prep doesn't require tutors or marathon sessions — it requires consistency, the right materials, and a low-pressure environment. This post gives Virginia parents five concrete actions they can take starting today, regardless of grade or subject.
+
+First, keep practice sessions short and daily. Research on spaced repetition shows that ten minutes of focused practice every day outperforms a two-hour session on Sunday. Short sessions fit into the existing routine without creating anxiety around testing. A useful target is 10–15 minutes on school days at the same time each day so it becomes habit.
+
+Second, practice with real VDOE questions rather than generic test prep. Virginia SOL questions have a distinctive style — specific vocabulary, specific formats, specific standards. A child who has practiced only with worksheets may struggle with unfamiliar question formats even when they know the content. SolPrep uses questions pulled entirely from VDOE's released test materials. Third, read the score report and target weak reporting categories. Most parents look at the overall score and stop. The reporting category breakdown (e.g., "Measurement and Geometry," "Number and Number Sense") shows where specific gaps are — and those categories are exactly where practice time should go.
+
+Fourth, use the accommodations your child already has. If a child's IEP or 504 plan includes text-to-speech, dyslexia font, or extended time, they should practice with those accommodations active at home — not just at school. Practicing with unfamiliar accommodations on test day creates a double burden. SolPrep includes all standard VDOE accommodations, toggled from a parent dashboard. Fifth, keep the energy around home practice relaxed and low-stakes. Test anxiety affects 25–40% of students, and the best antidote is familiarity — not more pressure. No timers unless your child is comfortable with them, no score reviews that feel like a report card, and no last-minute cramming. Starting consistent practice in October gives families roughly 25–30 weeks of spaced sessions before spring testing.
 
 ---
 

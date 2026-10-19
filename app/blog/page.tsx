@@ -12,6 +12,14 @@ export const metadata: Metadata = {
 
 const POSTS = [
   {
+    slug: 'sol-prep-tips-for-parents',
+    category: 'Education',
+    title: '5 Things Parents Can Do Right Now to Help With SOL Prep',
+    excerpt: 'A practical checklist for Virginia parents: short daily practice sessions, using real VDOE questions, reading the score report to target weak spots, using your child\'s accommodations at home, and keeping prep low-stakes so the test feels familiar.',
+    date: 'October 19, 2026',
+    readTime: '5 min read',
+  },
+  {
     slug: 'what-is-a-504-plan',
     category: 'Education',
     title: 'What Is a 504 Plan and How Is It Different From an IEP?',
