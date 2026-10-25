@@ -81,6 +81,25 @@ Not yet exercised (need a real browser session or are admin-only): interactive a
 - **Non-blockers (fill later):** `RESEND_API_KEY` (email), `ANTHROPIC_API_KEY` (admin generation), `OPENAI_API_KEY` (admin story fallback), `REVALIDATE_SECRET` (one internal endpoint).
 - **Not needed on Workers:** `GOOGLE_GENERATIVE_AI_KEY` (scripts only).
 
+## CRITICAL: build-time vs runtime env (Phase 4 gotcha)
+
+`NEXT_PUBLIC_*` vars are **inlined into the client JS bundle at build time** (`next build` /
+`opennextjs-cloudflare build`). They are NOT read from `.dev.vars` or Worker secrets at runtime.
+
+- **Symptom if missed:** server/API works (reads runtime env), but client-side auth
+  (`supabase.auth.signInWithPassword` in `components/auth/login-form.tsx`) silently fails
+  because the browser Supabase client was built with `undefined` URL/key. Login appears broken.
+- **Local preview fix:** put `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` in
+  `.env.local` (read by `next build`), then rebuild. Confirmed: project ref + publishable key
+  now appear in `.open-next/assets/_next/static` chunks and login works.
+- **Phase 4 (deploy) implication:** the CI/WSL build environment MUST have the `NEXT_PUBLIC_*`
+  vars present at build time (via `.env.production`, `.env`, or exported shell vars).
+  `wrangler secret put` only sets **server-side runtime** secrets — it does NOT affect the
+  client bundle. So split env handling:
+  - Build-time (client bundle): `NEXT_PUBLIC_*` → `.env.production` / exported before `npm run deploy`.
+  - Runtime (server/worker): all server secrets → `wrangler secret put` or dashboard.
+  - OAuth: add the staging + prod origins' `/auth/callback` to Supabase Auth redirect allow-list.
+
 ## Notes
 - `scripts/` are Node CLI tools (run locally/CI), not deployed — no change needed.
 - Keep Vercel project alive until Phase 5 completes for easy rollback.
