@@ -139,6 +139,28 @@ Prereqs: WSL with Node 20+ and git; a Cloudflare account.
 Note: `.dev.vars` / `.env.local` are Windows-only and gitignored — they do not travel to the
 WSL clone by design; recreate build env (`.env.production`) + runtime secrets as above.
 
+## Phase 4 result (2026-10-25) — DONE
+Deployed via GitHub Actions (ubuntu-latest sidesteps the local glibc 2.31 limit) to
+**https://solprep.svarukala.workers.dev**. Runtime server secrets set in the Cloudflare
+dashboard (Variables and Secrets). Automated smoke test passed: routes 200, `x-opennext: 1`,
+CSP nonce + HSTS, `/api/questions` returns real DB rows. Local deploy blocked on this machine
+by OpenNext's Windows incompatibility and WSL Ubuntu 20.04 glibc 2.31 (< workerd's 2.35) — CI
+is the supported path.
+
+## Phase 5 runbook — custom domain cutover + Vercel retirement
+1. Ensure the domain's zone is on Cloudflare (nameservers pointed to Cloudflare). If DNS is
+   elsewhere, either move nameservers to Cloudflare or use a Worker Route on an existing zone.
+2. Workers & Pages → `solprep` → Settings → Domains & Routes → **Add Custom Domain** → enter the
+   production hostname. Cloudflare provisions the cert + DNS record automatically.
+3. Supabase → Authentication → URL Configuration: set **Site URL** to the production domain and
+   add `https://<domain>/**` to Redirect URLs (keep workers.dev entry for staging if desired).
+4. If the prod NEXT_PUBLIC values differ, set repo Variables; otherwise the inline defaults hold.
+   Consider merging `cloudflare-migration` → `master` and switching the workflow trigger to
+   `master` for production deploys.
+5. Verify the custom domain end-to-end (homepage, login, practice, OAuth).
+6. Retire Vercel: remove the domain from the Vercel project, then pause/delete the project. Keep
+   it until the custom domain is confirmed healthy for easy rollback.
+
 ## Notes
 - `scripts/` are Node CLI tools (run locally/CI), not deployed — no change needed.
 - Keep Vercel project alive until Phase 5 completes for easy rollback.
