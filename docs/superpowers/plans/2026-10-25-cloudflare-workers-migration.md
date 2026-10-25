@@ -100,6 +100,45 @@ Not yet exercised (need a real browser session or are admin-only): interactive a
   - Runtime (server/worker): all server secrets → `wrangler secret put` or dashboard.
   - OAuth: add the staging + prod origins' `/auth/callback` to Supabase Auth redirect allow-list.
 
+## Phase 4 runbook — deploy to *.workers.dev staging (WSL/Linux)
+
+Run from WSL (OpenNext is unreliable on native Windows). The Windows `node_modules`
+has win32 binaries, so WSL needs its own `npm install` (the `overrides.esbuild` in
+package.json ensures Linux esbuild resolves correctly).
+
+Prereqs: WSL with Node 20+ and git; a Cloudflare account.
+
+1. Get code into WSL (clone into the Linux filesystem, not /mnt/c, for speed):
+   - (Windows, once) push the branch:  `git push -u origin cloudflare-migration`
+   - (WSL):
+     ```
+     cd ~ && git clone https://github.com/svarukala/SpecialSOL.git
+     cd SpecialSOL && git checkout cloudflare-migration && npm install
+     ```
+2. Build-time env — create `.env.production` in the WSL repo (public values, baked into bundle):
+     ```
+     NEXT_PUBLIC_SUPABASE_URL=https://cpcsxocziapgqpbtfytr.supabase.co
+     NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_aKW4rI_xIGBIiHQbvD743A_9eq7X7Yz
+     ```
+3. Cloudflare login:  `npx wrangler login`  (prints a URL to open in a browser)
+4. Deploy (creates the Worker + uploads bundle):  `npm run deploy`
+   → prints `https://solprep.<subdomain>.workers.dev`
+5. Set server-side runtime secrets (applied live, no rebuild needed):
+     ```
+     npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY   # blocker
+     npx wrangler secret put ENCRYPTION_SECRET           # TTS; must equal prod value
+     npx wrangler secret put RESEND_API_KEY              # optional
+     npx wrangler secret put ANTHROPIC_API_KEY           # optional (admin gen)
+     npx wrangler secret put REVALIDATE_SECRET           # optional
+     npx wrangler secret put OPENAI_API_KEY              # optional (admin story fallback)
+     ```
+6. Supabase → Authentication → URL Configuration → Redirect URLs: add
+   `https://solprep.<subdomain>.workers.dev/auth/callback` (+ site URL) so Google OAuth works.
+7. Smoke test the staging URL: homepage, email/password login, a practice session, an API route.
+
+Note: `.dev.vars` / `.env.local` are Windows-only and gitignored — they do not travel to the
+WSL clone by design; recreate build env (`.env.production`) + runtime secrets as above.
+
 ## Notes
 - `scripts/` are Node CLI tools (run locally/CI), not deployed — no change needed.
 - Keep Vercel project alive until Phase 5 completes for easy rollback.
