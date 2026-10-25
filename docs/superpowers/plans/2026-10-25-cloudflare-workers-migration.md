@@ -66,6 +66,21 @@ Changes required to get there (all committed to the working tree):
 ### Risk flagged for Phase 3
 - Middleware is `proxy.ts` (Next 16 renamed `middleware.ts` → `proxy.ts`). OpenNext warns **Node.js middleware support on Cloudflare is experimental**. The proxy is trivial (CSP nonce + headers; only Node-ism is `Buffer`, covered by `nodejs_compat`). **Mitigation:** swap `Buffer.from(x).toString('base64')` → `btoa(x)` to make it pure-Web and likely drop the experimental classification. Validate CSP nonce flow in local preview.
 
+## Phase 3 results (2026-10-25) — core path validated
+
+Local `workerd` preview (`opennextjs-cloudflare preview`, http://127.0.0.1:8787):
+- Homepage `/` → 200, full SSR (~60KB), real `<title>`, served via OpenNext (`x-opennext: 1`).
+- `proxy.ts` middleware works: CSP header set with valid base64 nonce (post `btoa` swap), nonces propagated into HTML. Only the known "experimental Node.js middleware" warning; no runtime errors.
+- With real Supabase keys in `.dev.vars`: `/sol-practice/3` and `/login` → 200; `GET /api/questions?grade=3&subject=math` → 200 returning **10 real DB questions**. Confirms workerd → Supabase → DB → JSON.
+
+Not yet exercised (need a real browser session or are admin-only): interactive auth login, POST mutations (sessions/answers), TTS streaming, `/api/revalidate-counts`. Best verified on the Phase 4 staging deploy via browser.
+
+### Env var blocker classification (runtime usage in app/ + lib/)
+- **MUST (blockers):** `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (used in 43 runtime files incl. homepage via `lib/supabase/marketing.ts`).
+- **Semi (feature):** `ENCRYPTION_SECRET` — decrypts parents' saved TTS keys; MUST equal the current production value or saved keys break.
+- **Non-blockers (fill later):** `RESEND_API_KEY` (email), `ANTHROPIC_API_KEY` (admin generation), `OPENAI_API_KEY` (admin story fallback), `REVALIDATE_SECRET` (one internal endpoint).
+- **Not needed on Workers:** `GOOGLE_GENERATIVE_AI_KEY` (scripts only).
+
 ## Notes
 - `scripts/` are Node CLI tools (run locally/CI), not deployed — no change needed.
 - Keep Vercel project alive until Phase 5 completes for easy rollback.
