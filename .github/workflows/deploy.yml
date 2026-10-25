@@ -13,7 +13,7 @@ name: Deploy to Cloudflare Workers
 on:
   workflow_dispatch: {}
   push:
-    branches: [cloudflare-migration]
+    branches: [master]
 
 concurrency:
   group: cf-deploy-${{ github.ref }}
