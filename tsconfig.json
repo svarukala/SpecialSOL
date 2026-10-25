@@ -36,6 +36,8 @@
     "**/*.test.ts",
     "**/*.test.tsx",
     "vitest.config.ts",
-    "vitest.setup.ts"
+    "vitest.setup.ts",
+    "cloudflare-env.d.ts",
+    ".wrangler"
   ]
 }

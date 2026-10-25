@@ -4,7 +4,7 @@ import type { NextRequest } from 'next/server'
 const SUPABASE_HOST = 'https://cpcsxocziapgqpbtfytr.supabase.co'
 
 export function proxy(request: NextRequest) {
-  const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
+  const nonce = btoa(crypto.randomUUID())
 
   const csp = [
     `default-src 'self'`,

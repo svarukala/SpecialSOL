@@ -1,0 +1,27 @@
+# Local Cloudflare Workers preview env (opennextjs-cloudflare preview / wrangler dev).
+# Copy to .dev.vars (gitignored) and fill with the values from your Vercel project
+# (Vercel → Project → Settings → Environment Variables). These mirror the runtime
+# env the app reads via process.env.
+#
+# NOTE: GOOGLE_GENERATIVE_AI_KEY is only used by scripts/ (not the deployed Worker),
+# so it is intentionally omitted here.
+
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+
+# AES-256-GCM key for encrypting parent API keys at rest (openssl rand -hex 32)
+ENCRYPTION_SECRET=
+
+# Transactional/engagement email
+RESEND_API_KEY=
+
+# AI question/story generation (admin-triggered)
+ANTHROPIC_API_KEY=
+
+# Secret guarding the /api/revalidate-counts route
+REVALIDATE_SECRET=
+
+# Optional: server-side OpenAI key (TTS fallback); parent keys are stored per-user
+OPENAI_API_KEY=

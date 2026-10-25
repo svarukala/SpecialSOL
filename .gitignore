@@ -24,6 +24,8 @@
 /.open-next/
 /.wrangler/
 .dev.vars
+# regenerable via `npm run cf-typegen`
+/cloudflare-env.d.ts
 
 # production
 /build
