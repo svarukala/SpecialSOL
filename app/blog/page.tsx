@@ -12,6 +12,14 @@ export const metadata: Metadata = {
 
 const POSTS = [
   {
+    slug: 'math-vs-reading-sol',
+    category: 'Education',
+    title: 'Math vs Reading SOL — Where Virginia Students Struggle Most (and Why)',
+    excerpt: 'A grade-by-grade look at the most common weak spots on Virginia Math and Reading SOL tests — fractions, algebraic reasoning, inference, author\'s purpose — and why improving reading comprehension has a direct payoff on math scores.',
+    date: 'October 26, 2026',
+    readTime: '6 min read',
+  },
+  {
     slug: 'sol-prep-tips-for-parents',
     category: 'Education',
     title: '5 Things Parents Can Do Right Now to Help With SOL Prep',

@@ -69,6 +69,10 @@ SolPrep's blog covers product, education, and engineering topics — how the pla
 
 ### Articles
 
+- **Math vs Reading SOL — Where Virginia Students Struggle Most (and Why)** (Education, October 26, 2026)
+  A grade-by-grade breakdown of common weak spots on Virginia Math and Reading SOL tests — fractions and elapsed time in grades 3–4, decimal/fraction operations in grade 5, ratios and algebraic reasoning in grades 6–7, linear functions in grade 8, and inference/author's purpose across all reading grades. Explains why reading comprehension directly affects math SOL scores, and how to target practice using the score report's reporting category table.
+  URL: https://solprep.app/blog/math-vs-reading-sol
+
 - **5 Things Parents Can Do Right Now to Help With SOL Prep** (Education, October 19, 2026)
   A practical checklist for Virginia parents: short daily sessions, real VDOE questions, reading the score report to target weak categories, using IEP/504 accommodations at home, and keeping practice low-stakes so the test feels familiar rather than threatening.
   URL: https://solprep.app/blog/sol-prep-tips-for-parents
@@ -429,6 +433,22 @@ First, keep practice sessions short and daily. Research on spaced repetition sho
 Second, practice with real VDOE questions rather than generic test prep. Virginia SOL questions have a distinctive style — specific vocabulary, specific formats, specific standards. A child who has practiced only with worksheets may struggle with unfamiliar question formats even when they know the content. SolPrep uses questions pulled entirely from VDOE's released test materials. Third, read the score report and target weak reporting categories. Most parents look at the overall score and stop. The reporting category breakdown (e.g., "Measurement and Geometry," "Number and Number Sense") shows where specific gaps are — and those categories are exactly where practice time should go.
 
 Fourth, use the accommodations your child already has. If a child's IEP or 504 plan includes text-to-speech, dyslexia font, or extended time, they should practice with those accommodations active at home — not just at school. Practicing with unfamiliar accommodations on test day creates a double burden. SolPrep includes all standard VDOE accommodations, toggled from a parent dashboard. Fifth, keep the energy around home practice relaxed and low-stakes. Test anxiety affects 25–40% of students, and the best antidote is familiarity — not more pressure. No timers unless your child is comfortable with them, no score reviews that feel like a report card, and no last-minute cramming. Starting consistent practice in October gives families roughly 25–30 weeks of spaced sessions before spring testing.
+
+---
+
+## Page: Blog Article — Math vs Reading SOL — Where Virginia Students Struggle Most (and Why) (https://solprep.app/blog/math-vs-reading-sol)
+
+*Education · October 26, 2026 · 6 min read*
+
+Virginia students in grades 3–8 take both Math and Reading SOL tests each spring. While both tests use the same 0–600 scaled score and 400 passing threshold, the skills they test are fundamentally different — and the places where students lose points are equally distinct.
+
+In math, the most common weak spots shift by grade: fractions and elapsed time in grades 3–4, decimal operations and order of operations in grade 5, ratios and proportional reasoning in grades 6–7, and linear functions and slope in grade 8. The biggest statewide math drop occurs between grades 5 and 7, when content shifts from arithmetic to algebraic reasoning — a conceptual leap that exposes students who learned math through memorized procedures rather than understanding.
+
+In reading, inference is the most consistently difficult skill across all grades. Students can often summarize what happened in a passage but struggle to explain why a character made a choice, identify an implied main idea, or determine an author's purpose. Paired-passage questions (comparing two texts) appear in grades 5–8 and are especially challenging. Literary craft questions — figurative language, point of view, how word choice affects meaning — are the hardest reporting category for many students because the vocabulary is taught in class but rarely practiced in the context of unfamiliar passages.
+
+A finding that surprises many parents: reading comprehension ability directly affects math SOL scores. Virginia math questions are word problems, and by grades 6–8, multi-step word problems require students to hold complex scenarios in working memory, extract relevant quantities, and plan multi-step solutions — all before doing any computation. Students who read slowly or struggle with working memory for text are at a real disadvantage on these questions even when they know the underlying math. Improving reading fluency has a measurable payoff on math scores.
+
+Both tests are almost entirely multiple choice, but reading questions typically have two plausible-looking options, requiring precise re-reading of both the passage and the question stem. Test format familiarity — specifically with real VDOE question style — is a meaningful factor in closing the gap between what a student knows and how they perform under test conditions. SolPrep provides free practice with real VDOE questions organized by grade, subject, and topic, with all standard IEP/504 accommodations available.
 
 ---
 
