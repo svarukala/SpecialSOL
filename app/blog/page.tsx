@@ -12,6 +12,14 @@ export const metadata: Metadata = {
 
 const POSTS = [
   {
+    slug: 'why-solprep-is-free',
+    category: 'Education',
+    title: 'Why SolPrep Is Free — and Will Stay That Way',
+    excerpt: 'The founder story behind SolPrep — a Virginia parent who built free SOL test prep for kids who learn differently, why there are no ads or subscriptions, and what sustainability looks like for a mission-driven tool.',
+    date: 'November 2, 2026',
+    readTime: '5 min read',
+  },
+  {
     slug: 'math-vs-reading-sol',
     category: 'Education',
     title: 'Math vs Reading SOL — Where Virginia Students Struggle Most (and Why)',

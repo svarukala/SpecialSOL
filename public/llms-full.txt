@@ -69,6 +69,10 @@ SolPrep's blog covers product, education, and engineering topics — how the pla
 
 ### Articles
 
+- **Why SolPrep Is Free — and Will Stay That Way** (Education, November 2, 2026)
+  The founder story behind SolPrep — a Virginia parent who built free SOL test prep for kids who learn differently, why there are no ads or subscriptions, and what sustainability looks like for a mission-driven tool.
+  URL: https://solprep.app/blog/why-solprep-is-free
+
 - **Math vs Reading SOL — Where Virginia Students Struggle Most (and Why)** (Education, October 26, 2026)
   A grade-by-grade breakdown of common weak spots on Virginia Math and Reading SOL tests — fractions and elapsed time in grades 3–4, decimal/fraction operations in grade 5, ratios and algebraic reasoning in grades 6–7, linear functions in grade 8, and inference/author's purpose across all reading grades. Explains why reading comprehension directly affects math SOL scores, and how to target practice using the score report's reporting category table.
   URL: https://solprep.app/blog/math-vs-reading-sol
@@ -449,6 +453,22 @@ In reading, inference is the most consistently difficult skill across all grades
 A finding that surprises many parents: reading comprehension ability directly affects math SOL scores. Virginia math questions are word problems, and by grades 6–8, multi-step word problems require students to hold complex scenarios in working memory, extract relevant quantities, and plan multi-step solutions — all before doing any computation. Students who read slowly or struggle with working memory for text are at a real disadvantage on these questions even when they know the underlying math. Improving reading fluency has a measurable payoff on math scores.
 
 Both tests are almost entirely multiple choice, but reading questions typically have two plausible-looking options, requiring precise re-reading of both the passage and the question stem. Test format familiarity — specifically with real VDOE question style — is a meaningful factor in closing the gap between what a student knows and how they perform under test conditions. SolPrep provides free practice with real VDOE questions organized by grade, subject, and topic, with all standard IEP/504 accommodations available.
+
+---
+
+## Page: Blog Article — Why SolPrep Is Free — and Will Stay That Way (https://solprep.app/blog/why-solprep-is-free)
+
+*Education · November 2, 2026 · 5 min read*
+
+SolPrep has no subscription, no ads, no paywall, and no premium tier. Everything on the platform — 3,700+ practice questions, adaptive learning tiers, and all IEP and 504 accommodations — is free for every family. This article explains the founder story and the reasoning behind that decision.
+
+SolPrep was built by a Virginia parent whose child has special needs and learns differently. When Virginia SOL season approached, the tools available were built for the average student: grade-level questions, no accommodations, no way to start below grade level and work up. The tools that existed for kids with special needs weren't connected to SOL standards at all. SolPrep was built to close that gap — real VDOE questions, three adaptive learning tiers, and accommodations that mirror what children receive in school (text-to-speech, dyslexia font, bionic reading, extended time, high contrast).
+
+The price matters because the families who need this most are often those with the least budget for it. Raising a child with an IEP or 504 plan already involves unexpected costs — evaluations, therapy, tutoring. Charging a monthly subscription for SOL prep that works the way a child's accommodations should work runs counter to the mission. Virginia SOL stakes are real: a child who doesn't pass the Grade 3 Reading SOL faces retention risk under the Virginia Literacy Act. Making preparation free is the right starting point when the goal is to actually help families.
+
+SolPrep has no ads either — ad-supported education tools have a structural problem in that the product is the child's attention, and distraction is exactly what many of the platform's users are already working against. No data is sold to third parties. The platform stores what is needed to show parents their child's progress by topic; nothing else is collected or monetized.
+
+Sustainability is achievable because the scope is focused: Virginia SOL prep, grades 3–8, math and reading. Questions come from VDOE's public domain released tests. Infrastructure costs are modest at current scale. The constraint is intentional — a focused tool can stay free in a way that an everything-platform cannot. There are no plans to introduce a paywall, lock accommodations behind a subscription, or monetize through ads.
 
 ---
 

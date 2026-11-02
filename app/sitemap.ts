@@ -124,6 +124,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     {
+      url: `${SITE_URL}/blog/why-solprep-is-free`,
+      lastModified: new Date(),
+      changeFrequency: 'yearly',
+      priority: 0.8,
+    },
+    {
       url: `${SITE_URL}/blog/accommodations-for-special-needs-students`,
       lastModified: new Date('2026-04-10'),
       changeFrequency: 'yearly',
