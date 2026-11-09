@@ -12,6 +12,14 @@ export const metadata: Metadata = {
 
 const POSTS = [
   {
+    slug: 'sol-accommodations-iep-meeting',
+    category: 'Education',
+    title: 'How to Talk to Your Child\'s Teacher About SOL Accommodations',
+    excerpt: 'A practical guide for Virginia parents navigating IEP and 504 meetings — what test-day accommodations are VDOE-approved, how they differ from classroom accommodations, and what to bring to the meeting.',
+    date: 'November 9, 2026',
+    readTime: '6 min read',
+  },
+  {
     slug: 'why-solprep-is-free',
     category: 'Education',
     title: 'Why SolPrep Is Free — and Will Stay That Way',

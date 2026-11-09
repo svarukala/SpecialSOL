@@ -69,6 +69,10 @@ SolPrep's blog covers product, education, and engineering topics — how the pla
 
 ### Articles
 
+- **How to Talk to Your Child's Teacher About SOL Accommodations** (Education, November 9, 2026)
+  A practical guide for Virginia parents navigating IEP and 504 meetings — what VDOE-approved test-day accommodations are available, how they differ from classroom accommodations, what to request, and what to do if accommodations aren't implemented.
+  URL: https://solprep.app/blog/sol-accommodations-iep-meeting
+
 - **Why SolPrep Is Free — and Will Stay That Way** (Education, November 2, 2026)
   The founder story behind SolPrep — a Virginia parent who built free SOL test prep for kids who learn differently, why there are no ads or subscriptions, and what sustainability looks like for a mission-driven tool.
   URL: https://solprep.app/blog/why-solprep-is-free
@@ -469,6 +473,22 @@ The price matters because the families who need this most are often those with t
 SolPrep has no ads either — ad-supported education tools have a structural problem in that the product is the child's attention, and distraction is exactly what many of the platform's users are already working against. No data is sold to third parties. The platform stores what is needed to show parents their child's progress by topic; nothing else is collected or monetized.
 
 Sustainability is achievable because the scope is focused: Virginia SOL prep, grades 3–8, math and reading. Questions come from VDOE's public domain released tests. Infrastructure costs are modest at current scale. The constraint is intentional — a focused tool can stay free in a way that an everything-platform cannot. There are no plans to introduce a paywall, lock accommodations behind a subscription, or monetize through ads.
+
+---
+
+## Page: Blog Article — How to Talk to Your Child's Teacher About SOL Accommodations (https://solprep.app/blog/sol-accommodations-iep-meeting)
+
+*Education · November 9, 2026 · 6 min read*
+
+If your child has an IEP or 504 plan, not every classroom accommodation automatically applies on Virginia SOL test day. The VDOE administers state tests under separate guidelines, and accommodations must appear on the VDOE's approved testing list and be documented in the student's current plan specifically for state testing. Many families discover this gap too late — the IEP meeting mentions extended time, but no one confirms it is set up in the testing system before the spring window opens.
+
+Classroom accommodations and test-day accommodations are different. A classroom accommodation is documented in the IEP or 504 plan and applies to daily instruction and in-class assessments. A VDOE-approved testing accommodation is a specifically permitted support listed in the Testing Accommodations for Students with Disabilities manual, documented in the student's plan, and regularly used in classroom assessments. If an accommodation isn't regularly used in class, it may be denied on the SOL — parents should ask the team to confirm regular classroom use for every accommodation they want available on test day.
+
+VDOE-approved SOL accommodations include: extended time (1.5× or 2×), read-aloud/text-to-speech, breaks as needed, separate testing location, enlarged print or magnification, calculator (for certain math tests), and directions read aloud. For IEP meetings, parents should ask which accommodations are documented specifically for state testing, confirm the precise wording (e.g., "1.5× extended time on all state assessments"), and identify who is responsible for communicating the testing accommodations to the testing coordinator before the spring window.
+
+For 504 meetings, the 504 coordinator can confirm which accommodations are VDOE-approved. A 504 plan is less formally structured than an IEP, so follow-through can vary by school — parents should keep a copy of the signed 504 and check in with the testing coordinator a few weeks before the spring testing window to confirm accommodations are set up in the testing system. If accommodations are not implemented on test day, parents should contact the special education or 504 coordinator in writing and can escalate to the division's director of special education or file a complaint with the Virginia Department of Education.
+
+The most effective preparation strategy is practicing at home with the same accommodations a child will use on test day — not just having them on paper. A child who has never used text-to-speech during practice shouldn't encounter it for the first time during the actual assessment. SolPrep provides all standard VDOE accommodations (TTS, dyslexia font, bionic reading, extended time/no timer, high contrast, reduced distractions) free at solprep.app/signup.
 
 ---
 
